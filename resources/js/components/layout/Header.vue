@@ -1,0 +1,1204 @@
+<template>
+    <header id="qodef-page-header" class="qodef-header--standard-no-logo" role="banner">
+        <div id="qodef-page-header-inner">
+            <div class="qodef-header-wrapper">
+                <!-- Widget Holder Left - Dark/Light Switcher -->
+                <div class="qodef-widget-holder qodef--two">
+                    <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
+                        <div class="widget qodef-switcher">
+                            <div class="qodef-switch">
+                                <input type="checkbox" name="switch" class="qodef-switch-input" id="qodef-switch-88"
+                                    :checked="!isDarkMode" @change="toggleDarkMode">
+                                <label class="qodef-switch-label" for="qodef-switch-88">
+                                    <span class="qodef-on-off-switch-inner"></span>
+                                    <span class="qodef-on-off-switch-switch">
+                                        <span class="qodef-switch--light">
+                                            <svg class="qodef-svg--sun" xmlns="http://www.w3.org/2000/svg"
+                                                width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
+                                                <path class="qodef-path-fill"
+                                                    d="M9.649 12.281a2.538 2.538 0 0 0 1.864-.768 2.538 2.538 0 0 0 .768-1.864 2.538 2.538 0 0 0-.768-1.864 2.538 2.538 0 0 0-1.864-.768 2.538 2.538 0 0 0-1.864.768 2.538 2.538 0 0 0-.768 1.864 2.538 2.538 0 0 0 .768 1.864 2.538 2.538 0 0 0 1.864.768Zm0 1.754a4.227 4.227 0 0 1-3.1-1.283 4.227 4.227 0 0 1-1.283-3.1 4.227 4.227 0 0 1 1.283-3.1 4.227 4.227 0 0 1 3.1-1.283 4.227 4.227 0 0 1 3.1 1.283 4.227 4.227 0 0 1 1.283 3.1 4.227 4.227 0 0 1-1.283 3.1 4.227 4.227 0 0 1-3.1 1.283Zm-6.14-3.509H0V8.772h3.509Zm15.79 0H15.79V8.772h3.51ZM8.773 3.508V0h1.754v3.509Zm0 15.79v-3.509h1.754v3.509ZM4.738 5.921 2.523 3.794 3.773 2.5l2.105 2.193ZM15.526 16.8 13.4 14.583l1.162-1.206 2.215 2.127ZM13.377 4.739l2.127-2.215 1.294 1.25-2.193 2.105ZM2.5 15.526l2.215-2.127 1.206 1.162-2.127 2.215Zm7.149-5.877Z">
+                                                </path>
+                                                <g class="qodef-path-outline" fill="none">
+                                                    <circle cx="9.649" cy="9.649" r="4.227" />
+                                                    <line x1="9.649" y1="0" x2="9.649" y2="3.509" />
+                                                    <line x1="9.649" y1="15.79" x2="9.649" y2="19.298" />
+                                                    <line x1="0" y1="9.649" x2="3.509" y2="9.649" />
+                                                    <line x1="15.79" y1="9.649" x2="19.298" y2="9.649" />
+                                                    <line x1="3.618" y1="3.618" x2="5.921" y2="5.921" />
+                                                    <line x1="13.377" y1="13.377" x2="15.679" y2="15.679" />
+                                                    <line x1="13.377" y1="5.921" x2="15.679" y2="3.618" />
+                                                    <line x1="3.618" y1="15.679" x2="5.921" y2="13.377" />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                        <span class="qodef-switch--dark">
+                                            <svg class="qodef-svg--moon" xmlns="http://www.w3.org/2000/svg"
+                                                width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
+                                                <path class="qodef-path-fill"
+                                                    d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Zm0-2.144a7.261 7.261 0 0 0 4.235-1.3 7.519 7.519 0 0 0 2.734-3.391q-.536.134-1.072.214a7.22 7.22 0 0 1-1.072.08 7.648 7.648 0 0 1-5.615-2.318 7.648 7.648 0 0 1-2.318-5.615 7.218 7.218 0 0 1 .08-1.072q.08-.536.214-1.072a7.519 7.519 0 0 0-3.391 2.734 7.261 7.261 0 0 0-1.3 4.235 7.231 7.231 0 0 0 2.2 5.307 7.231 7.231 0 0 0 5.305 2.196Zm-.268-7.239Z">
+                                                </path>
+                                                <path class="qodef-path-outline" fill="none"
+                                                    d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Z">
+                                                </path>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
+                    <ul id="menu-main-menu-1" class="menu">
+                        <NavMenuItem text="INICIO" link="/" />
+                        <NavMenuItem text="SERVICIOS" link="/servicios" />
+                        <NavMenuItem text="PLANTILLAS" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Flyers', link: '/plantillas' },
+                            { id: 2, text: 'Novedades', link: '/plantillas' },
+                            { id: 3, text: 'Populares', link: '/plantillas' }
+                        ]" />
+                        <NavMenuItem text="CONTATO" link="/contacto" />
+                        <NavMenuItem text="SERVICIOS POPULARES" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Diseño Gráfico', link: '/servicios/diseno' },
+                            { id: 2, text: 'Branding', link: '/servicios/branding' },
+                            { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
+                        ]" />
+                        <NavMenuItem text="PLANES" link="/planes" />
+                    </ul>
+                </nav>
+
+                <!-- Widget Holder Right - Side Area Opener / Burger Menu -->
+                <div class="qodef-widget-holder qodef--one">
+                    <!-- Mobile Menu Opener (uses side area SVG) -->
+                    <button class="qodef-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
+                        <span class="qodef-m-icon">
+                            <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                                height="41.477" viewBox="0 0 41.477 41.477">
+                                <g>
+                                    <g transform="translate(8.257 8.257)">
+                                        <ellipse cx="12.715" cy="12.715" rx="12.715" ry="12.715" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"></ellipse>
+                                        <ellipse cx="12.715" cy="12.715" rx="11.715" ry="11.715" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"></ellipse>
+                                    </g>
+                                    <g>
+                                        <path d="M20.737 0v41.478" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                        <path d="M41.477 20.739H0" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                    </g>
+                                </g>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <!-- Side Area Opener (Desktop Only) -->
+                    <div class="widget widget_moreau_core_side_area_opener qodef-desktop-only" data-area="main-home">
+                        <a href="javascript:void(0)"
+                            class="qodef-opener-icon qodef-m qodef-source--predefined qodef-side-area-opener"
+                            @click="toggleSideArea">
+                            <span class="qodef-m-icon qodef--open">
+                                <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                                    height="41.477" viewBox="0 0 41.477 41.477">
+                                    <g>
+                                        <g transform="translate(8.257 8.257)">
+                                            <ellipse cx="12.715" cy="12.715" rx="12.715" ry="12.715" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"></ellipse>
+                                            <ellipse cx="12.715" cy="12.715" rx="11.715" ry="11.715" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"></ellipse>
+                                        </g>
+                                        <g>
+                                            <path d="M20.737 0v41.478" fill="none" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path d="M41.477 20.739H0" fill="none" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (includes navigation and side area content) -->
+        <div class="qodef-mobile-menu" :class="{ 'qodef--opened': isMobileMenuOpen }">
+            <!-- Close Button inside menu -->
+            <button class="qodef-mobile-menu-close" @click="closeMobileMenu" aria-label="Close menu">
+                <svg class="qodef-svg--close" xmlns="http://www.w3.org/2000/svg" width="41.477" height="41.477"
+                    viewBox="0 0 41.477 41.477">
+                    <g>
+                        <g transform="translate(8.257 8.257)">
+                            <ellipse cx="12.715" cy="12.715" rx="12.715" ry="12.715" fill="none" stroke="currentColor"
+                                stroke-width="1.5"></ellipse>
+                            <ellipse cx="12.715" cy="12.715" rx="11.715" ry="11.715" fill="none" stroke="currentColor"
+                                stroke-width="1.5"></ellipse>
+                        </g>
+                        <g>
+                            <path d="M20.737 0v41.478" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round"></path>
+                            <path d="M41.477 20.739H0" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round"></path>
+                        </g>
+                    </g>
+                </svg>
+            </button>
+
+            <nav class="qodef-mobile-menu-navigation">
+                <ul class="qodef-mobile-menu-list">
+                    <li><a href="/" @click="closeMobileMenu">INICIO</a></li>
+                    <li><a href="/servicios" @click="closeMobileMenu">SERVICIOS</a></li>
+                    <li class="qodef-has-submenu">
+                        <a href="#" @click.prevent="toggleSubmenu($event)">PLANTILLAS</a>
+                        <ul class="qodef-submenu">
+                            <li><a href="/plantillas" @click="closeMobileMenu">Flyers</a></li>
+                            <li><a href="/plantillas" @click="closeMobileMenu">Novedades</a></li>
+                            <li><a href="/plantillas" @click="closeMobileMenu">Populares</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/contacto" @click="closeMobileMenu">CONTATO</a></li>
+                    <li class="qodef-has-submenu">
+                        <a href="#" @click.prevent="toggleSubmenu($event)">SERVICIOS POPULARES</a>
+                        <ul class="qodef-submenu">
+                            <li><a href="/servicios/diseno" @click="closeMobileMenu">Diseño Gráfico</a></li>
+                            <li><a href="/servicios/branding" @click="closeMobileMenu">Branding</a></li>
+                            <li><a href="/servicios/marketing" @click="closeMobileMenu">Marketing Digital</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/planes" @click="closeMobileMenu">PLANES</a></li>
+                </ul>
+            </nav>
+
+            <!-- Side Area Content in Mobile Menu -->
+            <div class="qodef-mobile-side-area">
+                <div class="qodef-mobile-logo">
+                    <img src="/images/logo-web-negro.png" alt="Essential Innovation">
+                </div>
+                <div class="qodef-mobile-separator"></div>
+                <h2 class="qodef-mobile-title">PONTE EN CONTACTO</h2>
+                <div class="qodef-mobile-company">
+                    ESSENTIAL INNOVATION<br>
+                    CREATIVE DESINGS
+                </div>
+                <div class="qodef-mobile-email">
+                    <a href="mailto:infoessential.innovation@gmail.com">infoessential.innovation@gmail.com</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Sticky (duplicado para scroll) -->
+        <div class="qodef-header-sticky qodef-custom-header-layout qodef-appearance--down">
+            <div class="qodef-header-sticky-inner">
+                <div class="qodef-widget-holder qodef--two">
+                    <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
+                        <div class="widget qodef-switcher">
+                            <div class="qodef-switch">
+                                <input type="checkbox" name="switch" class="qodef-switch-input" id="qodef-switch-189"
+                                    :checked="!isDarkMode" @change="toggleDarkMode">
+                                <label class="qodef-switch-label" for="qodef-switch-189">
+                                    <span class="qodef-on-off-switch-inner"></span>
+                                    <span class="qodef-on-off-switch-switch">
+                                        <span class="qodef-switch--light">
+                                            <svg class="qodef-svg--sun" xmlns="http://www.w3.org/2000/svg"
+                                                width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
+                                                <path class="qodef-path-fill"
+                                                    d="M9.649 12.281a2.538 2.538 0 0 0 1.864-.768 2.538 2.538 0 0 0 .768-1.864 2.538 2.538 0 0 0-.768-1.864 2.538 2.538 0 0 0-1.864-.768 2.538 2.538 0 0 0-1.864.768 2.538 2.538 0 0 0-.768 1.864 2.538 2.538 0 0 0 .768 1.864 2.538 2.538 0 0 0 1.864.768Zm0 1.754a4.227 4.227 0 0 1-3.1-1.283 4.227 4.227 0 0 1-1.283-3.1 4.227 4.227 0 0 1 1.283-3.1 4.227 4.227 0 0 1 3.1-1.283 4.227 4.227 0 0 1 3.1 1.283 4.227 4.227 0 0 1 1.283 3.1 4.227 4.227 0 0 1-1.283 3.1 4.227 4.227 0 0 1-3.1 1.283Zm-6.14-3.509H0V8.772h3.509Zm15.79 0H15.79V8.772h3.51ZM8.773 3.508V0h1.754v3.509Zm0 15.79v-3.509h1.754v3.509ZM4.738 5.921 2.523 3.794 3.773 2.5l2.105 2.193ZM15.526 16.8 13.4 14.583l1.162-1.206 2.215 2.127ZM13.377 4.739l2.127-2.215 1.294 1.25-2.193 2.105ZM2.5 15.526l2.215-2.127 1.206 1.162-2.127 2.215Zm7.149-5.877Z">
+                                                </path>
+                                                <g class="qodef-path-outline" fill="none">
+                                                    <circle cx="9.649" cy="9.649" r="4.227" />
+                                                    <line x1="9.649" y1="0" x2="9.649" y2="3.509" />
+                                                    <line x1="9.649" y1="15.79" x2="9.649" y2="19.298" />
+                                                    <line x1="0" y1="9.649" x2="3.509" y2="9.649" />
+                                                    <line x1="15.79" y1="9.649" x2="19.298" y2="9.649" />
+                                                    <line x1="3.618" y1="3.618" x2="5.921" y2="5.921" />
+                                                    <line x1="13.377" y1="13.377" x2="15.679" y2="15.679" />
+                                                    <line x1="13.377" y1="5.921" x2="15.679" y2="3.618" />
+                                                    <line x1="3.618" y1="15.679" x2="5.921" y2="13.377" />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                        <span class="qodef-switch--dark">
+                                            <svg class="qodef-svg--moon" xmlns="http://www.w3.org/2000/svg"
+                                                width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
+                                                <path class="qodef-path-fill"
+                                                    d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Zm0-2.144a7.261 7.261 0 0 0 4.235-1.3 7.519 7.519 0 0 0 2.734-3.391q-.536.134-1.072.214a7.22 7.22 0 0 1-1.072.08 7.648 7.648 0 0 1-5.615-2.318 7.648 7.648 0 0 1-2.318-5.615 7.218 7.218 0 0 1 .08-1.072q.08-.536.214-1.072a7.519 7.519 0 0 0-3.391 2.734 7.261 7.261 0 0 0-1.3 4.235 7.231 7.231 0 0 0 2.2 5.307 7.231 7.231 0 0 0 5.305 2.196Zm-.268-7.239Z">
+                                                </path>
+                                                <path class="qodef-path-outline" fill="none"
+                                                    d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Z">
+                                                </path>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
+                    <ul id="menu-main-menu-2" class="menu">
+                        <NavMenuItem text="INICIO" link="/" />
+                        <NavMenuItem text="SERVICIOS" link="/servicios" />
+                        <NavMenuItem text="PLANTILLAS" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Flyers', link: '/plantillas' },
+                            { id: 2, text: 'Novedades', link: '/plantillas' },
+                            { id: 3, text: 'Populares', link: '/plantillas' }
+                        ]" />
+                        <NavMenuItem text="CONTATO" link="/contacto" />
+                        <NavMenuItem text="SERVICIOS POPULARES" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Diseño Gráfico', link: '/servicios/diseno' },
+                            { id: 2, text: 'Branding', link: '/servicios/branding' },
+                            { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
+                        ]" />
+                        <NavMenuItem text="PLANES" link="/planes" />
+                    </ul>
+                </nav>
+
+                <div class="qodef-widget-holder qodef--one">
+                    <div class="widget widget_moreau_core_side_area_opener" data-area="main-home">
+                        <a href="javascript:void(0)"
+                            class="qodef-opener-icon qodef-m qodef-source--predefined qodef-side-area-opener"
+                            @click="toggleSideArea">
+                            <span class="qodef-m-icon qodef--open">
+                                <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                                    height="41.477" viewBox="0 0 41.477 41.477">
+                                    <g>
+                                        <g transform="translate(8.257 8.257)">
+                                            <ellipse cx="12.715" cy="12.715" rx="12.715" ry="12.715" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"></ellipse>
+                                            <ellipse cx="12.715" cy="12.715" rx="11.715" ry="11.715" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"></ellipse>
+                                        </g>
+                                        <g>
+                                            <path d="M20.737 0v41.478" fill="none" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path d="M41.477 20.739H0" fill="none" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Side Area (fuera del header para que cubra toda la pantalla) -->
+    <SideArea :isOpen="isSideAreaOpen" @update:isOpen="isSideAreaOpen = $event" @close="closeSideArea" />
+</template>
+
+<script setup>
+    import { ref, onMounted, onBeforeUnmount } from 'vue';
+    import SideArea from './SideArea.vue';
+    import NavMenuItem from './NavMenuItem.vue';
+
+    const isDarkMode = ref(false);
+    const isSideAreaOpen = ref(false);
+    const isMobileMenuOpen = ref(false);
+
+    const toggleDarkMode = () => {
+        isDarkMode.value = !isDarkMode.value;
+        // Agregar/quitar clase dark-mode al body
+        if (isDarkMode.value) {
+            document.body.classList.add('dark-mode');
+            // Guardar preferencia en localStorage
+            localStorage.setItem('darkMode', 'true');
+        } else {
+            document.body.classList.remove('dark-mode');
+            // Guardar preferencia en localStorage
+            localStorage.setItem('darkMode', 'false');
+        }
+    };
+
+    // Cargar preferencia del usuario al montar el componente
+    onMounted(() => {
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            isDarkMode.value = true;
+            document.body.classList.add('dark-mode');
+        }
+
+        // Header Sticky - Detectar scroll
+        const headerSticky = document.querySelector('.qodef-header-sticky');
+        const headerNormal = document.querySelector('#qodef-page-header');
+        let lastScrollTop = 0;
+
+        const handleScroll = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const headerHeight = headerNormal?.offsetHeight || 96; // Altura del header normal
+
+            // El sticky aparece cuando el header normal ya no es visible (scroll > altura del header)
+            // El sticky se oculta cuando el header normal vuelve a estar en foco (scroll < altura del header)
+            if (scrollTop > headerHeight) {
+                // Header normal ya no es visible - mostrar sticky
+                headerSticky?.classList.add('qodef--sticky');
+            } else {
+                // Header normal está en foco - ocultar sticky
+                headerSticky?.classList.remove('qodef--sticky');
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Limpiar listener al desmontar
+        onBeforeUnmount(() => {
+            window.removeEventListener('scroll', handleScroll);
+        });
+    });
+
+    const toggleSideArea = () => {
+        isSideAreaOpen.value = !isSideAreaOpen.value;
+    };
+
+    const closeSideArea = () => {
+        isSideAreaOpen.value = false;
+    };
+
+    const toggleMobileMenu = () => {
+        isMobileMenuOpen.value = !isMobileMenuOpen.value;
+        // Bloquear scroll cuando el menú está abierto
+        if (isMobileMenuOpen.value) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    };
+
+    const closeMobileMenu = () => {
+        isMobileMenuOpen.value = false;
+        document.body.style.overflow = '';
+    };
+
+    const toggleSubmenu = (event) => {
+        const parent = event.currentTarget.parentElement;
+        parent.classList.toggle('qodef--opened');
+    };
+</script>
+
+<style scoped>
+
+    /* Header Base */
+    #qodef-page-header {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        vertical-align: top;
+        height: var(--qode-header-height);
+        background-color: var(--qode-background-color);
+        z-index: 100;
+    }
+
+    .qodef-header--standard-no-logo #qodef-page-header {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    #qodef-page-header-inner {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        padding: 0 40px;
+        border-bottom: 0 solid var(--qode-heading-color);
+    }
+
+    .qodef-header-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Widget Holder */
+    .qodef-widget-holder {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .qodef-widget-holder.qodef--one {
+        order: 3;
+    }
+
+    .qodef-widget-holder.qodef--two {
+        order: 1;
+    }
+
+    /* Navigation */
+    .qodef-header-navigation {
+        height: 100%;
+        order: 2;
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .qodef-header-navigation ul {
+        margin: 0 !important;
+        padding: 0;
+        list-style: none;
+    }
+
+    .qodef-header-navigation>ul {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .qodef-header-navigation>ul>li,
+    :deep(.qodef-header-navigation>ul>li) {
+        position: relative;
+        height: 100%;
+        margin: 0;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .qodef-header-navigation>ul>li:first-child,
+    :deep(.qodef-header-navigation>ul>li:first-child) {
+        margin-left: 0;
+    }
+
+    .qodef-header-navigation>ul>li:last-child,
+    :deep(.qodef-header-navigation>ul>li:last-child) {
+        margin-right: 0;
+    }
+
+    .qodef-header-navigation>ul>li>a,
+    :deep(.qodef-header-navigation>ul>li>a) {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        font-family: "IBM Plex Mono", sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.5625em;
+        text-transform: uppercase;
+        color: var(--qode-text-color);
+        text-decoration: none;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow>a,
+    :deep(.qodef-header-navigation>ul>li.qodef-menu-item--narrow>a) {
+        cursor: pointer;
+    }
+
+    .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
+    :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+        position: relative;
+        transition: color 0.15s ease-out;
+        padding: 0 5px 1px;
+    }
+
+    .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
+    :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before) {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--qode-heading-color);
+        transition: transform 0.42s cubic-bezier(0.33, 0.81, 0.11, 0.96);
+        transform: scaleX(0);
+        transform-origin: left;
+        z-index: -1;
+    }
+
+    .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text,
+    :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text) {
+        color: var(--qode-background-color);
+    }
+
+    .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
+    :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before) {
+        transform: scaleX(1);
+    }
+
+    /* Menu Arrow */
+    .qodef-header-navigation ul li a .qodef-menu-item-arrow {
+        position: absolute;
+        top: calc(50% - 3px);
+        right: 0;
+        width: 6px;
+        height: auto;
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .qodef-svg--menu-arrow {
+        fill: currentColor;
+        width: 6.05px;
+        height: 9.272px;
+    }
+
+    /* Submenu - Estilos legacy para compatibilidad */
+    .qodef-header-navigation ul li.qodef-menu-item--narrow ul {
+        position: absolute;
+        top: 100%;
+        left: 30px;
+        width: 268px;
+        margin: 0;
+        padding: 14px 0;
+        background-color: #DD3333;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        border: 0 solid var(--qode-border-color);
+        list-style: none;
+        z-index: 1000;
+    }
+
+    .qodef-header-navigation ul li.qodef-menu-item--narrow ul li {
+        padding: 0 34px;
+        margin: 0;
+    }
+
+    .qodef-header-navigation ul li.qodef-menu-item--narrow:hover>ul {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul li>a {
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.52941em;
+        text-transform: initial;
+        text-decoration: none;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li>a {
+        position: relative;
+        display: flex;
+        white-space: normal;
+        margin: 10px 0;
+        overflow: hidden;
+        transition: padding 0.2s ease-out;
+        padding-right: 15px;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li>a:before {
+        content: '';
+        position: absolute;
+        top: calc(50% - 3px);
+        height: 6px;
+        width: 6px;
+        background: #ffffff;
+        transition: left 0.2s ease-out, right 0.2s ease-out;
+        left: -15px;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li:hover>a {
+        padding-left: 15px;
+        padding-right: 0;
+    }
+
+    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li:hover>a:before {
+        left: 0;
+    }
+
+    /* Dropdown Second - Estilos para el dropdown reutilizable (usando :deep para componentes hijos) */
+    :deep(.qodef-drop-down-second) {
+        position: absolute;
+        top: 100%;
+        left: 30px;
+        width: 268px;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        z-index: 1000;
+    }
+
+    :deep(.qodef-header-navigation>ul>li.qodef-menu-item--narrow:hover .qodef-drop-down-second) {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    }
+
+    :deep(.qodef-drop-down-second-inner) {
+        padding: 14px 0;
+        background-color: #DD3333;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu) {
+        position: relative;
+        background-color: #DD3333;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu li) {
+        padding: 0 34px;
+        margin: 0;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu li a) {
+        position: relative;
+        display: flex;
+        white-space: normal;
+        margin: 10px 0;
+        overflow: hidden;
+        transition: padding 0.2s ease-out;
+        padding-right: 15px;
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.52941em;
+        text-transform: initial;
+        text-decoration: none;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu li a:before) {
+        content: '';
+        position: absolute;
+        top: calc(50% - 3px);
+        height: 6px;
+        width: 6px;
+        background: #ffffff;
+        transition: left 0.2s ease-out;
+        left: -15px;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu li:hover a) {
+        padding-left: 15px;
+        padding-right: 0;
+    }
+
+    :deep(.qodef-drop-down-second .sub-menu li:hover a:before) {
+        left: 0;
+    }
+
+    /* Side Area Opener */
+    .qodef-side-area-opener {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .qodef-opener-icon {
+        display: inline-block;
+        text-decoration: none;
+        color: var(--qode-text-color);
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-opener-icon svg {
+        display: block;
+        width: 41.477px;
+        height: 41.477px;
+        fill: none;
+        stroke: currentColor;
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-opener-icon:hover svg {
+        transform: rotate(90deg);
+    }
+
+    /* Círculo del SVG */
+    .qodef-opener-icon svg ellipse {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    /* Líneas de la cruz (paths) - mismo grosor que el círculo */
+    .qodef-opener-icon svg path {
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+    }
+
+    .qodef-m-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 41.477px;
+        height: 41.477px;
+    }
+
+    /* Switch (Dark/Light Mode) - Toggle tipo pill */
+    .qodef-switcher {
+        display: flex;
+        align-items: center;
+    }
+
+    .qodef-switcher .qodef-switch {
+        position: relative;
+        width: 71px;
+        margin: 0;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-switch-input {
+        display: none;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-switch-label {
+        display: block;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid var(--qode-text-color);
+        border-radius: 17px;
+        height: 34px;
+        margin-bottom: 0;
+        background-color: var(--qode-background-color);
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-on-off-switch-inner {
+        display: block;
+        transition: margin 0.3s ease-in 0s;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        padding: 0 10px;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--light {
+        color: var(--qode-text-color);
+        transition: color 0.3s ease;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--dark {
+        color: var(--qode-text-color);
+        opacity: 0.5;
+        transition: color 0.3s ease, opacity 0.3s ease;
+    }
+
+    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch svg {
+        display: block;
+    }
+
+    /* Estilos base - ocultar outline por defecto */
+    .qodef-path-outline {
+        display: none;
+    }
+
+    .qodef-path-fill {
+        fill: currentColor;
+        stroke: none;
+    }
+
+    /* Cuando está checked (dark mode activo) - sol activo (blanco en dark, negro en light), luna outline */
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+        color: var(--qode-text-color);
+        opacity: 1;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+        display: block;
+        fill: currentColor;
+        stroke: none;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+        display: none;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+        color: var(--qode-text-color);
+        opacity: 0.5;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+        display: none;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-svg--moon {
+        transform: scale(0.95);
+        transform-origin: center;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+        display: block;
+        stroke: currentColor;
+        stroke-width: 1.2;
+    }
+
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline circle,
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline line,
+    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline path {
+        stroke: currentColor;
+        stroke-width: 1.2;
+        fill: none;
+    }
+
+    /* Cuando está unchecked (light mode activo) - luna activo (blanco en dark, negro en light), sol outline */
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+        color: var(--qode-text-color);
+        opacity: 0.5;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+        display: none;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+        display: block;
+        stroke: currentColor;
+        stroke-width: 1.2;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline circle,
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline line {
+        stroke: currentColor;
+        stroke-width: 1.2;
+        fill: none;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+        color: var(--qode-text-color);
+        opacity: 1;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+        display: block;
+        fill: currentColor;
+        stroke: none;
+    }
+
+    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+        display: none;
+    }
+
+
+    /* Header Sticky */
+    .qodef-header-sticky {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out;
+        height: var(--qode-header-height);
+        background-color: #ffffff;
+        border-bottom: 1px solid #000000;
+    }
+
+    body.dark-mode .qodef-header-sticky {
+        background-color: #171717;
+        border-bottom: 1px solid #ffffff;
+    }
+
+    .qodef-header-sticky.qodef-appearance--down {
+        background-color: #ffffff;
+        border-bottom: 1px solid #000000;
+    }
+
+    body.dark-mode .qodef-header-sticky.qodef-appearance--down {
+        background-color: #171717;
+        border-bottom: 1px solid #ffffff;
+    }
+
+    .qodef-header-sticky.qodef-appearance--down.qodef--sticky {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .qodef-header-sticky-inner {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        padding: 0 40px;
+    }
+
+    .qodef-header-sticky .qodef-header-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Mobile Menu Opener */
+    .qodef-mobile-menu-opener {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        color: var(--qode-text-color);
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-mobile-menu-opener:hover {
+        transform: rotate(90deg);
+    }
+
+    .qodef-mobile-menu-opener .qodef-m-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 41.477px;
+        height: 41.477px;
+    }
+
+    .qodef-mobile-menu-opener svg {
+        display: block;
+        width: 41.477px;
+        height: 41.477px;
+        fill: none;
+        stroke: currentColor;
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-mobile-menu-opener svg ellipse {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    .qodef-mobile-menu-opener svg path {
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+    }
+
+    .qodef-desktop-only {
+        display: flex;
+    }
+
+    /* Mobile Menu */
+    .qodef-mobile-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #DD3333;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-out;
+        overflow-y: auto;
+        padding: 80px 20px 40px;
+    }
+
+    .qodef-mobile-menu.qodef--opened {
+        transform: translateX(0);
+    }
+
+    /* Close Button inside mobile menu */
+    .qodef-mobile-menu-close {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        width: 41.477px;
+        height: 41.477px;
+        color: #ffffff;
+        z-index: 1002;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-mobile-menu-close:hover {
+        transform: rotate(90deg);
+    }
+
+    .qodef-mobile-menu-close svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: currentColor;
+    }
+
+    .qodef-mobile-menu-navigation {
+        margin-bottom: 40px;
+    }
+
+    .qodef-mobile-menu-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .qodef-mobile-menu-list>li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .qodef-mobile-menu-list>li:last-child {
+        border-bottom: none;
+    }
+
+    .qodef-mobile-menu-list>li>a {
+        display: block;
+        padding: 20px 0;
+        font-family: "IBM Plex Mono", sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .qodef-mobile-menu-list>li.qodef-has-submenu>a {
+        position: relative;
+    }
+
+    .qodef-mobile-menu-list>li.qodef-has-submenu>a:after {
+        content: '+';
+        position: absolute;
+        right: 0;
+        font-size: 24px;
+        transition: transform 0.3s ease;
+    }
+
+    .qodef-mobile-menu-list>li.qodef-has-submenu.qodef--opened>a:after {
+        transform: rotate(45deg);
+    }
+
+    .qodef-submenu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .qodef-has-submenu.qodef--opened .qodef-submenu {
+        max-height: 300px;
+    }
+
+    .qodef-submenu li a {
+        display: block;
+        padding: 12px 0 12px 20px;
+        font-family: "Inter", sans-serif;
+        font-size: 16px;
+        color: #ffffff;
+        text-decoration: none;
+        text-transform: none;
+    }
+
+    /* Mobile Side Area Content */
+    .qodef-mobile-side-area {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 40px;
+        text-align: center;
+    }
+
+    .qodef-mobile-logo {
+        margin-bottom: 30px;
+    }
+
+    .qodef-mobile-logo img {
+        max-width: 250px;
+        height: auto;
+    }
+
+    .qodef-mobile-separator {
+        width: 100%;
+        height: 1px;
+        background-color: #3b44cd;
+        margin: 0 auto 30px;
+        max-width: 300px;
+        border: none;
+    }
+
+    .qodef-mobile-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #ffffff;
+        margin: 0 0 20px 0;
+    }
+
+    .qodef-mobile-company {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #ffffff;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .qodef-mobile-email a {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 880px) {
+
+        /* Ocultar navegación desktop */
+        .qodef-header-navigation {
+            display: none;
+        }
+
+        /* Mostrar burger menu */
+        .qodef-mobile-menu-opener {
+            display: block;
+        }
+
+        /* Ocultar side area opener en móvil */
+        .qodef-desktop-only {
+            display: none;
+        }
+    }
+
+    @media (max-width: 1024px) {
+
+        #qodef-page-header-inner,
+        .qodef-header-sticky-inner {
+            padding: 0 30px;
+        }
+    }
+
+    @media (max-width: 680px) {
+
+        #qodef-page-header-inner,
+        .qodef-header-sticky-inner {
+            padding: 0 20px;
+        }
+    }
+</style>
