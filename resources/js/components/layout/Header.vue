@@ -66,6 +66,29 @@
                             { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
                         ]" />
                         <NavMenuItem text="PLANES" link="/planes" />
+                        <li v-if="!isLoggedIn" class="menu-item auth-nav-item">
+                            <div class="auth-nav-group">
+                                <button type="button" class="auth-nav-button auth-nav-button--ghost"
+                                    @click.prevent="openAuthModal('login')">
+                                    Ingresar
+                                </button>
+                                <button type="button" class="auth-nav-button auth-nav-button--primary"
+                                    @click.prevent="openAuthModal('register')">
+                                    Registrarse
+                                </button>
+                            </div>
+                        </li>
+                        <li v-else class="menu-item auth-nav-item">
+                            <div class="auth-nav-group">
+                                <a :href="accountLink" class="auth-nav-button auth-nav-button--ghost">
+                                    {{ headerAccountLabel }}
+                                </a>
+                                <button type="button" class="auth-nav-button auth-nav-button--primary"
+                                    @click.prevent="handleLogout">
+                                    {{ isAdmin ? 'Cerrar sesión' : 'Salir' }}
+                                </button>
+                            </div>
+                        </li>
                     </ul>
                 </nav>
 
@@ -169,6 +192,22 @@
                         </ul>
                     </li>
                     <li><a href="/planes" @click="closeMobileMenu">PLANES</a></li>
+                    <li v-if="!isLoggedIn" class="mobile-auth-item">
+                        <button type="button" class="mobile-auth-button"
+                            @click="openAuthModal('login')">Ingresar</button>
+                    </li>
+                    <li v-if="!isLoggedIn" class="mobile-auth-item">
+                        <button type="button" class="mobile-auth-button mobile-auth-button--primary"
+                            @click="openAuthModal('register')">Crear cuenta</button>
+                    </li>
+                    <li v-if="isLoggedIn" class="mobile-auth-item">
+                        <a :href="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{ mobileAccountLabel
+                        }}</a>
+                    </li>
+                    <li v-if="isLoggedIn" class="mobile-auth-item">
+                        <button type="button" class="mobile-auth-button mobile-auth-button--primary"
+                            @click="handleLogout">Cerrar sesión</button>
+                    </li>
                 </ul>
             </nav>
 
@@ -254,6 +293,29 @@
                             { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
                         ]" />
                         <NavMenuItem text="PLANES" link="/planes" />
+                        <li v-if="!isLoggedIn" class="menu-item auth-nav-item">
+                            <div class="auth-nav-group">
+                                <button type="button" class="auth-nav-button auth-nav-button--ghost"
+                                    @click.prevent="openAuthModal('login')">
+                                    Ingresar
+                                </button>
+                                <button type="button" class="auth-nav-button auth-nav-button--primary"
+                                    @click.prevent="openAuthModal('register')">
+                                    Registrarse
+                                </button>
+                            </div>
+                        </li>
+                        <li v-else class="menu-item auth-nav-item">
+                            <div class="auth-nav-group">
+                                <a :href="accountLink" class="auth-nav-button auth-nav-button--ghost">
+                                    {{ headerAccountLabel }}
+                                </a>
+                                <button type="button" class="auth-nav-button auth-nav-button--primary"
+                                    @click.prevent="handleLogout">
+                                    {{ isAdmin ? 'Cerrar sesión' : 'Salir' }}
+                                </button>
+                            </div>
+                        </li>
                     </ul>
                 </nav>
 
@@ -290,16 +352,30 @@
 
     <!-- Side Area (fuera del header para que cubra toda la pantalla) -->
     <SideArea :isOpen="isSideAreaOpen" @update:isOpen="isSideAreaOpen = $event" @close="closeSideArea" />
+
+    <AuthModal v-model="authModalVisible" :form="authModalForm" @update:form="(value) => (authModalForm = value)"
+        @success="handleAuthSuccess" />
 </template>
 
 <script setup>
-    import { ref, onMounted, onBeforeUnmount } from 'vue';
+    import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
     import SideArea from './SideArea.vue';
     import NavMenuItem from './NavMenuItem.vue';
+    import AuthModal from '../auth/AuthModal.vue';
+    import { useAuth } from '../../composables/useAuth';
 
+    const auth = useAuth();
     const isDarkMode = ref(false);
     const isSideAreaOpen = ref(false);
     const isMobileMenuOpen = ref(false);
+    const authModalVisible = ref(false);
+    const authModalForm = ref('login');
+
+    const isLoggedIn = computed(() => auth.isAuthenticated.value);
+    const isAdmin = computed(() => auth.isAdmin.value);
+    const accountLink = computed(() => (isAdmin.value ? '/admin' : '/mi-cuenta'));
+    const headerAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
+    const mobileAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
 
     const toggleDarkMode = () => {
         isDarkMode.value = !isDarkMode.value;
@@ -312,6 +388,24 @@
             document.body.classList.remove('dark-mode');
             // Guardar preferencia en localStorage
             localStorage.setItem('darkMode', 'false');
+        }
+    };
+
+    const openAuthModal = (form = 'login') => {
+        authModalForm.value = form;
+        auth.clearErrors();
+        authModalVisible.value = true;
+        closeMobileMenu();
+    };
+
+    const handleAuthSuccess = () => {
+        authModalVisible.value = false;
+    };
+
+    const handleLogout = async () => {
+        const success = await auth.logout();
+        if (success) {
+            closeMobileMenu();
         }
     };
 
@@ -461,7 +555,7 @@
     :deep(.qodef-header-navigation>ul>li) {
         position: relative;
         height: 100%;
-        margin: 0;
+        margin: 8px;
         flex: 1;
         display: flex;
         justify-content: center;
@@ -1165,6 +1259,105 @@
         font-weight: 400;
         color: #ffffff;
         text-decoration: none;
+    }
+
+    /* Auth Nav Items */
+    .auth-nav-item {
+        flex: 0 !important;
+        margin-left: 18px;
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-nav-group {
+        display: flex;
+        gap: 12px;
+        margin-right: 8px;
+    }
+
+    .auth-nav-button {
+        font-family: "IBM Plex Mono", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 13px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--qode-text-color);
+        background: transparent;
+        color: var(--qode-text-color);
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .auth-nav-button--primary {
+        background-color: #DD3333;
+        border-color: #DD3333;
+        color: #ffffff;
+    }
+
+    .auth-nav-button--primary:hover {
+        background-color: #c42b2b;
+        border-color: #c42b2b;
+    }
+
+    .auth-nav-button--ghost:hover {
+        background-color: var(--qode-heading-color);
+        color: var(--qode-background-color);
+    }
+
+    body.dark-mode .auth-nav-button {
+        border-color: var(--qode-border-color);
+        color: var(--qode-text-color);
+    }
+
+    body.dark-mode .auth-nav-button--ghost:hover {
+        background-color: #ffffff;
+        color: #171717;
+    }
+
+    body.dark-mode .auth-nav-button--primary {
+        border-color: #ffffff;
+    }
+
+    /* Mobile Auth Items */
+    .mobile-auth-item {
+        border-bottom: none;
+        margin-top: 20px;
+    }
+
+    .mobile-auth-button,
+    .mobile-auth-link {
+        width: 100%;
+        display: block;
+        text-align: center;
+        font-family: "IBM Plex Mono", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 15px;
+        padding: 16px 0;
+        border-radius: 999px;
+        border: 1px solid #ffffff;
+        color: #ffffff;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .mobile-auth-button--primary,
+    .mobile-auth-link--primary {
+        background-color: #ffffff;
+        color: #DD3333;
+    }
+
+    .mobile-auth-button:hover,
+    .mobile-auth-link:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .mobile-auth-button--primary:hover,
+    .mobile-auth-link--primary:hover {
+        background-color: #ffffff;
+        color: #c42b2b;
     }
 
     /* Responsive */
