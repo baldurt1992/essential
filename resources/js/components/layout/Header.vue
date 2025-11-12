@@ -75,9 +75,9 @@
                         </li>
                         <li v-else class="menu-item auth-nav-item">
                             <div class="auth-nav-group">
-                                <a :href="accountLink" class="auth-nav-button auth-nav-button--ghost">
+                                <RouterLink :to="accountLink" class="auth-nav-button auth-nav-button--ghost">
                                     {{ headerAccountLabel }}
-                                </a>
+                                </RouterLink>
                                 <button type="button" class="auth-nav-button auth-nav-button--primary"
                                     @click.prevent="handleLogout">
                                     {{ isAdmin ? 'Cerrar sesión' : 'Salir' }}
@@ -215,8 +215,9 @@
                             @click="openAuthModal('register')">Crear cuenta</button>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
-                        <a :href="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{ mobileAccountLabel
-                            }}</a>
+                        <RouterLink :to="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{
+                            mobileAccountLabel
+                        }}</RouterLink>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button mobile-auth-button--primary"
@@ -317,9 +318,9 @@
                         </li>
                         <li v-else class="menu-item auth-nav-item">
                             <div class="auth-nav-group">
-                                <a :href="accountLink" class="auth-nav-button auth-nav-button--ghost">
+                                <RouterLink :to="accountLink" class="auth-nav-button auth-nav-button--ghost">
                                     {{ headerAccountLabel }}
-                                </a>
+                                </RouterLink>
                                 <button type="button" class="auth-nav-button auth-nav-button--primary"
                                     @click.prevent="handleLogout">
                                     {{ isAdmin ? 'Cerrar sesión' : 'Salir' }}
@@ -406,7 +407,7 @@
 
     const isLoggedIn = computed(() => auth.isAuthenticated.value);
     const isAdmin = computed(() => auth.isAdmin.value);
-    const accountLink = computed(() => (isAdmin.value ? '/admin' : '/mi-cuenta'));
+    const accountLink = computed(() => (isAdmin.value ? { name: 'admin.dashboard' } : { name: 'client.dashboard' }));
     const headerAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
     const mobileAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
 

@@ -13,6 +13,10 @@ import AdminPlansPage from '../components/admin/pages/AdminPlansPage.vue';
 import AdminSubscriptionsPage from '../components/admin/pages/AdminSubscriptionsPage.vue';
 import AdminServicesPage from '../components/admin/pages/AdminServicesPage.vue';
 import AdminContactSettingsPage from '../components/admin/pages/AdminContactSettingsPage.vue';
+import ClientLayout from '../components/client/ClientLayout.vue';
+import ClientDashboardPage from '../components/client/pages/ClientDashboardPage.vue';
+import ClientSubscriptionsPage from '../components/client/pages/ClientSubscriptionsPage.vue';
+import ClientPurchasesPage from '../components/client/pages/ClientPurchasesPage.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -89,6 +93,31 @@ const router = createRouter({
             ],
         },
         {
+            path: '/mi-cuenta',
+            component: ClientLayout,
+            meta: {
+                requiresAuth: true,
+                requiresClient: true,
+            },
+            children: [
+                {
+                    path: '',
+                    name: 'client.dashboard',
+                    component: ClientDashboardPage,
+                },
+                {
+                    path: 'suscripciones',
+                    name: 'client.subscriptions',
+                    component: ClientSubscriptionsPage,
+                },
+                {
+                    path: 'compras',
+                    name: 'client.purchases',
+                    component: ClientPurchasesPage,
+                },
+            ],
+        },
+        {
             path: '/:pathMatch(.*)*',
             redirect: '/',
         },
@@ -106,18 +135,21 @@ router.beforeEach(async (to, from, next) => {
     let isAuthenticated = !!auth.user.value;
     let userRoles = auth.user.value?.roles ?? [];
     let isAdmin = userRoles.some((role) => role.name === 'admin');
+    let isClient = userRoles.some((role) => role.name === 'client');
 
-    if (to.meta.requiresAdmin && !isAuthenticated) {
+    if ((to.meta.requiresAdmin || to.meta.requiresClient) && !isAuthenticated) {
         await auth.refreshUser({ silent: true });
         isAuthenticated = !!auth.user.value;
         userRoles = auth.user.value?.roles ?? [];
         isAdmin = userRoles.some((role) => role.name === 'admin');
+        isClient = userRoles.some((role) => role.name === 'client');
     }
 
     console.log('[router][guard]', {
         to: to.fullPath,
         isAuthenticated,
         isAdmin,
+        isClient,
         user: auth.user.value,
     });
 
@@ -129,6 +161,18 @@ router.beforeEach(async (to, from, next) => {
 
         if (!isAdmin) {
             console.warn('[router][guard] Usuario sin rol admin. Redirigiendo a home.');
+            return next({ name: 'home' });
+        }
+    }
+
+    if (to.meta.requiresClient) {
+        if (!isAuthenticated) {
+            console.warn('[router][guard] Usuario no autenticado. Redirigiendo a home.');
+            return next({ name: 'home' });
+        }
+
+        if (!isClient) {
+            console.warn('[router][guard] Usuario sin rol client. Redirigiendo a home.');
             return next({ name: 'home' });
         }
     }

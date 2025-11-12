@@ -12,6 +12,7 @@ const state = reactive({
 
 const isAuthenticated = computed(() => !!state.user);
 const isAdmin = computed(() => state.user?.roles?.some((role) => role.name === 'admin') ?? false);
+const isClient = computed(() => state.user?.roles?.some((role) => role.name === 'client') ?? false);
 
 const user = computed(() => state.user);
 
@@ -175,6 +176,7 @@ export function useAuth() {
         user,
         isAuthenticated,
         isAdmin,
+        isClient,
         init,
         refreshUser,
         login,

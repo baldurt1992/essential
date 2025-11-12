@@ -51,3 +51,13 @@ Route::middleware(['auth:sanctum', 'role:client'])->group(function (): void {
     Route::post('/checkout/subscription', SubscriptionCheckoutController::class)->name('checkout.subscription');
     Route::post('/checkout/purchase', PurchaseCheckoutController::class)->name('checkout.purchase');
 });
+
+Route::middleware(['auth:sanctum', 'role:client'])->prefix('client')->name('client.')->group(function (): void {
+    Route::get('/subscriptions', [ClientController::class, 'subscriptions'])->name('subscriptions.index');
+    Route::post('/subscriptions/{subscription}/cancel', [ClientSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    
+    Route::get('/purchases', [ClientController::class, 'purchases'])->name('purchases.index');
+    Route::post('/purchases/{purchase}/resend-code', [ClientPurchaseController::class, 'resendCode'])->name('purchases.resend-code');
+    
+    Route::get('/licenses', [ClientController::class, 'licenses'])->name('licenses.index');
+});
