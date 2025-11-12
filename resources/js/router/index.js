@@ -2,13 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuth } from '../composables/useAuth.js';
 import HomeLayout from '../components/layout/HomeLayout.vue';
 import HomePage from '../components/pages/HomePage.vue';
+import ServicesPage from '../components/pages/ServicesPage.vue';
+import TemplatesPage from '../components/pages/TemplatesPage.vue';
+import PlansPage from '../components/pages/PlansPage.vue';
+import ContactPage from '../components/pages/ContactPage.vue';
 import AdminLayout from '../components/admin/AdminLayout.vue';
 import AdminDashboardPage from '../components/admin/pages/AdminDashboardPage.vue';
 import AdminTemplatesPage from '../components/admin/pages/AdminTemplatesPage.vue';
 import AdminPlansPage from '../components/admin/pages/AdminPlansPage.vue';
 import AdminSubscriptionsPage from '../components/admin/pages/AdminSubscriptionsPage.vue';
 import AdminServicesPage from '../components/admin/pages/AdminServicesPage.vue';
-import AdminPopularServicesPage from '../components/admin/pages/AdminPopularServicesPage.vue';
 import AdminContactSettingsPage from '../components/admin/pages/AdminContactSettingsPage.vue';
 
 const router = createRouter({
@@ -22,6 +25,26 @@ const router = createRouter({
                     path: '',
                     name: 'home',
                     component: HomePage,
+                },
+                {
+                    path: 'servicios',
+                    name: 'services',
+                    component: ServicesPage,
+                },
+                {
+                    path: 'plantillas',
+                    name: 'templates',
+                    component: TemplatesPage,
+                },
+                {
+                    path: 'planes',
+                    name: 'plans',
+                    component: PlansPage,
+                },
+                {
+                    path: 'contacto',
+                    name: 'contact',
+                    component: ContactPage,
                 },
             ],
         },
@@ -57,11 +80,6 @@ const router = createRouter({
                     path: 'services',
                     name: 'admin.services',
                     component: AdminServicesPage,
-                },
-                {
-                    path: 'popular-services',
-                    name: 'admin.popular-services',
-                    component: AdminPopularServicesPage,
                 },
                 {
                     path: 'contact',

@@ -29,6 +29,8 @@ class Template extends Model
         'tags',
         'metadata',
         'is_active',
+        'is_popular',
+        'is_new',
         'sort_order',
         'created_by',
     ];
@@ -37,6 +39,8 @@ class Template extends Model
         'tags' => 'array',
         'metadata' => 'array',
         'is_active' => 'boolean',
+        'is_popular' => 'boolean',
+        'is_new' => 'boolean',
     ];
 
     protected static function booted(): void

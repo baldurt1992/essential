@@ -4,8 +4,19 @@ use App\Http\Controllers\Billing\StripeWebhookController;
 use App\Http\Controllers\Billing\SubscriptionCheckoutController;
 use App\Http\Controllers\Billing\PurchaseCheckoutController;
 use App\Http\Controllers\Admin\TemplateController;
+use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\ContactInformationController;
+use App\Http\Controllers\Site\ContactInformationController as SiteContactInformationController;
+use App\Http\Controllers\Site\ServiceController as SiteServiceController;
+use App\Http\Controllers\Site\ContactMessageController;
+use App\Http\Controllers\Site\PlanController as SitePlanController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\TemplateCatalogController;
+use App\Http\Controllers\Client\ClientController;
+use App\Http\Controllers\Client\ClientSubscriptionController;
+use App\Http\Controllers\Client\ClientPurchaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,8 +31,20 @@ Route::get('/templates/{template}', [TemplateCatalogController::class, 'show'])-
 
 Route::get('/downloads/{template}', DownloadController::class)->name('downloads.show');
 
+Route::get('/contact-information', [SiteContactInformationController::class, 'show'])->name('contact-information.show');
+Route::get('/plans', [SitePlanController::class, 'index'])->name('plans.index');
+Route::post('/plans/{plan}/checkout', [SitePlanController::class, 'checkout'])->name('plans.checkout');
+Route::post('/contact-messages', [ContactMessageController::class, 'store'])->name('contact-messages.store');
+Route::get('/services', [SiteServiceController::class, 'index'])->name('services.index');
+
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::apiResource('templates', TemplateController::class);
+    Route::apiResource('plans', PlanController::class);
+    Route::apiResource('services', ServiceController::class);
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::get('contact-information', [ContactInformationController::class, 'show'])->name('contact-information.show');
+    Route::put('contact-information', [ContactInformationController::class, 'update'])->name('contact-information.update');
 });
 
 Route::middleware(['auth:sanctum', 'role:client'])->group(function (): void {

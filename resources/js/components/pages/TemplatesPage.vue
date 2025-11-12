@@ -1,0 +1,1043 @@
+<template>
+    <div class="templates-page">
+        <section class="templates-hero">
+            <div class="templates-hero__intro">
+                <div class="templates-hero__eyebrow">
+                    <span class="templates-hero__dot"></span>
+                    <span class="templates-hero__label">Catálogo creativo</span>
+                </div>
+                <h1 class="templates-hero__title">
+                    Plantillas listas<br />
+                    para convertir
+                </h1>
+                <p class="templates-hero__description">
+                    Descarga recursos profesionales, optimizados para campañas, eventos y redes. Pensados para
+                    diseñadores
+                    que necesitan velocidad sin ceder calidad.
+                </p>
+            </div>
+
+            <div class="templates-filters">
+                <div class="templates-filters__group templates-filters__group--primary">
+                    <button v-for="category in categories" :key="category.value ?? 'all'" type="button"
+                        class="templates-filter-chip"
+                        :class="{ 'templates-filter-chip--active': filters.category === category.value }"
+                        @click="toggleCategory(category.value)">
+                        {{ category.label }}
+                    </button>
+                </div>
+
+                <div class="templates-filters__group templates-filters__group--secondary">
+                    <button type="button" class="templates-filter-toggle"
+                        :class="{ 'templates-filter-toggle--active': filters.popular }" @click="toggleFlag('popular')">
+                        <span class="templates-filter-toggle__indicator"></span>
+                        <span>Populares</span>
+                    </button>
+                    <button type="button" class="templates-filter-toggle"
+                        :class="{ 'templates-filter-toggle--active': filters.fresh }" @click="toggleFlag('fresh')">
+                        <span class="templates-filter-toggle__indicator"></span>
+                        <span>Nuevas</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="templates-collection">
+            <div v-if="isLoading" class="templates-empty-state">
+                <span class="templates-spinner"></span>
+                <p>Cargando plantillas…</p>
+            </div>
+
+            <div v-else-if="hasError" class="templates-empty-state templates-empty-state--error">
+                <p>No pudimos cargar las plantillas. ¿Intentamos de nuevo?</p>
+                <button type="button" class="templates-retry-button" @click="retryFetch">
+                    Reintentar
+                </button>
+            </div>
+
+            <div v-else-if="!templates.length" class="templates-empty-state">
+                <p>No encontramos plantillas con los filtros seleccionados.</p>
+                <button type="button" class="templates-retry-button" @click="clearFilters">
+                    Limpiar filtros
+                </button>
+            </div>
+
+            <div v-else class="templates-grid">
+                <article v-for="template in templates" :key="template.uuid" class="template-card">
+                    <div class="template-card__media">
+                        <img :src="template.previewUrl" :alt="template.title" loading="lazy" decoding="async"
+                            class="template-card__image" />
+
+                        <div class="template-card__badges">
+                            <span v-if="isTemplatePopular(template)" class="template-badge template-badge--popular">
+                                Popular
+                            </span>
+                            <span v-if="isTemplateFresh(template)" class="template-badge template-badge--fresh">
+                                Nuevo
+                            </span>
+                        </div>
+
+                        <button type="button" class="template-card__preview" @click="openPreview(template)">
+                            <i class="pi pi-eye"></i>
+                            <span>Ver detalle</span>
+                        </button>
+                    </div>
+
+                    <div class="template-card__body">
+                        <div class="template-card__header">
+                            <h2 class="template-card__title" :title="template.title">
+                                {{ template.title }}
+                            </h2>
+                            <p class="template-card__price">
+                                <span>{{ formatPrice(template.price, template.currency) }}</span>
+                            </p>
+                        </div>
+
+                        <p class="template-card__description">
+                            {{ template.description }}
+                        </p>
+
+                        <div class="template-card__tags" v-if="template.tags.length">
+                            <span v-for="tag in template.tags" :key="tag" class="template-tag">
+                                {{ tag }}
+                            </span>
+                        </div>
+
+                        <div class="template-card__actions">
+                            <button type="button" class="template-card__cta" @click="handlePrimaryAction(template)">
+                                {{ template.isAccessible ? 'Descargar' : 'Comprar' }}
+                            </button>
+                            <RouterLink :to="detailTarget(template)" class="template-card__link">
+                                Ver ficha
+                                <i class="pi pi-arrow-right"></i>
+                            </RouterLink>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div v-if="showPaginator" class="templates-pagination">
+                <Paginator :rows="pagination.perPage" :total-records="pagination.total"
+                    :first="(pagination.currentPage - 1) * pagination.perPage" @page="handlePageChange" />
+            </div>
+        </section>
+
+        <Dialog v-model:visible="previewVisible" modal :header="selectedTemplate?.title ?? 'Plantilla'"
+            class="template-preview-dialog" :style="{ width: previewDialogWidth }" :breakpoints="previewBreakpoints">
+            <div v-if="selectedTemplate" class="template-preview">
+                <div class="template-preview__media">
+                    <img :src="selectedTemplate.previewUrl" :alt="selectedTemplate.title" loading="lazy"
+                        decoding="async" />
+                </div>
+
+                <div class="template-preview__content">
+                    <div class="template-preview__meta">
+                        <span class="template-preview__price">
+                            {{ formatPrice(selectedTemplate.price, selectedTemplate.currency) }}
+                        </span>
+                        <div class="template-preview__flags">
+                            <span v-if="isTemplatePopular(selectedTemplate)"
+                                class="template-badge template-badge--popular">Popular</span>
+                            <span v-if="isTemplateFresh(selectedTemplate)"
+                                class="template-badge template-badge--fresh">Nuevo</span>
+                        </div>
+                    </div>
+
+                    <p class="template-preview__description">
+                        {{ selectedTemplate.description }}
+                    </p>
+
+                    <div v-if="selectedTemplate.tags.length" class="template-preview__tags">
+                        <span v-for="tag in selectedTemplate.tags" :key="tag" class="template-tag">
+                            {{ tag }}
+                        </span>
+                    </div>
+
+                    <div class="template-preview__actions">
+                        <button type="button" class="template-preview__buy"
+                            @click="handlePrimaryAction(selectedTemplate)">
+                            {{ selectedTemplate.isAccessible ? 'Descargar' : 'Comprar ahora' }}
+                        </button>
+                        <RouterLink :to="detailTarget(selectedTemplate)" class="template-preview__link"
+                            @click="previewVisible = false">
+                            Ver ficha completa
+                        </RouterLink>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+    </div>
+</template>
+
+<script setup>
+    import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+    import { RouterLink, useRoute, useRouter } from 'vue-router';
+    import { useSiteTemplates } from '../../composables/useSiteTemplates';
+
+    const siteTemplates = useSiteTemplates();
+    const router = useRouter();
+    const route = useRoute();
+
+    const filters = computed(() => siteTemplates.filters.value);
+    const templates = computed(() => siteTemplates.templates.value);
+    const pagination = computed(() => siteTemplates.pagination.value);
+    const isLoading = computed(() => siteTemplates.isLoading.value);
+    const hasError = computed(() => !!siteTemplates.error.value);
+    const showPaginator = computed(() => pagination.value.total > pagination.value.perPage);
+
+    const normalizeCategory = (category) => {
+        if (typeof category === 'string') {
+            const trimmed = category.trim();
+            return trimmed.length ? trimmed : null;
+        }
+        return category ?? null;
+    };
+
+    const categories = computed(() => {
+        const set = new Set();
+        templates.value.forEach((template) => {
+            const templateCategories = template.metadata?.categories ?? template.tags ?? [];
+            templateCategories.forEach((category) => {
+                const normalized = normalizeCategory(category);
+                if (normalized) {
+                    set.add(normalized);
+                }
+            });
+        });
+        const activeCategory = normalizeCategory(filters.value.category);
+        if (activeCategory && !set.has(activeCategory)) {
+            set.add(activeCategory);
+        }
+        const sortedCategories = Array.from(set).sort((a, b) => a.localeCompare(b, 'es'));
+        return [
+            { label: 'Todos', value: null },
+            ...sortedCategories.map((value) => ({ label: value, value })),
+        ];
+    });
+
+    const previewVisible = ref(false);
+    const selectedTemplate = ref(null);
+    const lastSyncedQueryKey = ref('');
+    const hasSyncedOnce = ref(false);
+
+    const previewDialogWidth = ref('92vw');
+
+    const previewBreakpoints = {
+        '1280px': '720px',
+        '960px': '92vw',
+    };
+
+    const formatPrice = (price, currency = 'USD') => {
+        if (price == null) {
+            return '—';
+        }
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency,
+            minimumFractionDigits: 0,
+        }).format(price);
+    };
+
+    const isTemplatePopular = (template) => {
+        if (typeof template.isPopular === 'boolean') {
+            return template.isPopular;
+        }
+
+        const flags = template.metadata?.flags ?? {};
+        return !!(flags.popular ?? flags.is_popular ?? template.metadata?.is_popular);
+    };
+
+    const isTemplateFresh = (template) => {
+        if (typeof template.isNew === 'boolean') {
+            return template.isNew;
+        }
+
+        const flags = template.metadata?.flags ?? {};
+        return !!(flags.is_new ?? template.metadata?.is_new);
+    };
+
+    const detailTarget = (template) => ({
+        name: 'templates',
+        params: {},
+        hash: `#${template.slug}`,
+    });
+
+    const openPreview = (template) => {
+        selectedTemplate.value = template;
+        previewVisible.value = true;
+    };
+
+    const handlePrimaryAction = (template) => {
+        if (template.isAccessible) {
+            window.location.href = `/api/downloads/${template.slug}`;
+            return;
+        }
+
+        router.push({ name: 'templates', query: { purchase: template.slug } });
+    };
+
+    const updatePreviewWidth = () => {
+        if (window.innerWidth >= 1280) {
+            previewDialogWidth.value = '900px';
+            return;
+        }
+        if (window.innerWidth >= 960) {
+            previewDialogWidth.value = '720px';
+            return;
+        }
+        previewDialogWidth.value = '92vw';
+    };
+
+    const buildRouteQuery = (overrides = {}) => {
+        const currentPage = overrides.page ?? pagination.value.currentPage ?? 1;
+        const category = Object.prototype.hasOwnProperty.call(overrides, 'category')
+            ? overrides.category
+            : filters.value.category;
+        const popular = Object.prototype.hasOwnProperty.call(overrides, 'popular')
+            ? overrides.popular
+            : filters.value.popular;
+        const fresh = Object.prototype.hasOwnProperty.call(overrides, 'fresh')
+            ? overrides.fresh
+            : filters.value.fresh;
+
+        const query = {};
+        if (category) {
+            query.category = category;
+        }
+        if (popular) {
+            query.popular = '1';
+        }
+        if (fresh) {
+            query.fresh = '1';
+        }
+        if (currentPage && currentPage !== 1) {
+            query.page = String(currentPage);
+        }
+
+        return query;
+    };
+
+    const updateRoute = (overrides = {}) => {
+        router.replace({ name: 'templates', query: buildRouteQuery(overrides) }).catch(() => { });
+    };
+
+    const buildCurrentQueryKey = () => {
+        const routeQuery = route.query;
+        const page = parseInt(routeQuery.page ?? '1', 10);
+        const category = routeQuery.category ?? null;
+        const popular = routeQuery.popular === '1';
+        const fresh = routeQuery.fresh === '1';
+
+        return JSON.stringify({
+            page: Number.isNaN(page) ? 1 : page,
+            category,
+            popular,
+            fresh,
+        });
+    };
+
+    const syncFromRoute = async () => {
+        const queryKey = buildCurrentQueryKey();
+
+        if (hasSyncedOnce.value && lastSyncedQueryKey.value === queryKey) {
+            return;
+        }
+
+        const payload = JSON.parse(queryKey);
+
+        await siteTemplates.fetchTemplates({
+            ...payload,
+            force: true,
+        });
+
+        hasSyncedOnce.value = true;
+        lastSyncedQueryKey.value = queryKey;
+    };
+
+    const toggleCategory = (value) => {
+        const normalized = normalizeCategory(value);
+        if (normalized === null) {
+            updateRoute({ category: null, page: 1 });
+            return;
+        }
+
+        const nextCategory = filters.value.category === normalized ? null : normalized;
+        updateRoute({ category: nextCategory, page: 1 });
+    };
+
+    const toggleFlag = (flag) => {
+        const next = !filters.value[flag];
+        const overrides = { page: 1 };
+        overrides[flag] = next;
+        updateRoute(overrides);
+    };
+
+    const clearFilters = () => {
+        updateRoute({ category: null, popular: false, fresh: false, page: 1 });
+    };
+
+    const handlePageChange = ({ page }) => {
+        const nextPage = page + 1;
+        updateRoute({ page: nextPage });
+    };
+
+    const retryFetch = async () => {
+        await syncFromRoute();
+    };
+
+    watch(
+        () => route.query,
+        async () => {
+            const queryKey = buildCurrentQueryKey();
+            if (hasSyncedOnce.value && lastSyncedQueryKey.value === queryKey) {
+                return;
+            }
+            await syncFromRoute();
+        },
+        { immediate: true }
+    );
+
+    watch(previewVisible, (visible) => {
+        if (visible) {
+            updatePreviewWidth();
+        }
+    });
+
+    const handleResize = () => {
+        updatePreviewWidth();
+    };
+
+    onMounted(async () => {
+        updatePreviewWidth();
+        window.addEventListener('resize', handleResize, { passive: true });
+        await syncFromRoute();
+    });
+
+    onBeforeUnmount(() => {
+        window.removeEventListener('resize', handleResize);
+    });
+
+</script>
+
+<style scoped>
+    :root {
+        --templates-max-width: 1200px;
+        --templates-grid-gap: 24px;
+    }
+
+    .templates-page {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        padding: 24px 20px 100px;
+        background: var(--qode-background-color);
+        color: var(--qode-text-color);
+        min-height: 100vh;
+    }
+
+    .templates-hero {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        max-width: var(--templates-max-width);
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .templates-hero__intro {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .templates-hero__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .templates-hero__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .templates-hero__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(32px, 8vw, 52px);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .templates-hero__description {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 0;
+        color: rgba(23, 23, 23, 0.78);
+    }
+
+    body.dark-mode .templates-hero__description {
+        color: rgba(243, 243, 243, 0.78);
+    }
+
+    .templates-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .templates-filters__group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .templates-filter-chip {
+        border: 1px solid rgba(23, 23, 23, 0.12);
+        background: transparent;
+        color: inherit;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 10px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .templates-filter-chip--active {
+        background: #dd3333;
+        border-color: #dd3333;
+        color: #ffffff;
+    }
+
+    .templates-filter-chip:not(.templates-filter-chip--active):hover {
+        transform: translateY(-1px);
+    }
+
+    .templates-filter-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(23, 23, 23, 0.12);
+        background: rgba(23, 23, 23, 0.02);
+        color: inherit;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .templates-filter-toggle__indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        background: rgba(23, 23, 23, 0.18);
+        transition: background 0.2s ease;
+    }
+
+    .templates-filter-toggle--active {
+        border-color: #dd3333;
+        background: rgba(221, 51, 51, 0.12);
+        color: #dd3333;
+    }
+
+    .templates-filter-toggle--active .templates-filter-toggle__indicator {
+        background: #dd3333;
+    }
+
+    .templates-collection {
+        max-width: 1320px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+    }
+
+    .templates-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 60px 20px;
+        font-family: 'Inter', sans-serif;
+        border: 1px dashed rgba(23, 23, 23, 0.12);
+        border-radius: 16px;
+        text-align: center;
+        color: rgba(23, 23, 23, 0.72);
+    }
+
+    body.dark-mode .templates-empty-state {
+        border-color: rgba(255, 255, 255, 0.15);
+        color: rgba(243, 243, 243, 0.72);
+    }
+
+    .templates-empty-state--error {
+        border-style: solid;
+    }
+
+    .templates-spinner {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid rgba(23, 23, 23, 0.15);
+        border-top-color: #dd3333;
+        animation: templates-spin 0.9s linear infinite;
+    }
+
+    body.dark-mode .templates-spinner {
+        border-color: rgba(255, 255, 255, 0.15);
+        border-top-color: #ff6666;
+    }
+
+    @keyframes templates-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .templates-retry-button {
+        border: 1px solid currentColor;
+        background: transparent;
+        color: inherit;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 10px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .templates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+        gap: clamp(20px, 4.5vw, 32px);
+        padding: 0 clamp(10px, 2vw, 24px);
+        justify-items: center;
+    }
+
+    .template-card {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(23, 23, 23, 0.08);
+        border-radius: 18px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        max-width: 450px;
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    body.dark-mode .template-card {
+        background: rgba(17, 17, 17, 0.9);
+        border-color: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .template-card__media {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 4 / 5;
+        max-height: 320px;
+    }
+
+    .template-card__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+    }
+
+    .template-card__media:hover .template-card__image {
+        transform: scale(1.04);
+    }
+
+    .template-card__badges {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .template-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(23, 23, 23, 0.78);
+        color: #ffffff;
+    }
+
+    .template-badge--popular {
+        background: rgba(221, 51, 51, 0.9);
+    }
+
+    .template-badge--fresh {
+        background: rgba(0, 0, 0, 0.75);
+    }
+
+    .template-card__preview {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: rgba(23, 23, 23, 0.85);
+        color: #ffffff;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .template-card__preview:hover {
+        background: #dd3333;
+    }
+
+    .template-card__body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 20px 22px 24px;
+    }
+
+    .template-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .template-card__title {
+        font-family: 'Space Mono', monospace;
+        font-size: 19px;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.3;
+        min-height: 2.6em;
+        line-clamp: 2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-break: break-word;
+    }
+
+    .template-card__price {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 14px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 0;
+        color: rgba(221, 51, 51, 0.95);
+    }
+
+    .template-card__description {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0;
+        color: rgba(23, 23, 23, 0.74);
+    }
+
+    body.dark-mode .template-card__description {
+        color: rgba(243, 243, 243, 0.78);
+    }
+
+    .template-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .template-tag {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(23, 23, 23, 0.08);
+        color: rgba(23, 23, 23, 0.7);
+    }
+
+    body.dark-mode .template-tag {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .template-card__actions {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    .template-card__cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        background: #dd3333;
+        color: #ffffff;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 12px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .template-card__cta:hover {
+        background: #c42b2b;
+        transform: translateY(-1px);
+    }
+
+    .template-card__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: inherit;
+        text-decoration: none;
+        position: relative;
+    }
+
+    .template-card__link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .template-card__link:hover::after {
+        transform: scaleX(1);
+    }
+
+    .templates-pagination {
+        display: flex;
+        justify-content: center;
+    }
+
+    .template-preview-dialog :deep(.p-dialog-content) {
+        padding: 0;
+        background: transparent;
+    }
+
+    .template-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    body.dark-mode .template-preview {
+        background: rgba(17, 17, 17, 0.95);
+    }
+
+    .template-preview__media {
+        width: 100%;
+        background: rgba(23, 23, 23, 0.06);
+    }
+
+    .template-preview__media img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .template-preview__content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 20px 24px 24px;
+    }
+
+    .template-preview__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .template-preview__price {
+        font-family: 'Space Mono', monospace;
+        font-size: 22px;
+        text-transform: uppercase;
+        color: #dd3333;
+    }
+
+    .template-preview__flags {
+        display: flex;
+        gap: 8px;
+    }
+
+    .template-preview__description {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+        margin: 0;
+        color: rgba(23, 23, 23, 0.8);
+    }
+
+    body.dark-mode .template-preview__description {
+        color: rgba(243, 243, 243, 0.8);
+    }
+
+    .template-preview__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .template-preview__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 10px;
+    }
+
+    .template-preview__buy {
+        border: none;
+        background: #dd3333;
+        color: #ffffff;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 12px 22px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .template-preview__buy:hover {
+        background: #c42b2b;
+    }
+
+    .template-preview__link {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: inherit;
+        text-decoration: none;
+        position: relative;
+        align-self: flex-start;
+    }
+
+    .template-preview__link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .template-preview__link:hover::after {
+        transform: scaleX(1);
+    }
+
+    @media (min-width: 768px) {
+        .templates-page {
+            padding: 36px 40px 140px;
+            gap: 60px;
+        }
+
+        .template-card__actions {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .template-card__cta {
+            width: auto;
+        }
+
+        .template-card__link {
+            margin-left: auto;
+        }
+
+        .template-preview {
+            flex-direction: row;
+            gap: 0;
+        }
+
+        .template-preview__media {
+            flex: 1 1 55%;
+        }
+
+        .template-preview__content {
+            flex: 1 1 45%;
+        }
+
+        .template-preview__actions {
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .template-preview__link {
+            margin-left: 12px;
+        }
+    }
+
+    @media (min-width: 1320px) {
+        .templates-grid {
+            grid-template-columns: repeat(auto-fit, minmax(296px, 1fr));
+        }
+    }
+</style>

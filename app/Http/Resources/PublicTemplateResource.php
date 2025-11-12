@@ -22,6 +22,8 @@ class PublicTemplateResource extends JsonResource
             'preview_url' => $this->preview_image_path ? Storage::disk('public')->url($this->preview_image_path) : null,
             'tags' => $this->tags ?? [],
             'metadata' => $this->metadata ?? [],
+            'is_popular' => (bool) $this->is_popular,
+            'is_new' => (bool) $this->is_new,
             'is_accessible' => $this->when(isset($this->is_accessible), (bool) $this->is_accessible),
             'created_at' => $this->created_at,
         ];

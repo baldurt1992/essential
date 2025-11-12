@@ -52,20 +52,15 @@
                 <!-- Navigation -->
                 <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
                     <ul id="menu-main-menu-1" class="menu">
-                        <NavMenuItem text="INICIO" link="/" />
-                        <NavMenuItem text="SERVICIOS" link="/servicios" />
-                        <NavMenuItem text="PLANTILLAS" :has-children="true" :sub-items="[
-                            { id: 1, text: 'Flyers', link: '/plantillas' },
-                            { id: 2, text: 'Novedades', link: '/plantillas' },
-                            { id: 3, text: 'Populares', link: '/plantillas' }
+                        <NavMenuItem text="INICIO" :link="{ name: 'home' }" />
+                        <NavMenuItem text="SERVICIOS" :link="{ name: 'services' }" />
+                        <NavMenuItem text="PLANTILLAS" :link="{ name: 'templates' }" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Flyers', link: { name: 'templates', query: { category: 'flyer' } } },
+                            { id: 2, text: 'Novedades', link: { name: 'templates', query: { fresh: '1' } } },
+                            { id: 3, text: 'Populares', link: { name: 'templates', query: { popular: '1' } } }
                         ]" />
-                        <NavMenuItem text="CONTATO" link="/contacto" />
-                        <NavMenuItem text="SERVICIOS POPULARES" :has-children="true" :sub-items="[
-                            { id: 1, text: 'Diseño Gráfico', link: '/servicios/diseno' },
-                            { id: 2, text: 'Branding', link: '/servicios/branding' },
-                            { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
-                        ]" />
-                        <NavMenuItem text="PLANES" link="/planes" />
+                        <NavMenuItem text="CONTATO" :link="{ name: 'contact' }" />
+                        <NavMenuItem text="PLANES" :link="{ name: 'plans' }" />
                         <li v-if="!isLoggedIn" class="menu-item auth-nav-item">
                             <div class="auth-nav-group">
                                 <button type="button" class="auth-nav-button auth-nav-button--ghost"
@@ -172,26 +167,45 @@
 
             <nav class="qodef-mobile-menu-navigation">
                 <ul class="qodef-mobile-menu-list">
-                    <li><a href="/" @click="closeMobileMenu">INICIO</a></li>
-                    <li><a href="/servicios" @click="closeMobileMenu">SERVICIOS</a></li>
+                    <li>
+                        <RouterLink :to="{ name: 'home' }" @click="closeMobileMenu">INICIO</RouterLink>
+                    </li>
+                    <li>
+                        <RouterLink :to="{ name: 'services' }" @click="closeMobileMenu">SERVICIOS</RouterLink>
+                    </li>
                     <li class="qodef-has-submenu">
-                        <a href="#" @click.prevent="toggleSubmenu($event)">PLANTILLAS</a>
+                        <div class="qodef-mobile-submenu-header">
+                            <RouterLink :to="{ name: 'templates' }" @click="closeMobileMenu">PLANTILLAS</RouterLink>
+                            <button type="button" class="qodef-submenu-toggle"
+                                aria-label="Mostrar submenú de plantillas" @click="toggleSubmenu($event)">
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
                         <ul class="qodef-submenu">
-                            <li><a href="/plantillas" @click="closeMobileMenu">Flyers</a></li>
-                            <li><a href="/plantillas" @click="closeMobileMenu">Novedades</a></li>
-                            <li><a href="/plantillas" @click="closeMobileMenu">Populares</a></li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { category: 'flyer' } }"
+                                    @click="closeMobileMenu">Flyers</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { fresh: '1' } }" @click="closeMobileMenu">
+                                    Novedades</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { popular: '1' } }"
+                                    @click="closeMobileMenu">Populares</RouterLink>
+                            </li>
                         </ul>
                     </li>
-                    <li><a href="/contacto" @click="closeMobileMenu">CONTATO</a></li>
-                    <li class="qodef-has-submenu">
-                        <a href="#" @click.prevent="toggleSubmenu($event)">SERVICIOS POPULARES</a>
-                        <ul class="qodef-submenu">
-                            <li><a href="/servicios/diseno" @click="closeMobileMenu">Diseño Gráfico</a></li>
-                            <li><a href="/servicios/branding" @click="closeMobileMenu">Branding</a></li>
-                            <li><a href="/servicios/marketing" @click="closeMobileMenu">Marketing Digital</a></li>
-                        </ul>
+                    <li>
+                        <RouterLink :to="{ name: 'contact' }" @click="closeMobileMenu">CONTATO</RouterLink>
                     </li>
-                    <li><a href="/planes" @click="closeMobileMenu">PLANES</a></li>
+                    <li>
+                        <RouterLink :to="{ name: 'templates' }" @click="closeMobileMenu">PLANTILLAS</RouterLink>
+                    </li>
+                    <li>
+                        <RouterLink :to="{ name: 'plans' }" @click="closeMobileMenu">PLANES</RouterLink>
+                    </li>
                     <li v-if="!isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button"
                             @click="openAuthModal('login')">Ingresar</button>
@@ -202,7 +216,7 @@
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <a :href="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{ mobileAccountLabel
-                        }}</a>
+                            }}</a>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button mobile-auth-button--primary"
@@ -279,20 +293,16 @@
 
                 <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
                     <ul id="menu-main-menu-2" class="menu">
-                        <NavMenuItem text="INICIO" link="/" />
-                        <NavMenuItem text="SERVICIOS" link="/servicios" />
-                        <NavMenuItem text="PLANTILLAS" :has-children="true" :sub-items="[
-                            { id: 1, text: 'Flyers', link: '/plantillas' },
-                            { id: 2, text: 'Novedades', link: '/plantillas' },
-                            { id: 3, text: 'Populares', link: '/plantillas' }
+                        <NavMenuItem text="INICIO" :link="{ name: 'home' }" />
+                        <NavMenuItem text="SERVICIOS" :link="{ name: 'services' }" />
+                        <NavMenuItem text="PLANTILLAS" :link="{ name: 'templates' }" :has-children="true" :sub-items="[
+                            { id: 1, text: 'Flyers', link: { name: 'templates', query: { category: 'flyer' } } },
+                            { id: 2, text: 'Novedades', link: { name: 'templates', query: { fresh: '1' } } },
+                            { id: 3, text: 'Populares', link: { name: 'templates', query: { popular: '1' } } }
                         ]" />
                         <NavMenuItem text="CONTATO" link="/contacto" />
-                        <NavMenuItem text="SERVICIOS POPULARES" :has-children="true" :sub-items="[
-                            { id: 1, text: 'Diseño Gráfico', link: '/servicios/diseno' },
-                            { id: 2, text: 'Branding', link: '/servicios/branding' },
-                            { id: 3, text: 'Marketing Digital', link: '/servicios/marketing' }
-                        ]" />
-                        <NavMenuItem text="PLANES" link="/planes" />
+
+                        <NavMenuItem text="PLANES" :link="{ name: 'plans' }" />
                         <li v-if="!isLoggedIn" class="menu-item auth-nav-item">
                             <div class="auth-nav-group">
                                 <button type="button" class="auth-nav-button auth-nav-button--ghost"
@@ -320,7 +330,29 @@
                 </nav>
 
                 <div class="qodef-widget-holder qodef--one">
-                    <div class="widget widget_moreau_core_side_area_opener" data-area="main-home">
+                    <button class="qodef-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
+                        <span class="qodef-m-icon">
+                            <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                                height="41.477" viewBox="0 0 41.477 41.477">
+                                <g>
+                                    <g transform="translate(8.257 8.257)">
+                                        <ellipse cx="12.715" cy="12.715" rx="12.715" ry="12.715" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"></ellipse>
+                                        <ellipse cx="12.715" cy="12.715" rx="11.715" ry="11.715" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"></ellipse>
+                                    </g>
+                                    <g>
+                                        <path d="M20.737 0v41.478" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                        <path d="M41.477 20.739H0" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                    </g>
+                                </g>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <div class="widget widget_moreau_core_side_area_opener qodef-desktop-only" data-area="main-home">
                         <a href="javascript:void(0)"
                             class="qodef-opener-icon qodef-m qodef-source--predefined qodef-side-area-opener"
                             @click="toggleSideArea">
@@ -359,6 +391,7 @@
 
 <script setup>
     import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+    import { RouterLink } from 'vue-router';
     import SideArea from './SideArea.vue';
     import NavMenuItem from './NavMenuItem.vue';
     import AuthModal from '../auth/AuthModal.vue';
@@ -471,7 +504,10 @@
     };
 
     const toggleSubmenu = (event) => {
-        const parent = event.currentTarget.parentElement;
+        const parent = event.currentTarget.closest('.qodef-has-submenu');
+        if (!parent) {
+            return;
+        }
         parent.classList.toggle('qodef--opened');
     };
 </script>
@@ -487,6 +523,7 @@
         height: var(--qode-header-height);
         background-color: var(--qode-background-color);
         z-index: 100;
+        box-sizing: border-box;
     }
 
     .qodef-header--standard-no-logo #qodef-page-header {
@@ -501,6 +538,7 @@
         height: 100%;
         padding: 0 40px;
         border-bottom: 0 solid var(--qode-heading-color);
+        box-sizing: border-box;
     }
 
     .qodef-header-wrapper {
@@ -509,6 +547,7 @@
         justify-content: space-between;
         width: 100%;
         height: 100%;
+        box-sizing: border-box;
     }
 
     /* Widget Holder */
@@ -1002,6 +1041,9 @@
         height: var(--qode-header-height);
         background-color: #ffffff;
         border-bottom: 1px solid #000000;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100vw;
     }
 
     body.dark-mode .qodef-header-sticky {
@@ -1032,6 +1074,7 @@
         justify-content: space-between;
         height: 100%;
         padding: 0 40px;
+        box-sizing: border-box;
     }
 
     .qodef-header-sticky .qodef-header-wrapper {
@@ -1170,6 +1213,57 @@
         text-decoration: none;
     }
 
+    .qodef-mobile-submenu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .qodef-mobile-submenu-header>a {
+        flex: 1;
+        display: block;
+        padding: 20px 0;
+        font-family: "IBM Plex Mono", sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .qodef-submenu-toggle {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        background: transparent;
+        color: #ffffff;
+        cursor: pointer;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .qodef-submenu-toggle span {
+        display: block;
+        width: 16px;
+        height: 1.5px;
+        background-color: currentColor;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .qodef-submenu-toggle span:last-child {
+        margin-top: 6px;
+    }
+
+    .qodef-submenu-toggle:hover {
+        border-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+
     .qodef-mobile-menu-list>li.qodef-has-submenu>a {
         position: relative;
     }
@@ -1180,6 +1274,18 @@
         right: 0;
         font-size: 24px;
         transition: transform 0.3s ease;
+    }
+
+    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle span:first-child {
+        transform: translateY(3px) rotate(45deg);
+    }
+
+    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle span:last-child {
+        transform: translateY(-3px) rotate(-45deg);
+    }
+
+    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.25);
     }
 
     .qodef-mobile-menu-list>li.qodef-has-submenu.qodef--opened>a:after {
@@ -1361,7 +1467,7 @@
     }
 
     /* Responsive */
-    @media (max-width: 880px) {
+    @media (max-width: 1024px) {
 
         /* Ocultar navegación desktop */
         .qodef-header-navigation {

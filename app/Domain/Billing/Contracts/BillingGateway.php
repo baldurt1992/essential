@@ -12,6 +12,8 @@ interface BillingGateway
 {
     public function createSubscriptionCheckoutSession(User $user, Plan $plan, array $options = []): StripeSession;
 
+    public function createPublicSubscriptionCheckoutSession(Plan $plan, ?string $customerEmail = null, array $options = []): StripeSession;
+
     public function createOneTimeCheckoutSession(User $user, array $payload, array $options = []): StripeSession;
 
     public function retrieveSubscription(string $stripeSubscriptionId): StripeSubscription;

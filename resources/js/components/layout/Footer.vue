@@ -1,80 +1,90 @@
 <template>
-    <footer id="qodef-page-footer" class="qodef-custom-cursor--activate" role="contentinfo">
-        <!-- Footer Top Area -->
-        <div id="qodef-page-footer-top-area">
-            <div id="qodef-page-footer-top-area-inner" class="qodef-content-grid">
-                <div
-                    class="qodef-grid qodef-layout--columns qodef-responsive--custom qodef-col-num--4 qodef-col-num--1200--2 qodef-col-num--1024--2 qodef-col-num--880--2 qodef-col-num--680--1 qodef-layout--predefined">
-                    <div class="qodef-grid-inner">
-                        <!-- Column 1: PLANTILLAS -->
-                        <div class="qodef-grid-item">
-                            <div class="widget widget_block">
-                                <h6 class="wp-block-heading">PLANTILLAS</h6>
-                            </div>
-                            <div class="widget widget_block">
-                                <ul class="wp-block-list">
-                                    <li><a href="/plantillas">Flyers</a></li>
-                                    <li><a href="/plantillas">Novedades</a></li>
-                                    <li><a href="/plantillas">Populares</a></li>
-                                </ul>
-                            </div>
-                        </div>
+    <footer id="site-footer" role="contentinfo">
+        <div class="footer-top">
+            <div class="footer-top__inner">
+                <div class="footer-grid">
+                    <div class="footer-column">
+                        <h6 class="footer-column__title">Plantillas</h6>
+                        <ul class="footer-column__list">
+                            <li><a href="/plantillas">Flyers</a></li>
+                            <li><a href="/plantillas">Novedades</a></li>
+                            <li><a href="/plantillas">Populares</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Column 2: INFORMACIÓN -->
-                        <div class="qodef-grid-item">
-                            <div class="widget widget_block">
-                                <h6 class="wp-block-heading">INFORMACIÓN</h6>
-                            </div>
-                            <div class="widget widget_block">
-                                <ul class="wp-block-list">
-                                    <li><a href="/precios">Precios</a></li>
-                                    <li><a href="/servicios">Servicios</a></li>
-                                    <li><a href="/contacto">Contactar</a></li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="footer-column">
+                        <h6 class="footer-column__title">Información</h6>
+                        <ul class="footer-column__list">
+                            <li><a href="/precios">Precios</a></li>
+                            <li><a href="/servicios">Servicios</a></li>
+                            <li><a href="/contacto">Contactar</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Column 3: LEGAL -->
-                        <div class="qodef-grid-item">
-                            <div class="widget widget_block">
-                                <h6 class="wp-block-heading">LEGAL</h6>
-                            </div>
-                            <div class="widget widget_block">
-                                <ul class="wp-block-list">
-                                    <li><a href="/cookies">Cookies</a></li>
-                                    <li><a href="/politica_privacidad">Política de Privacidad</a></li>
-                                    <li><a href="/terminosdeuso">Términos de uso</a></li>
-                                    <li><a href="/copright">Copyright</a></li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="footer-column">
+                        <h6 class="footer-column__title">Legal</h6>
+                        <ul class="footer-column__list">
+                            <li><a href="/cookies">Cookies</a></li>
+                            <li><a href="/politica_privacidad">Política de Privacidad</a></li>
+                            <li><a href="/terminosdeuso">Términos de uso</a></li>
+                            <li><a href="/copright">Copyright</a></li>
+                        </ul>
+                    </div>
 
-                        <!-- Column 4: REDES Y CONTACTO -->
-                        <div class="qodef-grid-item">
-                            <div class="widget widget_block">
-                                <h6 class="wp-block-heading">REDES Y CONTACTO</h6>
+                    <div class="footer-column footer-column--contact">
+                        <h6 class="footer-column__title">Redes y contacto</h6>
+
+                        <div class="footer-contact">
+                            <div v-if="isLoading" class="footer-contact__loading">
+                                <span class="footer-contact__spinner"></span>
+                                <p>Cargando información…</p>
                             </div>
-                            <div class="widget widget_block">
-                                <ul class="wp-block-list">
-                                    <li><a href="mailto:infoessential@innovation.com">Correo</a></li>
-                                    <li><a href="https://www.instagram.com/essential.innovation/?hl=es" target="_blank"
-                                            rel="nofollow noopener">Instagram</a></li>
+
+                            <template v-else>
+                                <ul v-if="contactItems.length" class="footer-contact__list">
+                                    <li v-for="item in contactItems" :key="item.key" class="footer-contact__item">
+                                        <span class="footer-contact__item-icon">
+                                            <i :class="['pi', item.icon]" aria-hidden="true"></i>
+                                        </span>
+                                        <div class="footer-contact__item-content">
+                                            <span class="footer-contact__item-label">{{ item.label }}</span>
+                                            <a v-if="item.href" :href="item.href" target="_blank" rel="noopener"
+                                                class="footer-contact__item-link">
+                                                {{ item.display }}
+                                            </a>
+                                            <span v-else class="footer-contact__item-text">{{ item.display }}</span>
+                                        </div>
+                                    </li>
                                 </ul>
-                            </div>
+
+                                <p v-if="contactNote" class="footer-contact__note">
+                                    {{ contactNote }}
+                                </p>
+
+                                <div v-if="displaySocials.length" class="footer-contact__socials">
+                                    <a v-for="social in displaySocials" :key="social.network" :href="social.url"
+                                        target="_blank" rel="noopener" class="footer-contact__social-link">
+                                        <span class="sr-only">{{ social.label }}</span>
+                                        <i :class="['pi', social.icon]" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Bottom Area -->
-        <div id="qodef-page-footer-bottom-area">
-            <div id="qodef-page-footer-bottom-area-inner" class="qodef-content-full-width">
-                <div class="qodef-footer-bottom-content">
-                    <div class="qodef-custom-text-holder">
-                        <p>© 2025 <a href="/" target="_blank" rel="nofollow noopener">ESSENTIAL INNOVATION</a>, ALL
-                            RIGHTS RESERVED</p>
-                    </div>
+        <div class="footer-bottom">
+            <div class="footer-bottom__inner">
+                <div class="footer-bottom__content">
+                    <p>
+                        © 2025
+                        <a href="/" target="_blank" rel="nofollow noopener">
+                            ESSENTIAL INNOVATION
+                        </a>
+                        , ALL RIGHTS RESERVED
+                    </p>
                 </div>
             </div>
         </div>
@@ -82,244 +92,421 @@
 </template>
 
 <script setup>
-    // Footer component
+    import { computed, onMounted } from 'vue';
+    import { useSiteContactInformation } from '../../composables/useSiteContactInformation';
+
+    const SOCIAL_ICON_MAP = {
+        website: { icon: 'pi-globe', label: 'Sitio web' },
+        instagram: { icon: 'pi-instagram', label: 'Instagram' },
+        facebook: { icon: 'pi-facebook', label: 'Facebook' },
+        linkedin: { icon: 'pi-linkedin', label: 'LinkedIn' },
+        twitter: { icon: 'pi-twitter', label: 'Twitter' },
+        youtube: { icon: 'pi-youtube', label: 'YouTube' },
+        tiktok: { icon: 'pi-tiktok', label: 'TikTok' },
+        pinterest: { icon: 'pi-pinterest', label: 'Pinterest' },
+        whatsapp: { icon: 'pi-whatsapp', label: 'WhatsApp' },
+        telegram: { icon: 'pi-telegram', label: 'Telegram' },
+        github: { icon: 'pi-github', label: 'GitHub' },
+        slack: { icon: 'pi-slack', label: 'Slack' },
+        reddit: { icon: 'pi-reddit', label: 'Reddit' },
+        vimeo: { icon: 'pi-vimeo', label: 'Vimeo' },
+        twitch: { icon: 'pi-twitch', label: 'Twitch' },
+    };
+
+    const { contact, socialLinks, isLoading, fetchContactInformation } = useSiteContactInformation();
+
+    onMounted(() => {
+        fetchContactInformation();
+    });
+
+    const sanitizeHref = (value) => value?.trim() ?? '';
+
+    const formatTelHref = (value) => {
+        const raw = sanitizeHref(value);
+        if (!raw) {
+            return null;
+        }
+        const digits = raw.replace(/[^\d+]/g, '');
+        return digits ? `tel:${digits}` : null;
+    };
+
+    const formatWhatsappHref = (value) => {
+        const raw = sanitizeHref(value);
+        if (!raw) {
+            return null;
+        }
+        if (raw.startsWith('http')) {
+            return raw;
+        }
+        const digits = raw.replace(/[^\d]/g, '');
+        return digits ? `https://wa.me/${digits}` : null;
+    };
+
+    const formatUrl = (value) => {
+        const raw = sanitizeHref(value);
+        if (!raw) {
+            return null;
+        }
+        if (raw.startsWith('http://') || raw.startsWith('https://')) {
+            return raw;
+        }
+        return `https://${raw}`;
+    };
+
+    const joinLocation = (lineOne, lineTwo) => {
+        return [lineOne, lineTwo].filter(Boolean).join(' · ');
+    };
+
+    const contactItems = computed(() => {
+        const data = contact.value ?? {};
+
+        const items = [
+            {
+                key: 'email',
+                label: 'Correo',
+                icon: 'pi-envelope',
+                value: data.email,
+                href: data.email ? `mailto:${sanitizeHref(data.email)}` : null,
+                display: data.email,
+            },
+            {
+                key: 'phone',
+                label: 'Teléfono',
+                icon: 'pi-phone',
+                value: data.phone,
+                href: formatTelHref(data.phone),
+                display: data.phone,
+            },
+            {
+                key: 'whatsapp',
+                label: 'WhatsApp',
+                icon: 'pi-whatsapp',
+                value: data.whatsapp,
+                href: formatWhatsappHref(data.whatsapp),
+                display: data.whatsapp,
+            },
+            {
+                key: 'support_hours',
+                label: 'Horario',
+                icon: 'pi-clock',
+                value: data.support_hours,
+                display: data.support_hours,
+            },
+            {
+                key: 'location',
+                label: 'Ubicación',
+                icon: 'pi-map-marker',
+                value: joinLocation(data.location_line_one, data.location_line_two),
+                display: joinLocation(data.location_line_one, data.location_line_two),
+            },
+            {
+                key: 'website',
+                label: 'Sitio web',
+                icon: 'pi-globe',
+                value: data.website_url,
+                href: formatUrl(data.website_url),
+                display: data.website_url?.replace(/^https?:\/\//, '') ?? '',
+            },
+        ];
+
+        return items
+            .filter((item) => sanitizeHref(item.value))
+            .map((item) => ({
+                ...item,
+                display: item.display?.trim() ?? item.value,
+            }));
+    });
+
+    const contactNote = computed(() => contact.value?.contact_note?.trim() ?? '');
+
+    const displaySocials = computed(() =>
+        socialLinks.value
+            .map((link) => {
+                const meta = SOCIAL_ICON_MAP[link.network];
+                if (!meta) {
+                    return null;
+                }
+                const href = formatUrl(link.url);
+                if (!href) {
+                    return null;
+                }
+                return {
+                    ...meta,
+                    network: link.network,
+                    url: href,
+                };
+            })
+            .filter(Boolean),
+    );
 </script>
 
 <style scoped>
     @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500&display=swap');
 
-    /* Footer Base */
-    #qodef-page-footer {
+    #site-footer {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        vertical-align: top;
+        color: var(--qode-text-color);
+        background: #171717;
+    }
+
+    #site-footer>* {
         position: relative;
         display: inline-block;
         width: 100%;
         vertical-align: top;
     }
 
-    #qodef-page-footer>* {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        vertical-align: top;
-    }
-
-    /* Footer Widgets */
-    #qodef-page-footer .widget {
-        margin-bottom: 0;
-    }
-
-    #qodef-page-footer .widget .qodef-widget-title,
-    #qodef-page-footer .widget h6.wp-block-heading {
-        font-family: 'Lexend', sans-serif;
-        font-size: 20px;
-        font-weight: 500;
-        line-height: 1.5625em;
-        text-transform: uppercase;
-        color: var(--qode-text-color);
-        display: block;
-        margin: 0 0 20px 0;
-    }
-
-    #qodef-page-footer .widget .qodef-custom-text-holder a,
-    #qodef-page-footer .widget .qodef-custom-text-holder p {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 14px;
-        line-height: 1.21429em;
-        font-weight: 500;
-        text-transform: uppercase;
-        margin: 0;
-    }
-
-    /* Footer Bottom también usa IBM Plex Mono */
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder a,
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder p {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 14px;
-    }
-
-    #qodef-page-footer .widget .qodef-custom-text-holder a {
-        text-decoration: none;
-    }
-
-    #qodef-page-footer .widget .qodef-custom-text-holder a:hover {
-        text-decoration: underline;
-    }
-
-    /* Footer Lists */
-    #qodef-page-footer .wp-block-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    #qodef-page-footer .wp-block-list li {
-        margin: 0 0 10px 0;
-    }
-
-    #qodef-page-footer .wp-block-list li:last-child {
-        margin-bottom: 0;
-    }
-
-    #qodef-page-footer .wp-block-list a {
-        font-family: 'Inter', sans-serif;
-        font-size: 17px;
-        font-weight: 400;
-        line-height: 1.52941em;
-        color: var(--qode-text-color);
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    /* Footer Top Area */
-    #qodef-page-footer-top-area {
+    .footer-top {
         background-color: #171717 !important;
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
         border-top: 0 solid var(--qode-heading-color);
+        padding: 136px 0 50px;
     }
 
-    #qodef-page-footer-top-area-inner {
-        padding-top: 136px;
-        padding-bottom: 200px;
-    }
-
-    #qodef-page-footer-top-area-inner .qodef-grid {
-        --qode-columns-row-gap: 50px;
-    }
-
-    /* Footer Top Area - Text Colors (Dark Background) */
-    #qodef-page-footer-top-area .widget h6.wp-block-heading,
-    #qodef-page-footer-top-area .wp-block-list a,
-    #qodef-page-footer-top-area .qodef-custom-text-holder p,
-    #qodef-page-footer-top-area .qodef-custom-text-holder a {
-        color: #ffffff;
-    }
-
-    /* Footer Bottom Area */
-    #qodef-page-footer-bottom-area {
-        background-color: #171717 !important;
-        border-top: 0 solid var(--qode-heading-color);
-    }
-
-    #qodef-page-footer-bottom-area-inner {
-        padding-top: 36px;
-        padding-bottom: 36px;
-    }
-
-    /* Footer Bottom Area - Text Colors (Dark Background) */
-    #qodef-page-footer-bottom-area .qodef-footer-bottom-content {
-        text-align: right;
-        width: 100%;
-    }
-
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder p,
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder a {
-        color: #ffffff !important;
-    }
-
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder {
-        text-align: right;
-        display: inline-block;
-    }
-
-    #qodef-page-footer-bottom-area .qodef-custom-text-holder a:hover {
-        text-decoration: underline;
-    }
-
-    /* Grid Layout */
-    .qodef-grid {
-        display: grid;
-        gap: var(--qode-columns-row-gap, 50px);
-    }
-
-    .qodef-grid-inner {
-        display: contents;
-    }
-
-    .qodef-grid-item {
-        display: block;
-    }
-
-    /* Responsive Grid - Footer Top (4 columns) */
-    .qodef-col-num--4 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    @media (max-width: 1200px) {
-        .qodef-col-num--1200--2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 1024px) {
-        .qodef-col-num--1024--2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 880px) {
-        .qodef-col-num--880--2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .qodef-col-num--880--1 {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 680px) {
-        .qodef-col-num--680--1 {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* Responsive Grid - Footer Bottom (2 columns) */
-    .qodef-col-num--2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .qodef-alignment--right .qodef-grid-inner {
-        justify-items: end;
-    }
-
-    .qodef-alignment--right .qodef-grid-item:last-child {
-        text-align: right;
-        justify-self: end;
-    }
-
-    @media (min-width: 1201px) {
-        #qodef-page-footer-top-area-inner .qodef-grid.qodef-layout--predefined>.qodef-grid-inner {
-            grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 6fr);
-        }
-    }
-
-
-    /* Content Grid */
-    .qodef-content-grid {
-        max-width: var(--qode-content-max-width, 1400px);
+    .footer-top__inner,
+    .footer-bottom__inner {
+        width: min(1380px, 100%);
         margin: 0 auto;
         padding: 0 40px;
     }
 
-    .qodef-content-full-width {
-        width: 100%;
-        padding: 0 40px;
-    }
-
     @media (max-width: 1200px) {
 
-        .qodef-content-grid,
-        .qodef-content-full-width {
+        .footer-top__inner,
+        .footer-bottom__inner {
             padding: 0 30px;
         }
     }
 
     @media (max-width: 680px) {
 
-        .qodef-content-grid,
-        .qodef-content-full-width {
+        .footer-top__inner,
+        .footer-bottom__inner {
             padding: 0 20px;
+        }
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 36px;
+    }
+
+    @media (min-width: 768px) {
+        .footer-grid {
+            gap: 42px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .footer-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .footer-column__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.5625em;
+        text-transform: uppercase;
+        color: #ffffff;
+        display: block;
+        margin: 0 0 24px;
+    }
+
+    .footer-column__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .footer-column__list a {
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.52941em;
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .footer-column__list a:hover {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .footer-column--contact {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .footer-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .footer-contact__loading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: var(--footer-muted);
+    }
+
+    .footer-contact__spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-top-color: var(--footer-text);
+        animation: footer-spin 0.8s linear infinite;
+    }
+
+    @keyframes footer-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .footer-contact__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .footer-contact__item {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 12px;
+    }
+
+    .footer-contact__item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 14px;
+    }
+
+    .footer-contact__item-label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.55);
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .footer-contact__item-text,
+    .footer-contact__item-link {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+        color: #ffffff;
+        word-break: break-word;
+    }
+
+    .footer-contact__item-link {
+        text-decoration: none;
+    }
+
+    .footer-contact__item-link:hover {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .footer-contact__note {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.55);
+        margin: 0;
+    }
+
+    .footer-contact__socials {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    .footer-contact__social-link {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        text-decoration: none;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .footer-contact__social-link:hover {
+        background: #ffffff;
+        color: #171717;
+        transform: translateY(-2px);
+    }
+
+    .footer-bottom {
+        background-color: #171717 !important;
+        padding: 36px 0;
+        border-top: 0 solid var(--qode-heading-color);
+    }
+
+    .footer-bottom__content {
+        width: 100%;
+        text-align: right;
+    }
+
+    .footer-bottom__content p {
+        margin: 0;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 14px;
+        color: #ffffff;
+    }
+
+    .footer-bottom__content a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .footer-bottom__content a:hover {
+        text-decoration: underline;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    @media (min-width: 768px) {
+        .footer-bottom__content {
+            text-align: right;
         }
     }
 </style>

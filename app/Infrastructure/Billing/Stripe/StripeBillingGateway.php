@@ -59,6 +59,50 @@ class StripeBillingGateway implements BillingGateway
         return $this->stripe->checkout->sessions->create($payload);
     }
 
+    public function createPublicSubscriptionCheckoutSession(Plan $plan, ?string $customerEmail = null, array $options = []): StripeSession
+    {
+        if (! $plan->stripe_price_id) {
+            throw new InvalidArgumentException('Plan does not have an associated Stripe price ID.');
+        }
+
+        $payload = [
+            'mode' => 'subscription',
+            'payment_method_types' => ['card'],
+            'line_items' => [
+                [
+                    'price' => $plan->stripe_price_id,
+                    'quantity' => Arr::get($options, 'quantity', 1),
+                ],
+            ],
+            'allow_promotion_codes' => true,
+            'success_url' => Arr::get($options, 'success_url', config('billing.stripe.success_url')),
+            'cancel_url' => Arr::get($options, 'cancel_url', config('billing.stripe.cancel_url')),
+            'subscription_data' => [
+                'metadata' => array_merge(
+                    [
+                        'plan_uuid' => $plan->uuid,
+                    ],
+                    Arr::get($options, 'subscription_metadata', []),
+                ),
+                'trial_period_days' => Arr::get($options, 'trial_period_days', config('billing.stripe.subscription_trial_days')),
+            ],
+            'metadata' => array_merge(
+                [
+                    'plan_uuid' => $plan->uuid,
+                    'session_type' => 'public_subscription',
+                ],
+                Arr::get($options, 'metadata', []),
+            ),
+        ];
+
+        // Add customer email if provided (optional for public checkout)
+        if ($customerEmail) {
+            $payload['customer_email'] = $customerEmail;
+        }
+
+        return $this->stripe->checkout->sessions->create($payload);
+    }
+
     public function createOneTimeCheckoutSession(User $user, array $payload, array $options = []): StripeSession
     {
         $lineItem = Arr::only($payload, ['price', 'quantity', 'adjustable_quantity', 'tax_rates']);

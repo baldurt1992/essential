@@ -143,14 +143,15 @@
 
     .hero-title {
         font-family: 'Space Mono', monospace;
-        font-size: 281px;
+        font-size: clamp(220px, 18vw, 260px);
         font-weight: 700;
         color: var(--qode-text-color);
         text-transform: uppercase;
         letter-spacing: -10px;
         line-height: 25px;
         position: absolute;
-        left: 223.5px;
+        left: 50%;
+        transform: translateX(-50%);
         top: 216px;
         margin: 0;
         z-index: 8;
@@ -263,6 +264,7 @@
             left: auto;
             top: auto;
             text-align: center;
+            transform: none;
             margin: 40px 0 30px;
         }
 

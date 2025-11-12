@@ -46,8 +46,9 @@
                     </span>
                 </button>
                 <div class="admin-header__info">
-                    <h1 class="admin-header__title">Panel de administración</h1>
-                    <p class="admin-header__subtitle">Gestiona plantillas, planes y contenido destacado</p>
+                    <img src="/images/liquid-removebg-preview-100x100.png" alt="Essential Innovation"
+                        class="admin-header__logo" />
+                    <p class="admin-header__subtitle">Todo en orden · Última actualización automática</p>
                 </div>
                 <div class="admin-header__profile">
                     <div class="admin-header__user">
@@ -74,7 +75,6 @@
 <script setup>
     import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue';
     import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
-    import Button from 'primevue/button';
     import { useAuth } from '../../composables/useAuth.js';
 
     const auth = useAuth();
@@ -125,7 +125,6 @@
         { label: 'Planes', name: 'admin.plans', icon: 'pi-briefcase' },
         { label: 'Suscripciones', name: 'admin.subscriptions', icon: 'pi-id-card' },
         { label: 'Servicios', name: 'admin.services', icon: 'pi-list' },
-        { label: 'Servicios populares', name: 'admin.popular-services', icon: 'pi-star' },
         { label: 'Contacto', name: 'admin.contact', icon: 'pi-envelope' },
     ]));
 
@@ -246,7 +245,7 @@
     }
 
     .admin-header {
-        padding: 28px 36px;
+        padding: 16px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -274,22 +273,21 @@
 
     .admin-header__info {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        align-items: center;
+        gap: 18px;
     }
 
-    .admin-header__title {
-        font-family: 'Space Mono', monospace;
-        font-size: 24px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin: 0;
+    .admin-header__logo {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        pointer-events: none;
     }
 
     .admin-header__subtitle {
         font-family: 'Inter', sans-serif;
         font-size: 14px;
-        opacity: 0.7;
+        opacity: 0.75;
         margin: 0;
     }
 
@@ -390,7 +388,16 @@
         .admin-header__info {
             flex-direction: column;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .admin-header__logo {
+            width: 56px;
+            height: 56px;
+        }
+
+        .admin-header__subtitle {
+            font-size: 13px;
         }
 
         .admin-header__profile {

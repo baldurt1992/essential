@@ -63,6 +63,8 @@ class TemplateService
             'tags' => Arr::get($data, 'tags', []),
             'metadata' => Arr::get($data, 'metadata', []),
             'is_active' => Arr::get($data, 'is_active', true),
+            'is_popular' => Arr::get($data, 'is_popular', false),
+            'is_new' => Arr::get($data, 'is_new', false),
             'sort_order' => Arr::get($data, 'sort_order', 0),
         ];
     }
@@ -97,6 +99,14 @@ class TemplateService
 
         if (array_key_exists('is_active', $data)) {
             $payload['is_active'] = (bool) $data['is_active'];
+        }
+
+        if (array_key_exists('is_popular', $data)) {
+            $payload['is_popular'] = (bool) $data['is_popular'];
+        }
+
+        if (array_key_exists('is_new', $data)) {
+            $payload['is_new'] = (bool) $data['is_new'];
         }
 
         if (array_key_exists('sort_order', $data)) {

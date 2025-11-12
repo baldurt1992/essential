@@ -280,7 +280,6 @@
     }
 
     .portfolio-header {
-        position: relative;
         margin-bottom: 85px;
     }
 
@@ -305,7 +304,7 @@
     .header-button {
         position: absolute;
         top: -150px;
-        right: -80px;
+        right: clamp(40px, 8vw, 0px);
         display: inline-block;
         width: 207px;
         max-width: 207px;
@@ -327,7 +326,7 @@
 
     @media (min-width: 1620px) {
         .header-button {
-            right: calc((100vw - 1620px) / 2 - 380px);
+            right: calc((100vw - 1620px) / 2 + -34px);
         }
     }
 
@@ -672,9 +671,9 @@
         box-sizing: border-box;
     }
 
-    @media (max-width: 1368px) {
+    @media (max-width: 1180px) {
         .header-button {
-            position: static;
+            position: relative;
             margin-top: 35px;
             margin-left: auto;
             margin-right: auto;
@@ -688,7 +687,87 @@
         }
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1024px) {
+        .portfolio-header {
+            display: flex;
+            justify-content: center;
+        }
+
+        .header-button {
+            top: auto;
+            left: auto;
+            right: auto;
+            margin: 40px auto 0;
+        }
+
+        .portfolio-grid.qodef-grid>.qodef-grid-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .portfolio-grid.qodef-grid>.qodef-grid-inner .qodef-e {
+            width: 100%;
+        }
+
+        .qodef-custom-margin .qodef-e-inner {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        .qodef-e-hover-overlay {
+            display: none !important;
+        }
+
+        .qodef-item-layout--info-follow.qodef-hover-animation--follow .qodef-e-content {
+            display: block;
+            margin-top: 18px;
+        }
+
+        .qodef-e-info {
+            display: inline-flex;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(23, 23, 23, 0.7);
+        }
+
+        .qodef-e-info a {
+            color: rgba(23, 23, 23, 0.7);
+            text-decoration: none;
+        }
+
+        .qodef-e-title {
+            margin: 12px 0 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            text-transform: uppercase;
+            color: #171717;
+        }
+
+        .qodef-e-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .qodef-e-post-link {
+            display: none;
+        }
+
+        body.dark-mode .qodef-e-info,
+        body.dark-mode .qodef-e-info a {
+            color: rgba(243, 243, 243, 0.75);
+        }
+
+        body.dark-mode .qodef-e-title,
+        body.dark-mode .qodef-e-title a {
+            color: #f3f3f3;
+        }
+    }
+
+    @media (max-width: 1180px) {
         .tagline-inner {
             padding-left: 40px;
         }

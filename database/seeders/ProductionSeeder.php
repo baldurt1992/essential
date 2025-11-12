@@ -49,6 +49,11 @@ class ProductionSeeder extends Seeder
             $roleModel->syncPermissions($permissionsForRole);
         }
 
-        $this->call([PlanSeeder::class, TemplateSeeder::class]);
+        $this->call([
+            PlanSeeder::class,
+            TemplateSeeder::class,
+            ServiceSeeder::class,
+            ContactInformationSeeder::class,
+        ]);
     }
 }

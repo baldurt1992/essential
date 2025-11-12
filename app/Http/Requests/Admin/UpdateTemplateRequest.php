@@ -23,6 +23,8 @@ class UpdateTemplateRequest extends FormRequest
             'tags.*' => ['string', 'max:100'],
             'metadata' => ['sometimes', 'nullable', 'array'],
             'is_active' => ['sometimes', 'boolean'],
+            'is_popular' => ['sometimes', 'boolean'],
+            'is_new' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'preview_image' => ['sometimes', 'nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'package_file' => ['sometimes', 'nullable', 'file', 'mimes:zip,rar', 'max:51200'],

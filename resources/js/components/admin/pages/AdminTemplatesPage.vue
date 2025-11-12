@@ -30,9 +30,13 @@
                 </div>
 
                 <div v-if="!templates.length" class="admin-placeholder">
-                    <span class="admin-placeholder__emoji">🎨</span>
+                    <span class="admin-placeholder__icon">
+                        <i class="pi pi-images"></i>
+                    </span>
                     <p class="admin-placeholder__text">
-                        Aún no hay plantillas creadas. Crea la primera para comenzar a poblar el catálogo.
+                        Aquí aparecerá el listado de plantillas con filtros, estado y carga de archivos (preview y
+                        paquete
+                        descargable).
                     </p>
                 </div>
 
@@ -51,8 +55,16 @@
                             <tr v-for="template in templates" :key="template.id">
                                 <td>
                                     <div class="admin-table__title">
-                                        <strong>{{ template.title }}</strong>
-                                        <span class="admin-table__slug">/{{ template.slug }}</span>
+                                        <div class="admin-table__title-main">
+                                            <strong>{{ template.title }}</strong>
+                                            <span class="admin-table__slug">/{{ template.slug }}</span>
+                                        </div>
+                                        <div class="admin-table__flags">
+                                            <span v-if="template.is_popular"
+                                                class="admin-badge admin-badge--accent">Popular</span>
+                                            <span v-if="template.is_new"
+                                                class="admin-badge admin-badge--muted">Nuevo</span>
+                                        </div>
                                     </div>
                                     <p v-if="template.description" class="admin-table__description">
                                         {{ template.description }}
@@ -69,7 +81,7 @@
                                 </td>
                                 <td>
                                     <span class="admin-table__timestamp">{{ formatUpdatedAt(template.updated_at)
-                                    }}</span>
+                                        }}</span>
                                 </td>
                                 <td class="admin-table__actions">
                                     <button type="button" class="admin-icon-button"
@@ -86,6 +98,13 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div v-if="templates.length" class="admin-table__paginator">
+                    <Paginator :first="first" :rows="pagination.per_page" :totalRecords="pagination.total"
+                        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+                        @page="handlePageChange" />
+                </div>
             </template>
         </div>
 
@@ -101,12 +120,15 @@
 </template>
 
 <script setup>
-    import { computed, onMounted, ref } from 'vue';
+    import { computed, onMounted, ref, watch } from 'vue';
     import { useConfirm } from 'primevue/useconfirm';
     import { useToast } from 'primevue/usetoast';
     import ConfirmPopup from 'primevue/confirmpopup';
     import AdminTemplateForm from '../templates/AdminTemplateForm.vue';
     import { useAdminTemplates } from '../../../composables/admin/useTemplates';
+    import Paginator from 'primevue/paginator';
+
+    const first = ref(0);
 
     const {
         templates,
@@ -133,6 +155,16 @@
     const defaultCurrency = computed(() => templates.value?.[0]?.currency?.toUpperCase() ?? 'EUR');
     const modalTitle = computed(() => (modalMode.value === 'edit' ? 'Editar plantilla' : 'Nueva plantilla'));
 
+    watch(
+        pagination,
+        (meta) => {
+            const currentPage = meta?.current_page ?? 1;
+            const perPage = meta?.per_page ?? 15;
+            first.value = (currentPage - 1) * perPage;
+        },
+        { immediate: true, deep: true }
+    );
+
     const openCreateModal = () => {
         modalMode.value = 'create';
         selectedTemplate.value = null;
@@ -158,11 +190,14 @@
         try {
             if (modalMode.value === 'edit' && selectedTemplate.value) {
                 const response = await updateTemplate(selectedTemplate.value.id, formData ?? payload);
+                const currentPage = pagination.value?.current_page ?? 1;
+                await fetchTemplates({ page: currentPage });
                 isModalOpen.value = false;
                 return response;
             }
 
             await createTemplate(formData ?? payload);
+            await fetchTemplates({ page: 1 });
             isModalOpen.value = false;
         } catch (error) {
             const backendErrors = error.response?.data?.errors ?? {};
@@ -197,6 +232,8 @@
             accept: async () => {
                 try {
                     await deleteTemplate(template.id);
+                    const currentPage = pagination.value?.current_page ?? 1;
+                    await fetchTemplates({ page: currentPage });
                     toast.add({ severity: 'success', summary: 'Plantilla eliminada', life: 3000 });
                 } catch (error) {
                     console.error('[admin][templates][delete][error]', error);
@@ -245,6 +282,11 @@
     onMounted(async () => {
         await fetchTemplates();
     });
+
+    const handlePageChange = async (event) => {
+        first.value = event.first;
+        await fetchTemplates({ page: event.page + 1 });
+    };
 </script>
 
 <style scoped>
@@ -349,7 +391,14 @@
     .admin-table__wrapper {
         border: 1px solid rgba(0, 0, 0, 0.06);
         border-radius: 18px;
-        overflow: hidden;
+        overflow: auto;
+    }
+
+    .admin-table__paginator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 0 4px;
     }
 
     .admin-table {
@@ -382,7 +431,19 @@
     .admin-table__title {
         display: flex;
         flex-direction: column;
+        gap: 8px;
+    }
+
+    .admin-table__title-main {
+        display: flex;
+        flex-direction: column;
         gap: 6px;
+    }
+
+    .admin-table__flags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .admin-table__title strong {
@@ -438,6 +499,27 @@
         color: rgba(23, 23, 23, 0.7);
     }
 
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-family: 'IBM Plex Mono', monospace;
+        letter-spacing: 0.06em;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
+
+    .admin-badge--accent {
+        background: rgba(221, 51, 51, 0.12);
+        color: #dd3333;
+    }
+
+    .admin-badge--muted {
+        background: rgba(23, 23, 23, 0.08);
+        color: rgba(23, 23, 23, 0.6);
+    }
+
     .admin-table__actions {
         display: flex;
         gap: 10px;
@@ -481,8 +563,21 @@
         margin: 60px auto;
     }
 
-    .admin-placeholder__emoji {
-        font-size: 42px;
+    .admin-placeholder__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 1;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: rgba(221, 51, 51, 0.12);
+        color: #dd3333;
+    }
+
+    .admin-placeholder__icon .pi {
+        font-size: 24px;
     }
 
     .admin-placeholder__text {

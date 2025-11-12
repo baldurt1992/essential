@@ -29,6 +29,8 @@ class TemplateResource extends JsonResource
             'tags' => $this->tags ?? [],
             'metadata' => $this->metadata ?? [],
             'is_active' => $this->is_active,
+            'is_popular' => $this->is_popular,
+            'is_new' => $this->is_new,
             'sort_order' => $this->sort_order,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -38,6 +38,13 @@
                     </div>
                     <a itemprop="url" class="qodef-e-post-link" :href="item.link"></a>
                 </div>
+
+                <div class="team-card-info">
+                    <span class="team-card-info__category">{{ item.category }}</span>
+                    <h5 class="team-card-info__title">
+                        <RouterLink :to="item.link">{{ item.title }}</RouterLink>
+                    </h5>
+                </div>
             </div>
         </div>
     </section>
@@ -45,6 +52,7 @@
 
 <script setup>
     import { ref } from 'vue';
+    import { RouterLink } from 'vue-router';
 
     const teamItems = ref([
         {
@@ -269,7 +277,7 @@
     .qodef-e-hover-info,
     .qodef-e-hover-title-box {
         position: relative;
-        background-color: #171717 !important;
+        background-color: #171717;
         border-left: 1px solid #fff;
         border-right: 1px solid #fff;
         padding: 12px 20px;
@@ -279,6 +287,7 @@
         transform: translateX(-20px);
         transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s, visibility 0.4s ease 0.2s, border-left 0s 0.6s, border-right 0s 0.6s;
         z-index: 4;
+        color: #ffffff;
     }
 
     .masonry-item:hover .qodef-e-hover-info,
@@ -328,31 +337,144 @@
         font-family: 'Space Mono', monospace;
         font-size: 18px;
         font-weight: 700;
-        color: #fff !important;
+        color: inherit;
     }
 
     .qodef-e-hover-title a {
-        color: #fff !important;
+        color: inherit;
         text-decoration: none;
+    }
+
+    .team-card-info {
+        display: none;
     }
 
     @media (max-width: 1024px) {
         .portfolio-masonry {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
+            grid-auto-rows: auto;
+            gap: 0;
         }
 
+        .masonry-item {
+            min-height: 0;
+            overflow: visible;
+        }
+
+        .masonry-image {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .masonry-image img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+        }
+
+        .masonry-square,
         .masonry-landscape {
-            grid-column: span 2;
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .qodef-e-hover-overlay {
+            display: none !important;
+        }
+
+        .qodef-item-layout--info-follow.qodef-hover-animation--follow .qodef-e-content {
+            display: block;
+            margin-top: 16px;
+        }
+
+        .qodef-e-info {
+            display: inline-flex;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(23, 23, 23, 0.76);
+        }
+
+        .qodef-e-info a {
+            color: rgba(23, 23, 23, 0.76);
+            text-decoration: none;
+        }
+
+        .qodef-e-title {
+            margin: 10px 0 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            text-transform: uppercase;
+            color: #171717;
+        }
+
+        .qodef-e-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .team-card-info {
+            display: flex !important;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 14px;
+            padding: 0 4px 14px;
+        }
+
+        .team-card-info__category {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .team-card-info__title {
+            margin: 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .team-card-info__title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .qodef-e-post-link {
+            display: none;
+        }
+
+        body.dark-mode .qodef-e-info,
+        body.dark-mode .qodef-e-info a {
+            color: rgba(243, 243, 243, 0.75);
+        }
+
+        body.dark-mode .qodef-e-title,
+        body.dark-mode .qodef-e-title a {
+            color: #f3f3f3;
+        }
+
+        body.dark-mode .team-card-info__category {
+            color: rgba(243, 243, 243, 0.7);
+        }
+
+        body.dark-mode .team-card-info__title,
+        body.dark-mode .team-card-info__title a {
+            color: #f3f3f3;
         }
     }
 
     @media (max-width: 680px) {
         .portfolio-masonry {
-            grid-template-columns: 1fr;
+            gap: 0;
         }
 
-        .masonry-landscape {
-            grid-column: span 1;
+        .masonry-image img {
+            aspect-ratio: 1 / 1;
         }
     }
 </style>

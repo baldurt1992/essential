@@ -10,7 +10,7 @@
                             placeholder="Ej. Flyer Summer Party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('title')" class="template-form__error">{{ fieldError('title')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             placeholder="flyer-summer-party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('slug')" class="template-form__error">{{ fieldError('slug')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -50,7 +50,7 @@
                             @input="clearFieldError('price')" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('price')" class="template-form__error">{{ fieldError('price')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('sort_order')" class="template-form__error">{{
                                 fieldError('sort_order')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -71,6 +71,22 @@
                         <div class="template-form__switch-control">
                             <ToggleSwitch v-model="form.is_active" />
                             <span>{{ form.is_active ? 'Activa' : 'Oculta' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="template-form__switch">
+                        <label for="template-popular">Destacar como popular</label>
+                        <div class="template-form__switch-control">
+                            <ToggleSwitch v-model="form.is_popular" />
+                            <span>{{ form.is_popular ? 'Popular' : 'Estándar' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="template-form__switch">
+                        <label for="template-new">Marcar como nuevo</label>
+                        <div class="template-form__switch-control">
+                            <ToggleSwitch v-model="form.is_new" />
+                            <span>{{ form.is_new ? 'Nuevo' : 'Catálogo' }}</span>
                         </div>
                     </div>
                 </div>
@@ -145,7 +161,7 @@
                     <div class="template-form__error-slot">
                         <small v-if="fieldError('package_file')" class="template-form__error">{{
                             fieldError('package_file')
-                        }}</small>
+                            }}</small>
                     </div>
                 </div>
             </aside>
@@ -214,6 +230,8 @@
         price: null,
         tags: [],
         is_active: true,
+        is_popular: false,
+        is_new: false,
         sort_order: 0,
     });
 
@@ -276,6 +294,8 @@
         form.price = props.template?.price ?? null;
         form.tags = Array.isArray(props.template?.tags) ? [...props.template.tags] : [];
         form.is_active = props.template?.is_active ?? true;
+        form.is_popular = props.template?.is_popular ?? false;
+        form.is_new = props.template?.is_new ?? false;
         form.sort_order = props.template?.sort_order ?? 0;
         tagInput.value = '';
 
@@ -465,6 +485,8 @@
             price: Number(form.price ?? 0),
             tags: Array.isArray(form.tags) ? form.tags.filter((tag) => tag && tag.trim()).map((tag) => tag.trim()) : [],
             is_active: Boolean(form.is_active),
+            is_popular: Boolean(form.is_popular),
+            is_new: Boolean(form.is_new),
             sort_order: form.sort_order ?? 0,
         };
 
@@ -484,6 +506,8 @@
 
         formData.append('price', payload.price ?? 0);
         formData.append('is_active', payload.is_active ? '1' : '0');
+        formData.append('is_popular', payload.is_popular ? '1' : '0');
+        formData.append('is_new', payload.is_new ? '1' : '0');
         formData.append('sort_order', payload.sort_order ?? 0);
 
         if (payload.tags?.length) {

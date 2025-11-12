@@ -6,6 +6,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
@@ -13,6 +14,7 @@ import Tooltip from 'primevue/tooltip';
 import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice';
 import Chip from 'primevue/chip';
+import Paginator from 'primevue/paginator';
 
 // Importar componentes principales
 import App from './components/App.vue';
@@ -35,10 +37,12 @@ app.use(ConfirmationService);
 
 app.component('Dialog', Dialog);
 app.component('InputText', InputText);
+app.component('Textarea', Textarea);
 app.component('Password', Password);
 app.component('Button', Button);
 app.component('Message', Message);
 app.component('Chip', Chip);
+app.component('Paginator', Paginator);
 
 app.directive('tooltip', Tooltip);
 
