@@ -82,7 +82,7 @@ class SubscriptionService
         CheckoutSession::updateOrCreate(
             ['stripe_session_id' => $session->id],
             [
-                'user_id' => null, // Will be set after webhook processes the payment
+                'user_id' => Arr::get($options, 'user_id'), // User ID from authenticated user
                 'mode' => $session->mode,
                 'status' => $session->status ?? 'open',
                 'reference_type' => Plan::class,

@@ -19,4 +19,6 @@ interface BillingGateway
     public function retrieveSubscription(string $stripeSubscriptionId): StripeSubscription;
 
     public function cancelSubscription(Subscription $subscription, bool $atPeriodEnd = true): StripeSubscription;
+
+    public function reactivateSubscription(Subscription $subscription): StripeSubscription;
 }

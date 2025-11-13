@@ -48,16 +48,98 @@
                 </RouterLink>
             </div>
 
-            <div v-else class="plans-grid">
-                <article v-for="plan in plans" :key="plan.id"
-                    :class="['plan-card', { 'plan-card--recommended': plan.highlight.isRecommended }]">
+            <div v-else-if="hasMaximumPlan && currentPlanUuid" class="plan-current-only">
+                <article
+                    :class="['plan-card', 'plan-card--current', { 'plan-card--recommended': currentPlan?.highlight?.isRecommended }]">
                     <header class="plan-card__header">
-                        <div v-if="planHighlight(plan)" class="plan-card__badge">
+                        <div class="plan-card__badge plan-card__badge--current">Plan Actual</div>
+                        <h2 class="plan-card__title">{{ currentPlan?.name }}</h2>
+                        <p v-if="currentPlan?.description" class="plan-card__description">{{ currentPlan.description }}
+                        </p>
+                    </header>
+
+                    <div class="plan-card__pricing">
+                        <span class="plan-card__amount">{{ formatPrice(currentPlan) }}</span>
+                        <span class="plan-card__interval">{{ formatInterval(currentPlan) }}</span>
+                    </div>
+
+                    <div v-if="activeSubscription"
+                        :class="['plan-card__cancel-notice', { 'plan-card__cancel-notice--warning': activeSubscription?.will_cancel }]">
+                        <i class="pi pi-info-circle"></i>
+                        <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
+                            Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
+                                }}</strong> y perderás el acceso a los beneficios del plan.
+                        </span>
+                        <span v-else-if="activeSubscription?.current_period_end">
+                            Tu suscripción se renueva automáticamente el <strong>{{
+                                formatDate(activeSubscription.current_period_end) }}</strong>.
+                        </span>
+                        <span v-else>
+                            Tu suscripción está activa
+                        </span>
+                    </div>
+
+                    <ul v-if="currentPlan?.features?.length" class="plan-card__features">
+                        <li v-for="feature in currentPlan.features" :key="feature">
+                            <span class="plan-card__feature-icon" aria-hidden="true">
+                                <svg viewBox="0 0 16 16">
+                                    <path d="M6.2 11.4 3.1 8.3l1.4-1.4 1.7 1.7 4.3-4.3 1.4 1.4-5.7 5.7Z"></path>
+                                </svg>
+                            </span>
+                            <span>{{ feature }}</span>
+                        </li>
+                    </ul>
+
+                    <div class="plan-card__cta">
+                        <RouterLink :to="{ name: 'client.subscriptions' }"
+                            class="plans-button plans-button--ghost plan-card__cta-button">
+                            Gestionar Suscripción
+                        </RouterLink>
+                    </div>
+
+                    <footer v-if="currentPlan?.limits?.length" class="plan-card__limits">
+                        <h3>Incluye</h3>
+                        <ul>
+                            <li v-for="limit in currentPlan.limits" :key="limitKey(limit)">
+                                <strong v-if="limit.label">{{ limit.label }}:</strong>
+                                <span>{{ limitValue(limit) }}</span>
+                            </li>
+                        </ul>
+                    </footer>
+                </article>
+            </div>
+
+            <div v-else class="plans-grid">
+                <article v-for="plan in filteredPlans" :key="plan.id" :class="['plan-card', {
+                    'plan-card--recommended': plan.highlight.isRecommended,
+                    'plan-card--current': isCurrentPlan(plan)
+                }]">
+                    <header class="plan-card__header">
+                        <div v-if="isCurrentPlan(plan)" class="plan-card__badge plan-card__badge--current">
+                            ACTUAL
+                        </div>
+                        <div v-else-if="planHighlight(plan)" class="plan-card__badge">
                             {{ planHighlight(plan) }}
                         </div>
                         <h2 class="plan-card__title">{{ plan.name }}</h2>
                         <p v-if="plan.description" class="plan-card__description">{{ plan.description }}</p>
                     </header>
+
+                    <div v-if="isCurrentPlan(plan) && activeSubscription"
+                        :class="['plan-card__cancel-notice', { 'plan-card__cancel-notice--warning': activeSubscription?.will_cancel }]">
+                        <i class="pi pi-info-circle"></i>
+                        <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
+                            Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
+                                }}</strong> y perderás el acceso a los beneficios del plan.
+                        </span>
+                        <span v-else-if="activeSubscription?.current_period_end">
+                            Tu suscripción se renueva automáticamente el <strong>{{
+                                formatDate(activeSubscription.current_period_end) }}</strong>.
+                        </span>
+                        <span v-else>
+                            Tu suscripción está activa
+                        </span>
+                    </div>
 
                     <div class="plan-card__pricing">
                         <span class="plan-card__amount">{{ formatPrice(plan) }}</span>
@@ -76,9 +158,18 @@
                     </ul>
 
                     <div class="plan-card__cta">
-                        <button type="button" 
-                            :disabled="isCreatingCheckout === plan.id"
-                            @click="handleCheckout(plan)"
+                        <button v-if="isCurrentPlan(plan)" type="button" disabled
+                            class="plans-button plans-button--ghost plan-card__cta-button">
+                            Plan Actual
+                        </button>
+                        <button v-else-if="canUpgrade(plan)" type="button" :disabled="isCreatingCheckout === plan.id"
+                            @click="handleCheckout(plan, $event)"
+                            class="plans-button plans-button--primary plan-card__cta-button">
+                            <span v-if="isCreatingCheckout === plan.id">Creando checkout…</span>
+                            <span v-else>Actualizar Plan</span>
+                        </button>
+                        <button v-else type="button" :disabled="isCreatingCheckout === plan.id"
+                            @click="handleCheckout(plan, $event)"
                             class="plans-button plans-button--primary plan-card__cta-button">
                             <span v-if="isCreatingCheckout === plan.id">Creando checkout…</span>
                             <span v-else>{{ plan.cta.label ?? 'Comprar plan' }}</span>
@@ -116,21 +207,105 @@
 
 <script setup>
     import { computed, onMounted, ref } from 'vue';
-    import { RouterLink, useRouter } from 'vue-router';
+    import { RouterLink, useRouter, useRoute } from 'vue-router';
     import { useSitePlans } from '../../composables/useSitePlans';
+    import { useAuth } from '../../composables/useAuth';
+    import { useClientSubscriptions } from '../../composables/useClientSubscriptions';
     import axios from 'axios';
     import { useToast } from 'primevue/usetoast';
 
     const router = useRouter();
+    const route = useRoute();
     const toast = useToast();
+    const auth = useAuth();
     const plansSection = ref(null);
     const plansStore = useSitePlans();
+    const subscriptionsStore = useClientSubscriptions();
     const isCreatingCheckout = ref(null);
 
     const plans = plansStore.plans;
     const isLoading = plansStore.isLoading;
     const error = plansStore.error;
     const hasError = computed(() => !!error.value);
+
+    // Get active subscription
+    const activeSubscription = computed(() => {
+        if (!auth.isAuthenticated.value || !subscriptionsStore.activeSubscriptions.value.length) {
+            return null;
+        }
+        return subscriptionsStore.activeSubscriptions.value[0]; // Get first active subscription
+    });
+
+    const currentPlanUuid = computed(() => activeSubscription.value?.plan?.uuid || null);
+
+    // Calculate annual equivalent price for comparison
+    const getAnnualPrice = (plan) => {
+        const price = plan.price || 0;
+        const interval = plan.billing_interval || 'month';
+        const count = plan.billing_interval_count || 1;
+
+        if (interval === 'year') {
+            return price / count; // Price per year
+        } else if (interval === 'month') {
+            return (price / count) * 12; // Convert to annual
+        } else if (interval === 'week') {
+            return (price / count) * 52; // Convert to annual
+        } else if (interval === 'day') {
+            return (price / count) * 365; // Convert to annual
+        }
+        return price;
+    };
+
+    // Check if plan is current user's plan
+    const isCurrentPlan = (plan) => {
+        return currentPlanUuid.value === plan.uuid;
+    };
+
+    // Check if plan can be upgraded to (only if higher than current)
+    const canUpgrade = (plan) => {
+        if (!currentPlanUuid.value) {
+            return true; // No current plan, can purchase any
+        }
+
+        const currentPlan = plans.value.find(p => p.uuid === currentPlanUuid.value);
+        if (!currentPlan) {
+            return true;
+        }
+
+        const currentAnnualPrice = getAnnualPrice(currentPlan);
+        const planAnnualPrice = getAnnualPrice(plan);
+
+        return planAnnualPrice > currentAnnualPrice;
+    };
+
+    // Get filtered plans (only show current plan + upgradeable plans, or all if no current plan)
+    const filteredPlans = computed(() => {
+        if (!currentPlanUuid.value) {
+            return plans.value; // Show all plans if no active subscription
+        }
+
+        // Show current plan + plans that can be upgraded to
+        return plans.value.filter(plan =>
+            isCurrentPlan(plan) || canUpgrade(plan)
+        );
+    });
+
+    // Check if user has maximum plan
+    const hasMaximumPlan = computed(() => {
+        if (!currentPlanUuid.value || !plans.value.length) {
+            return false;
+        }
+
+        const currentPlan = plans.value.find(p => p.uuid === currentPlanUuid.value);
+        if (!currentPlan) {
+            return false;
+        }
+
+        const currentAnnualPrice = getAnnualPrice(currentPlan);
+        const maxAnnualPrice = Math.max(...plans.value.map(p => getAnnualPrice(p)));
+
+        return currentAnnualPrice >= maxAnnualPrice;
+    });
 
     const scrollToPlans = () => {
         if (plansSection.value) {
@@ -187,6 +362,22 @@
         return formatter.format(amount);
     };
 
+    const formatDate = (dateString) => {
+        console.log('[PlansPage] formatDate called with:', dateString, 'type:', typeof dateString);
+        if (!dateString) {
+            console.log('[PlansPage] formatDate: dateString is falsy');
+            return '';
+        }
+        const date = new Date(dateString);
+        const formatted = date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+        console.log('[PlansPage] formatDate result:', formatted);
+        return formatted;
+    };
+
     const limitKey = (limit) => {
         if (!limit) return Math.random().toString(36).slice(2);
         if (typeof limit === 'string') return limit;
@@ -203,7 +394,12 @@
         plansStore.fetchPlans({ force: true });
     };
 
-    const handleCheckout = async (plan) => {
+    const handleCheckout = async (plan, event) => {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
         if (isCreatingCheckout.value) {
             return;
         }
@@ -211,10 +407,17 @@
         isCreatingCheckout.value = plan.id;
 
         try {
-            const response = await axios.post(`/api/plans/${plan.uuid}/checkout`, {
+            const payload = {
                 success_url: `${window.location.origin}/planes?success=true`,
                 cancel_url: `${window.location.origin}/planes?canceled=true`,
-            });
+            };
+
+            // Si el usuario está autenticado, usar su email automáticamente
+            if (auth.isAuthenticated.value && auth.user.value?.email) {
+                payload.email = auth.user.value.email;
+            }
+
+            const response = await axios.post(`/api/plans/${plan.uuid}/checkout`, payload);
 
             if (response.data?.checkout_url) {
                 window.location.href = response.data.checkout_url;
@@ -234,8 +437,45 @@
         }
     };
 
+    const currentPlan = computed(() => {
+        if (!currentPlanUuid.value) {
+            return null;
+        }
+        return plans.value.find(p => p.uuid === currentPlanUuid.value);
+    });
+
     onMounted(async () => {
         await plansStore.fetchPlans();
+
+        // Fetch subscriptions if user is authenticated
+        if (auth.isAuthenticated.value) {
+            await subscriptionsStore.fetchSubscriptions();
+        }
+
+        // Handle checkout success/cancel messages
+        if (route.query.success === 'true') {
+            toast.add({
+                severity: 'success',
+                summary: '¡Pago exitoso!',
+                detail: 'Tu suscripción ha sido activada correctamente. Revisa tu panel de cliente para más detalles.',
+                life: 8000,
+            });
+            // Refresh subscriptions
+            if (auth.isAuthenticated.value) {
+                await subscriptionsStore.fetchSubscriptions();
+            }
+            // Clean URL
+            router.replace({ name: 'plans', query: {} });
+        } else if (route.query.canceled === 'true') {
+            toast.add({
+                severity: 'info',
+                summary: 'Pago cancelado',
+                detail: 'El proceso de pago fue cancelado. Puedes intentar nuevamente cuando estés listo.',
+                life: 5000,
+            });
+            // Clean URL
+            router.replace({ name: 'plans', query: {} });
+        }
     });
 </script>
 
@@ -449,9 +689,34 @@
         color: #dd3333;
     }
 
+    .plan-card__badge--current {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+
     body.dark-mode .plan-card__badge {
         background: rgba(255, 102, 102, 0.14);
         color: #ff6666;
+    }
+
+    body.dark-mode .plan-card__badge--current {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+    }
+
+    .plan-card--current {
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    body.dark-mode .plan-card--current {
+        border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .plan-current-only {
+        display: flex;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .plan-card__title {
@@ -496,6 +761,60 @@
 
     body.dark-mode .plan-card__interval {
         color: rgba(243, 243, 243, 0.56);
+    }
+
+    .plan-card__cancel-notice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        margin: 16px 0;
+        border-radius: 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: #22c55e;
+    }
+
+    .plan-card__cancel-notice--warning {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .plan-card__cancel-notice i {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .plan-card__cancel-notice strong {
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+    .plan-card__cancel-notice--warning strong {
+        color: #dc2626;
+    }
+
+    body.dark-mode .plan-card__cancel-notice {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #4ade80;
+    }
+
+    body.dark-mode .plan-card__cancel-notice--warning {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ff6b6b;
+    }
+
+    body.dark-mode .plan-card__cancel-notice strong {
+        color: #4ade80;
+    }
+
+    body.dark-mode .plan-card__cancel-notice--warning strong {
+        color: #ff6b6b;
     }
 
     .plan-card__features {
@@ -641,6 +960,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+
         .plans-button,
         .plan-card,
         .plan-card__cta-button,
@@ -649,5 +969,3 @@
         }
     }
 </style>
-
-

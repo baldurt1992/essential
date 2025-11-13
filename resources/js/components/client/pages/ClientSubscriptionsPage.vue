@@ -1,5 +1,6 @@
 <template>
     <div class="client-subscriptions">
+        <ConfirmPopup />
         <div class="client-subscriptions__header">
             <h2 class="client-subscriptions__title">Mis Suscripciones</h2>
             <p class="client-subscriptions__subtitle">Gestiona tus planes y suscripciones activas</p>
@@ -61,11 +62,34 @@
                                 {{ formatDate(subscription.current_period_end) }}
                             </span>
                         </div>
+                        <div
+                            :class="['client-subscription-card__cancel-warning', { 'client-subscription-card__cancel-warning--info': !subscription.will_cancel }]">
+                            <i class="pi pi-info-circle"></i>
+                            <span v-if="subscription.will_cancel && subscription.current_period_end">
+                                Tu suscripción finalizará el <strong>{{ formatDate(subscription.current_period_end)
+                                }}</strong> y perderás el acceso a los beneficios del plan.
+                            </span>
+                            <span v-else-if="subscription.current_period_end">
+                                Tu suscripción se renueva automáticamente el <strong>{{
+                                    formatDate(subscription.current_period_end) }}</strong>.
+                            </span>
+                            <span v-else>
+                                Tu suscripción está activa.
+                            </span>
+                        </div>
                     </div>
-                    <div v-if="subscription.is_active && !subscription.will_cancel" class="client-subscription-card__actions">
-                        <button @click="handleCancel(subscription)" class="qodef-button qodef-button--ghost"
+                    <div v-if="subscription.is_active && !subscription.will_cancel"
+                        class="client-subscription-card__actions">
+                        <button @click="confirmCancel($event, subscription)" class="qodef-button qodef-button--ghost"
                             :disabled="isCanceling">
                             Cancelar suscripción
+                        </button>
+                    </div>
+                    <div v-if="subscription.is_active && subscription.will_cancel"
+                        class="client-subscription-card__actions">
+                        <button type="button" @click="confirmReactivate($event, subscription)"
+                            class="qodef-button qodef-button--primary" :disabled="isCanceling">
+                            Reactivar suscripción
                         </button>
                     </div>
                 </div>
@@ -78,9 +102,12 @@
     import { ref, onMounted } from 'vue';
     import { RouterLink } from 'vue-router';
     import { useToast } from 'primevue/usetoast';
+    import { useConfirm } from 'primevue/useconfirm';
+    import ConfirmPopup from 'primevue/confirmpopup';
     import { useClientSubscriptions } from '../../../composables/useClientSubscriptions.js';
 
     const toast = useToast();
+    const confirm = useConfirm();
     const subscriptionsStore = useClientSubscriptions();
     const isCanceling = ref(false);
 
@@ -108,30 +135,98 @@
         return 'Inactiva';
     };
 
-    const handleCancel = async (subscription) => {
-        if (!confirm('¿Estás seguro de que deseas cancelar esta suscripción? Se mantendrá activa hasta el final del período actual.')) {
+    const confirmCancel = (event, subscription) => {
+        if (isCanceling.value) {
             return;
         }
 
-        isCanceling.value = true;
-        const result = await subscriptionsStore.cancelSubscription(subscription.uuid);
-        isCanceling.value = false;
+        confirm.require({
+            target: event.currentTarget,
+            message: `¿Cancelar la renovación del plan "${subscription.plan?.name}"?`,
+            icon: 'pi pi-times-circle',
+            rejectClass: 'qodef-button qodef-button--ghost',
+            acceptClass: 'qodef-button qodef-button--danger',
+            acceptLabel: 'Cancelar renovación',
+            rejectLabel: 'Volver',
+            accept: async () => {
+                isCanceling.value = true;
+                try {
+                    const result = await subscriptionsStore.cancelSubscription(subscription.uuid);
 
-        if (result.success) {
-            toast.add({
-                severity: 'success',
-                summary: 'Suscripción cancelada',
-                detail: 'Tu suscripción se cancelará al final del período actual.',
-                life: 5000,
-            });
-        } else {
-            toast.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: result.error || 'No se pudo cancelar la suscripción',
-                life: 5000,
-            });
+                    if (result.success) {
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Suscripción actualizada',
+                            detail: 'Se cancelará al fin del periodo. La facturación automática ha sido desactivada.',
+                            life: 5000,
+                        });
+                    } else {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'No se pudo cancelar',
+                            detail: result.error || 'Intenta nuevamente más tarde.',
+                            life: 5000,
+                        });
+                    }
+                } catch (error) {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'No se pudo cancelar',
+                        detail: error.response?.data?.message ?? 'Intenta nuevamente más tarde.',
+                        life: 5000,
+                    });
+                } finally {
+                    isCanceling.value = false;
+                }
+            },
+        });
+    };
+
+    const confirmReactivate = (event, subscription) => {
+        if (isCanceling.value) {
+            return;
         }
+
+        confirm.require({
+            target: event.currentTarget,
+            message: `¿Reactivar la facturación automática del plan "${subscription.plan?.name}"?`,
+            icon: 'pi pi-check-circle',
+            rejectClass: 'qodef-button qodef-button--ghost',
+            acceptClass: 'qodef-button qodef-button--primary',
+            acceptLabel: 'Reactivar',
+            rejectLabel: 'Cancelar',
+            accept: async () => {
+                isCanceling.value = true;
+                try {
+                    const result = await subscriptionsStore.reactivateSubscription(subscription.uuid);
+
+                    if (result.success) {
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Suscripción reactivada',
+                            detail: 'La facturación automática ha sido reactivada. Tu suscripción se renovará automáticamente.',
+                            life: 5000,
+                        });
+                    } else {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'No se pudo reactivar',
+                            detail: result.error || 'Intenta nuevamente más tarde.',
+                            life: 5000,
+                        });
+                    }
+                } catch (error) {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'No se pudo reactivar',
+                        detail: error.response?.data?.message ?? 'Intenta nuevamente más tarde.',
+                        life: 5000,
+                    });
+                } finally {
+                    isCanceling.value = false;
+                }
+            },
+        });
     };
 
     onMounted(async () => {
@@ -281,5 +376,71 @@
         display: flex;
         justify-content: flex-end;
     }
-</style>
 
+    .client-subscription-card__actions .qodef-button--primary {
+        background: #dd3333 !important;
+        color: #ffffff !important;
+        border-color: #dd3333 !important;
+    }
+
+    .client-subscription-card__actions .qodef-button--primary:hover:not(:disabled) {
+        background: #c42b2b !important;
+        border-color: #c42b2b !important;
+    }
+
+    .client-subscription-card__cancel-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        margin-top: 16px;
+        border-radius: 12px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #ef4444;
+    }
+
+    .client-subscription-card__cancel-warning--info {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .client-subscription-card__cancel-warning i {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .client-subscription-card__cancel-warning strong {
+        font-weight: 600;
+        color: #dc2626;
+    }
+
+    .client-subscription-card__cancel-warning--info strong {
+        color: #16a34a;
+    }
+
+    body.dark-mode .client-subscription-card__cancel-warning {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ff6b6b;
+    }
+
+    body.dark-mode .client-subscription-card__cancel-warning--info {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #4ade80;
+    }
+
+    body.dark-mode .client-subscription-card__cancel-warning strong {
+        color: #ff6b6b;
+    }
+
+    body.dark-mode .client-subscription-card__cancel-warning--info strong {
+        color: #4ade80;
+    }
+</style>

@@ -145,6 +145,26 @@ class StripeWebhookController extends Controller
             return;
         }
 
+        $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->current_period_end ?? null);
+        
+        // If Stripe doesn't provide current_period_end, calculate it
+        if (! $currentPeriodEnd && $stripeSubscription->current_period_start && $plan) {
+            $currentPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start);
+            
+            if ($currentPeriodStart) {
+                $interval = $plan->billing_interval;
+                $intervalCount = $plan->billing_interval_count ?? 1;
+                
+                $currentPeriodEnd = match($interval) {
+                    'year' => $currentPeriodStart->copy()->addYears($intervalCount),
+                    'month' => $currentPeriodStart->copy()->addMonths($intervalCount),
+                    'week' => $currentPeriodStart->copy()->addWeeks($intervalCount),
+                    'day' => $currentPeriodStart->copy()->addDays($intervalCount),
+                    default => $currentPeriodStart->copy()->addMonths($intervalCount),
+                };
+            }
+        }
+
         $subscription = Subscription::updateOrCreate(
             ['stripe_subscription_id' => $stripeSubscription->id],
             [
@@ -158,7 +178,7 @@ class StripeWebhookController extends Controller
                 'trial_ends_at' => $this->timestampToDateTime($stripeSubscription->trial_end ?? null),
                 'starts_at' => $this->timestampToDateTime($stripeSubscription->start_date ?? null),
                 'current_period_start' => $this->timestampToDateTime($stripeSubscription->current_period_start ?? null),
-                'current_period_end' => $this->timestampToDateTime($stripeSubscription->current_period_end ?? null),
+                'current_period_end' => $currentPeriodEnd,
                 'cancel_at' => $this->timestampToDateTime($stripeSubscription->cancel_at ?? null),
                 'canceled_at' => $this->timestampToDateTime($stripeSubscription->canceled_at ?? null),
                 'ends_at' => $this->timestampToDateTime($stripeSubscription->ended_at ?? null),
@@ -305,11 +325,39 @@ class StripeWebhookController extends Controller
             return;
         }
 
+        $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->current_period_end ?? null);
+        
+        // If current_period_end is null but cancel_at exists and subscription is canceled, use cancel_at as fallback
+        if (! $currentPeriodEnd && $stripeSubscription->cancel_at_period_end && $stripeSubscription->cancel_at) {
+            $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->cancel_at);
+        }
+        
+        // If still null and subscription is active, try to calculate from current_period_start and plan
+        if (! $currentPeriodEnd && ! $stripeSubscription->cancel_at_period_end) {
+            $currentPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start ?? null);
+            
+            if ($currentPeriodStart && $subscription->plan) {
+                $interval = $subscription->plan->billing_interval;
+                $intervalCount = $subscription->plan->billing_interval_count ?? 1;
+                
+                $currentPeriodEnd = match($interval) {
+                    'year' => $currentPeriodStart->copy()->addYears($intervalCount),
+                    'month' => $currentPeriodStart->copy()->addMonths($intervalCount),
+                    'week' => $currentPeriodStart->copy()->addWeeks($intervalCount),
+                    'day' => $currentPeriodStart->copy()->addDays($intervalCount),
+                    default => $currentPeriodStart->copy()->addMonths($intervalCount),
+                };
+            } else {
+                // Last resort: keep existing value
+                $currentPeriodEnd = $subscription->current_period_end;
+            }
+        }
+        
         $subscription->update([
             'status' => SubscriptionStatus::fromStripe($stripeSubscription->status ?? 'active'),
             'cancel_at_period_end' => (bool) ($stripeSubscription->cancel_at_period_end ?? false),
             'current_period_start' => $this->timestampToDateTime($stripeSubscription->current_period_start ?? null),
-            'current_period_end' => $this->timestampToDateTime($stripeSubscription->current_period_end ?? null),
+            'current_period_end' => $currentPeriodEnd,
             'cancel_at' => $this->timestampToDateTime($stripeSubscription->cancel_at ?? null),
             'canceled_at' => $this->timestampToDateTime($stripeSubscription->canceled_at ?? null),
             'ends_at' => $this->timestampToDateTime($stripeSubscription->ended_at ?? null),

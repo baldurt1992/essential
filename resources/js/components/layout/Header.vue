@@ -1,5 +1,6 @@
 <template>
-    <header id="qodef-page-header" class="qodef-header--standard-no-logo" role="banner">
+    <header id="qodef-page-header"
+        :class="['qodef-header--standard-no-logo', { 'qodef-header--transparent': shouldBeTransparent }]" role="banner">
         <div id="qodef-page-header-inner">
             <div class="qodef-header-wrapper">
                 <!-- Widget Holder Left - Dark/Light Switcher -->
@@ -217,7 +218,7 @@
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <RouterLink :to="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{
                             mobileAccountLabel
-                        }}</RouterLink>
+                            }}</RouterLink>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button mobile-auth-button--primary"
@@ -244,7 +245,7 @@
         </div>
 
         <!-- Header Sticky (duplicado para scroll) -->
-        <div class="qodef-header-sticky qodef-custom-header-layout qodef-appearance--down">
+        <div class="qodef-header-sticky qodef-header-sticky--normal qodef-custom-header-layout qodef-appearance--down">
             <div class="qodef-header-sticky-inner">
                 <div class="qodef-widget-holder qodef--two">
                     <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
@@ -392,13 +393,14 @@
 
 <script setup>
     import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-    import { RouterLink } from 'vue-router';
+    import { RouterLink, useRoute } from 'vue-router';
     import SideArea from './SideArea.vue';
     import NavMenuItem from './NavMenuItem.vue';
     import AuthModal from '../auth/AuthModal.vue';
     import { useAuth } from '../../composables/useAuth';
 
     const auth = useAuth();
+    const route = useRoute();
     const isDarkMode = ref(false);
     const isSideAreaOpen = ref(false);
     const isMobileMenuOpen = ref(false);
@@ -410,6 +412,10 @@
     const accountLink = computed(() => (isAdmin.value ? { name: 'admin.dashboard' } : { name: 'client.dashboard' }));
     const headerAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
     const mobileAccountLabel = computed(() => (isAdmin.value ? 'Panel admin' : 'Mi cuenta'));
+    const shouldBeTransparent = computed(() => {
+        // Header transparente solo en servicios, independientemente del dark mode global
+        return route.name === 'services';
+    });
 
     const toggleDarkMode = () => {
         isDarkMode.value = !isDarkMode.value;
@@ -529,6 +535,106 @@
 
     .qodef-header--standard-no-logo #qodef-page-header {
         background-color: rgba(0, 0, 0, 0);
+    }
+
+    /* Header transparente solo en servicios (dark mode) - Máxima especificidad */
+    header#qodef-page-header.qodef-header--standard-no-logo.qodef-header--transparent,
+    header#qodef-page-header.qodef-header--transparent.qodef-header--standard-no-logo,
+    .qodef-header--standard-no-logo.qodef-header--transparent #qodef-page-header,
+    .qodef-header--transparent.qodef-header--standard-no-logo #qodef-page-header {
+        background-color: transparent !important;
+        background: transparent !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1000 !important;
+    }
+
+    .qodef-header--standard-no-logo.qodef-header--transparent #qodef-page-header-inner,
+    .qodef-header--transparent.qodef-header--standard-no-logo #qodef-page-header-inner {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgb(255, 255, 255) !important;
+    }
+
+    /* Texto blanco en menú cuando header es transparente - Solo header normal (#qodef-page-header-inner), no sticky */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+        color: #ffffff !important;
+    }
+
+    /* Background del :before para hover en header transparente - debe ser negro */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before),
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-menu-item-link .qodef-menu-item-text:before) {
+        background-color: #171717 !important;
+    }
+
+    /* Hover de nav links cuando header es transparente - fondo negro, letra blanca (sin cambiar color) - Solo header normal */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before),
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-menu-item-link:hover .qodef-menu-item-text:before),
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a:hover .qodef-menu-item-text:before) {
+        background-color: #171717 !important;
+        transform: scaleX(1) !important;
+    }
+
+    /* Estado activo en header transparente - fondo negro, letra blanca (similar al hover pero permanente) */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+        color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
+        background-color: #171717 !important;
+        transform: scaleX(1);
+    }
+
+    /* Botones estilo dark mode cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--ghost:hover {
+        background-color: #ffffff !important;
+        color: #171717 !important;
+        border-color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--primary {
+        border-color: #ffffff !important;
+        background-color: #DD3333 !important;
+        color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--primary:hover {
+        background-color: #c42b2b !important;
+        border-color: #c42b2b !important;
+    }
+
+    /* Mobile menu opener - blanco cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-mobile-menu-opener {
+        color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-mobile-menu-opener svg {
+        color: #ffffff !important;
+    }
+
+    /* Side area opener - blanco cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener {
+        color: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+    }
+
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg ellipse,
+    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg path {
+        stroke: #ffffff !important;
     }
 
     #qodef-page-header-inner {
@@ -660,6 +766,17 @@
 
     .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
     :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before) {
+        transform: scaleX(1);
+    }
+
+    /* Estado activo - fondo negro, letra blanca (similar al hover pero permanente) */
+    .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
+    :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+        color: var(--qode-background-color);
+    }
+
+    .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
+    :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
         transform: scaleX(1);
     }
 
@@ -1052,6 +1169,27 @@
         border-bottom: 1px solid #ffffff;
     }
 
+    /* Sticky header siempre mantiene estilos normales independientemente del header transparente */
+    .qodef-header-sticky--normal {
+        background-color: #ffffff;
+        border-bottom: 1px solid #000000;
+    }
+
+    body.dark-mode .qodef-header-sticky--normal {
+        background-color: #171717;
+        border-bottom: 1px solid #ffffff;
+    }
+
+    .qodef-header-sticky--normal.qodef-appearance--down {
+        background-color: #ffffff;
+        border-bottom: 1px solid #000000;
+    }
+
+    body.dark-mode .qodef-header-sticky--normal.qodef-appearance--down {
+        background-color: #171717;
+        border-bottom: 1px solid #ffffff;
+    }
+
     .qodef-header-sticky.qodef-appearance--down {
         background-color: #ffffff;
         border-bottom: 1px solid #000000;
@@ -1084,6 +1222,81 @@
         justify-content: space-between;
         width: 100%;
         height: 100%;
+    }
+
+    /* Sticky header mantiene estilos normales usando clase específica */
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+        color: var(--qode-text-color);
+    }
+
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text) {
+        color: var(--qode-background-color);
+    }
+
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before) {
+        transform: scaleX(1);
+    }
+
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before) {
+        background-color: var(--qode-heading-color);
+    }
+
+    /* Estado activo - fondo negro, letra blanca (similar al hover pero permanente) */
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+        color: var(--qode-background-color);
+    }
+
+    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
+    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
+        transform: scaleX(1);
+    }
+
+    .qodef-header-sticky--normal .auth-nav-button {
+        border-color: var(--qode-border-color);
+        color: var(--qode-text-color);
+    }
+
+    body.dark-mode .qodef-header-sticky--normal .auth-nav-button {
+        border-color: var(--qode-border-color);
+        color: var(--qode-text-color);
+    }
+
+    .qodef-header-sticky--normal .auth-nav-button--ghost:hover {
+        background-color: var(--qode-heading-color);
+        color: var(--qode-background-color);
+    }
+
+    body.dark-mode .qodef-header-sticky--normal .auth-nav-button--ghost:hover {
+        background-color: #ffffff;
+        color: #171717;
+    }
+
+    .qodef-header-sticky--normal .auth-nav-button--primary {
+        background-color: #DD3333;
+        border-color: #DD3333;
+        color: #ffffff;
+    }
+
+    .qodef-header-sticky--normal .auth-nav-button--primary:hover {
+        background-color: #c42b2b;
+        border-color: #c42b2b;
+    }
+
+    body.dark-mode .qodef-header-sticky--normal .auth-nav-button--primary {
+        border-color: #ffffff;
+    }
+
+    .qodef-header-sticky--normal .qodef-mobile-menu-opener {
+        color: var(--qode-text-color);
+    }
+
+    .qodef-header-sticky--normal .qodef-mobile-menu-opener svg {
+        color: var(--qode-text-color);
     }
 
     /* Mobile Menu Opener */

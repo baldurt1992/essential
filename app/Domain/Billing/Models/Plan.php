@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class Plan extends Model
 {
@@ -95,5 +96,32 @@ class Plan extends Model
     public function getPriceAttribute(): float
     {
         return $this->price_cents / 100;
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+
+        // Trim whitespace and ensure proper UUID format
+        $value = trim((string) $value);
+
+        $plan = $this->where($field, $value)->first();
+
+        if (!$plan) {
+            \Illuminate\Support\Facades\Log::warning('Plan not found for route binding', [
+                'uuid' => $value,
+                'field' => $field,
+                'request_url' => request()->fullUrl(),
+            ]);
+
+            abort(404, "No query results for model [{$this->getMorphClass()}] {$value}");
+        }
+
+        return $plan;
     }
 }

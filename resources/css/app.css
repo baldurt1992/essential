@@ -105,14 +105,19 @@ body.dark-mode * {
 }
 
 .qodef-button--primary {
-    background: #dd3333;
-    color: #ffffff;
-    border: 1px solid #dd3333;
+    background: #dd3333 !important;
+    color: #ffffff !important;
+    border: 1px solid #dd3333 !important;
 }
 
-.qodef-button--primary:hover {
-    background: #c42b2b;
-    border-color: #c42b2b;
+.qodef-button--primary:hover:not(:disabled) {
+    background: #c42b2b !important;
+    border-color: #c42b2b !important;
+}
+
+.qodef-button--primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .qodef-button--ghost {

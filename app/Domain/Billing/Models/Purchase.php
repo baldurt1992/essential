@@ -74,4 +74,14 @@ class Purchase extends Model
 
         return $code;
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('uuid', $value)->firstOrFail();
+    }
 }

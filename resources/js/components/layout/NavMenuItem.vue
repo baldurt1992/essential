@@ -1,7 +1,8 @@
 <template>
     <li
         :class="['menu-item', 'menu-item-type-custom', 'menu-item-object-custom', { 'menu-item-has-children': hasChildren, 'qodef-menu-item--narrow': hasChildren }]">
-        <RouterLink :to="link" class="qodef-menu-item-link">
+        <RouterLink :to="link" :exact="isExact" :active-class="''" :exact-active-class="''"
+            :class="['qodef-menu-item-link', { 'router-link-active': isActive }]">
             <span class="qodef-menu-item-text">{{ text }}</span>
         </RouterLink>
 
@@ -21,9 +22,10 @@
 </template>
 
 <script setup>
-    import { RouterLink } from 'vue-router';
+    import { RouterLink, useRoute } from 'vue-router';
+    import { computed } from 'vue';
 
-    defineProps({
+    const props = defineProps({
         text: {
             type: String,
             required: true,
@@ -40,6 +42,41 @@
             type: Array,
             default: () => [],
         },
+    });
+
+    const route = useRoute();
+
+    // Determinar si el link está activo basándome en el nombre de la ruta
+    const isActive = computed(() => {
+        if (typeof props.link === 'object' && props.link.name) {
+            // Si el link tiene un nombre, comparar con el nombre de la ruta actual
+            // Para home, también verificar que el path sea exactamente "/"
+            if (props.link.name === 'home') {
+                return route.name === 'home' && route.path === '/';
+            }
+            return route.name === props.link.name;
+        }
+        if (typeof props.link === 'string') {
+            // Si es un string, comparar con el path completo
+            // Si es "/", solo activar cuando el path sea exactamente "/"
+            if (props.link === '/') {
+                return route.path === '/';
+            }
+            return route.path === props.link;
+        }
+        return false;
+    });
+
+    // Usar exact solo para el link de home para evitar que se marque como activo en otras páginas
+    const isExact = computed(() => {
+        if (typeof props.link === 'object' && props.link.name === 'home') {
+            return true;
+        }
+        if (typeof props.link === 'string' && props.link === '/') {
+            return true;
+        }
+        // Para otros links, no usar exact ya que usamos nuestra lógica personalizada de isActive
+        return false;
     });
 </script>
 

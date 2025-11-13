@@ -82,4 +82,14 @@ class Subscription extends Model
     {
         return $this->cancel_at_period_end === true;
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('uuid', $value)->firstOrFail();
+    }
 }

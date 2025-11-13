@@ -1,127 +1,200 @@
 <template>
-    <div class="services-page">
-        <section class="services-hero">
-            <div class="services-hero__eyebrow">
-                <span class="services-hero__dot"></span>
-                <span class="services-hero__label">Portafolio</span>
+    <div class="services-page qodef-content-behind-header">
+        <!-- Video de fondo -->
+        <section class="services-hero-video">
+            <div class="services-hero-video-container">
+                <video class="services-hero-video-element" autoplay muted playsinline loop :src="videoSrc"
+                    ref="videoElement"></video>
             </div>
+        </section>
 
-            <div class="services-hero__header">
-                <div class="services-hero__title-group">
-                    <h1 class="services-hero__title">
-                        Servicios<br>
-                        que elevan tu marca
-                    </h1>
-                    <p class="services-hero__description">
-                        Diseños pensados para generar impacto inmediato. Combina branding, contenido y activaciones
-                        digitales con un equipo que entiende el lenguaje visual de hoy.
-                    </p>
+        <!-- Services Marquee -->
+        <ServicesMarquee />
+
+        <!-- Services Intro Section -->
+        <section class="services-intro">
+            <div class="services-intro__container">
+                <div class="services-intro__hero">
+                    <div class="services-hero__eyebrow">
+                        <span class="services-hero__dot"></span>
+                        <span class="services-hero__label">portafolio</span>
+                    </div>
+                    <h1 class="services-hero__title">Servicios<br>que elevan tu marca</h1>
                 </div>
-
-                <div class="services-hero__actions">
-                    <button type="button" class="services-filter-button" :class="{
-                        'services-filter-button--active': activeFilter === 'all',
-                    }" @click="selectFilter('all')" :disabled="isLoading">
-                        Todos
-                    </button>
-                    <button type="button" class="services-filter-button" :class="{
-                        'services-filter-button--active': activeFilter === 'popular',
-                    }" @click="selectFilter('popular')" :disabled="isLoading">
-                        Populares
-                    </button>
+                <div class="services-intro__content">
+                    <p class="services-hero__description">Diseños pensados para generar impacto inmediato. Combina
+                        branding, contenido y activaciones digitales con un equipo que entiende el lenguaje visual de
+                        hoy.</p>
                 </div>
             </div>
         </section>
 
-        <section class="services-gallery">
-            <div v-if="isLoading" class="services-gallery__state services-gallery__state--loading">
-                <span class="services-spinner"></span>
-                <p>Cargando portafolio…</p>
+        <!-- Services Image Gallery -->
+        <section class="services-image-gallery">
+            <div class="services-image-gallery__container">
+                <div class="services-image-gallery__grid">
+                    <div v-for="(service, index) in services" :key="service.id || index"
+                        class="services-image-gallery__item">
+                        <a v-if="service.imageUrl" class="services-image-gallery__link" :href="service.imageUrl"
+                            target="_blank" rel="noopener noreferrer">
+                            <img :src="service.imageUrl" :alt="service.title || 'Service image'"
+                                class="services-image-gallery__image" loading="lazy" decoding="async" />
+                        </a>
+                    </div>
+                </div>
             </div>
+        </section>
+        <div class="services-gallery__divider"></div>
 
-            <div v-else-if="hasError" class="services-gallery__state services-gallery__state--error">
-                <p>No pudimos cargar los servicios. ¿Intentamos de nuevo?</p>
-                <button type="button" class="services-retry-button" @click="retryFetch">
-                    Reintentar
-                </button>
-            </div>
+        <!-- Contact Form & Services Section -->
+        <section class="services-contact-section">
+            <div class="services-contact-section__container">
+                <div class="services-contact-section__form">
+                    <h2 class="services-contact-section__title">¿En qué podemos ayudarte?</h2>
+                    <form @submit.prevent="handleContactSubmit" class="services-contact-form">
+                        <div class="services-contact-form__field">
+                            <input v-model="contactForm.email" type="email" name="email" placeholder="E-mail" required
+                                class="services-contact-form__input" />
+                        </div>
+                        <div class="services-contact-form__row">
+                            <div class="services-contact-form__field">
+                                <input v-model="contactForm.firstName" type="text" name="first-name"
+                                    placeholder="Nombre" required class="services-contact-form__input" />
+                            </div>
+                            <div class="services-contact-form__field">
+                                <input v-model="contactForm.lastName" type="text" name="last-name"
+                                    placeholder="Apellido" required class="services-contact-form__input" />
+                            </div>
+                        </div>
+                        <div class="services-contact-form__field">
+                            <textarea v-model="contactForm.message" name="message" placeholder="Mensaje" rows="5"
+                                required class="services-contact-form__textarea"></textarea>
+                        </div>
+                        <button type="submit" class="services-contact-form__submit" :disabled="contactForm.submitting">
+                            <span v-if="!contactForm.submitting">enviar_mensaje</span>
+                            <span v-else>Enviando...</span>
+                        </button>
+                    </form>
+                </div>
+                <div class="services-contact-section__services">
+                    <div v-if="isLoading" class="services-gallery__state services-gallery__state--loading">
+                        <span class="services-spinner"></span>
+                        <p>Cargando portafolio…</p>
+                    </div>
 
-            <div v-else-if="!services.length" class="services-gallery__state services-gallery__state--empty">
-                <p>No hay servicios publicados todavía. Vuelve pronto.</p>
-            </div>
+                    <div v-else-if="hasError" class="services-gallery__state services-gallery__state--error">
+                        <p>No pudimos cargar los servicios. ¿Intentamos de nuevo?</p>
+                        <button type="button" class="services-retry-button" @click="retryFetch">
+                            Reintentar
+                        </button>
+                    </div>
 
-            <div v-else class="services-gallery__list">
-                <article v-for="(service, index) in services" :key="service.uuid"
-                    class="services-card services-card--interactive" :class="{
-                        'services-card--popular': service.isPopular,
-                    }">
-                    <div class="services-card__header">
-                        <span class="services-card__index">{{ formatIndex(index) }}</span>
-                        <div class="services-card__meta">
-                            <span v-if="service.isPopular" class="services-card__badge">Popular</span>
-                            <span class="services-card__title">{{ service.title }}</span>
+                    <div v-else-if="!services.length" class="services-gallery__state services-gallery__state--empty">
+                        <p>No hay servicios publicados todavía. Vuelve pronto.</p>
+                    </div>
+
+                    <div v-else class="services-gallery__wrapper">
+                        <div class="services-gallery__eyebrow">
+                            <span class="services-gallery__dot"></span>
+                            <span class="services-gallery__label">Nuestros servicios</span>
+                        </div>
+                        <div class="services-gallery__list">
+                            <article v-for="(service, index) in services" :key="service.uuid" class="services-card"
+                                :class="{
+                                    'services-card--popular': service.isPopular,
+                                }">
+                                <div class="services-card__header">
+                                    <span class="services-card__index">{{ formatIndex(index) }}</span>
+                                    <div class="services-card__meta">
+                                        <span v-if="service.isPopular" class="services-card__badge">Popular</span>
+                                        <span class="services-card__title">{{ service.title }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="services-card__body">
+                                    <p class="services-card__description">
+                                        {{ service.description }}
+                                    </p>
+                                </div>
+
+                                <div class="services-card__footer">
+                                    <RouterLink :to="serviceTarget(service)" class="services-card__cta">
+                                        <span>Ver proyecto</span>
+                                        <i class="pi pi-arrow-right"></i>
+                                    </RouterLink>
+                                </div>
+                            </article>
                         </div>
                     </div>
-
-                    <div class="services-card__body">
-                        <p class="services-card__description">
-                            {{ service.description }}
-                        </p>
-                        <div class="services-card__media" :data-distort-id="`distort-${index}`">
-                            <Image preview :src="service.imageUrl" :alt="service.title"
-                                class="services-card__image-wrapper" image-class="services-card__image"
-                                :pt="getImagePassThrough(index)" />
-                            <svg class="services-card__distort" viewBox="0 0 100 100" :data-strength="25">
-                                <defs>
-                                    <filter :id="`filter-distort-${index}`" x="-0%" y="-0%" width="100%" height="100%"
-                                        filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"
-                                        color-interpolation-filters="sRGB">
-                                        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.02" numOctaves="3"
-                                            seed="2" result="turbulencebase" />
-                                        <feColorMatrix in="turbulencebase" type="hueRotate" values="0"
-                                            result="turbulence" />
-                                        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="0"
-                                            xChannelSelector="R" yChannelSelector="B" result="displacement1" />
-                                        <feMerge result="merge">
-                                            <feMergeNode in="SourceGraphic" />
-                                            <feMergeNode in="displacement1" />
-                                        </feMerge>
-                                    </filter>
-                                </defs>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="services-card__footer">
-                        <RouterLink :to="serviceTarget(service)" class="services-card__cta">
-                            <span>Ver proyecto</span>
-                            <i class="pi pi-arrow-right"></i>
-                        </RouterLink>
-                    </div>
-                </article>
+                </div>
             </div>
         </section>
     </div>
 </template>
 
 <script setup>
-    import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+    import { computed, onMounted, reactive, ref } from 'vue';
     import { RouterLink } from 'vue-router';
     import { useSiteServices } from '../../composables/useSiteServices';
-    import Image from 'primevue/image';
+    import ServicesMarquee from '../sections/ServicesMarquee.vue';
+    import axios from 'axios';
+    import { useToast } from 'primevue/usetoast';
 
+    const toast = useToast();
     const servicesStore = useSiteServices();
 
     const activeFilter = ref('all');
-    const effectController = reactive({
-        animationFrames: new Map(),
-        listeners: new Map(),
-    });
-    const shouldUseDistort = ref(false);
+    const videoElement = ref(null);
+    const videoSrc = '/videos/main-home-video-2.mp4';
 
     const services = computed(() => servicesStore.services.value);
     const isLoading = computed(() => servicesStore.isLoading.value);
     const hasError = computed(() => !!servicesStore.error.value);
+
+    const contactForm = reactive({
+        email: '',
+        firstName: '',
+        lastName: '',
+        message: '',
+        submitting: false,
+    });
+
+    const handleContactSubmit = async () => {
+        if (contactForm.submitting) return;
+
+        contactForm.submitting = true;
+
+        try {
+            await axios.post('/api/contact-messages', {
+                email: contactForm.email,
+                name: `${contactForm.firstName} ${contactForm.lastName}`.trim(),
+                message: contactForm.message,
+            });
+
+            toast.add({
+                severity: 'success',
+                summary: 'Mensaje enviado',
+                detail: 'Tu mensaje ha sido enviado correctamente. Te responderemos pronto.',
+                life: 5000,
+            });
+
+            // Reset form
+            contactForm.email = '';
+            contactForm.firstName = '';
+            contactForm.lastName = '';
+            contactForm.message = '';
+        } catch (error) {
+            const message = error.response?.data?.message || 'Error al enviar el mensaje. Por favor intenta de nuevo.';
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+                life: 5000,
+            });
+        } finally {
+            contactForm.submitting = false;
+        }
+    };
 
     const fetchServices = async (filter) => {
         const popular = filter === 'popular';
@@ -135,12 +208,10 @@
 
         activeFilter.value = filter;
         await fetchServices(filter);
-        await refreshDistortEffects();
     };
 
     const retryFetch = async () => {
         await fetchServices(activeFilter.value);
-        await refreshDistortEffects();
     };
 
     const serviceTarget = (service) => {
@@ -160,184 +231,15 @@
 
     const formatIndex = (index) => String(index + 1).padStart(2, '0');
 
-    const updateDistortPreference = () => {
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
-        const isDesktop = window.matchMedia('(min-width: 1280px)').matches;
-
-        shouldUseDistort.value = !prefersReducedMotion && hasFinePointer && isDesktop;
-    };
-
-    const startDistortion = (index) => {
-        const filter = document.querySelector(`#filter-distort-${index}`);
-        if (!filter) return;
-
-        const displacementMap = filter.querySelector('feDisplacementMap');
-        const colorMatrix = filter.querySelector('feColorMatrix');
-        if (!displacementMap || !colorMatrix) return;
-
-        const img = document.querySelector(`[data-filter-id=\"filter-distort-${index}\"]`);
-        if (img) {
-            img.style.filter = `url(#filter-distort-${index})`;
-        }
-
-        const strength = 25;
-        const duration = 600;
-        const startTimestamp = performance.now();
-
-        const animate = (timestamp) => {
-            const elapsed = timestamp - startTimestamp;
-            const progress = Math.min(elapsed / duration, 1);
-
-            let scale;
-            let hueRotate;
-
-            if (progress < 0.25) {
-                const phaseProgress = progress / 0.25;
-                scale = strength * phaseProgress;
-                hueRotate = 0;
-            } else if (progress < 0.75) {
-                scale = strength;
-                const phaseProgress = (progress - 0.25) / 0.5;
-                hueRotate = 360 * phaseProgress;
-            } else {
-                const phaseProgress = (progress - 0.75) / 0.25;
-                scale = strength * (1 - phaseProgress);
-                hueRotate = 360;
-            }
-
-            displacementMap.setAttribute('scale', String(scale));
-            colorMatrix.setAttribute('values', String(hueRotate));
-
-            if (progress < 1) {
-                effectController.animationFrames.set(index, requestAnimationFrame(animate));
-            } else {
-                if (img) {
-                    img.style.filter = 'none';
-                }
-                displacementMap.setAttribute('scale', '0');
-                colorMatrix.setAttribute('values', '0');
-            }
-        };
-
-        effectController.animationFrames.set(index, requestAnimationFrame(animate));
-    };
-
-    const stopDistortion = (index) => {
-        const frame = effectController.animationFrames.get(index);
-        if (frame) {
-            cancelAnimationFrame(frame);
-            effectController.animationFrames.delete(index);
-        }
-
-        const filter = document.querySelector(`#filter-distort-${index}`);
-        if (filter) {
-            const displacementMap = filter.querySelector('feDisplacementMap');
-            const colorMatrix = filter.querySelector('feColorMatrix');
-            displacementMap?.setAttribute('scale', '0');
-            colorMatrix?.setAttribute('values', '0');
-        }
-
-        const img = document.querySelector(`[data-filter-id=\"filter-distort-${index}\"]`);
-        if (img) {
-            img.style.filter = 'none';
-        }
-    };
-
-    const teardownDistortEffects = () => {
-        effectController.animationFrames.forEach((frame) => cancelAnimationFrame(frame));
-        effectController.animationFrames.clear();
-
-        effectController.listeners.forEach(({ element, handlers }) => {
-            element.removeEventListener('mouseenter', handlers.enter);
-            element.removeEventListener('mouseleave', handlers.leave);
-        });
-        effectController.listeners.clear();
-    };
-
-    const refreshDistortEffects = async () => {
-        teardownDistortEffects();
-
-        if (!shouldUseDistort.value || !services.value.length) {
-            return;
-        }
-
-        await nextTick();
-
-        const firstWrapper = document.querySelector('[data-distort-id=\"distort-0\"]');
-        let baseTop = 35;
-
-        if (firstWrapper) {
-            const firstArticle = firstWrapper.closest('.services-card');
-            const list = firstWrapper.closest('.services-gallery__list');
-            if (firstArticle && list) {
-                const articleRect = firstArticle.getBoundingClientRect();
-                const listRect = list.getBoundingClientRect();
-                baseTop = articleRect.top - listRect.top + articleRect.height / 2;
-            }
-        }
-
-        services.value.forEach((_service, index) => {
-            const wrapper = document.querySelector(`[data-distort-id=\"distort-${index}\"]`);
-            if (!wrapper) return;
-
-            wrapper.style.top = `${baseTop}px`;
-            wrapper.style.transform = 'translateY(-50%)';
-
-            const card = wrapper.closest('.services-card');
-            if (!card) return;
-
-            const enter = () => startDistortion(index);
-            const leave = () => stopDistortion(index);
-
-            card.addEventListener('mouseenter', enter);
-            card.addEventListener('mouseleave', leave);
-
-            effectController.listeners.set(index, {
-                element: card,
-                handlers: { enter, leave },
-            });
-        });
-    };
-
-    const handleResize = () => {
-        const previous = shouldUseDistort.value;
-        updateDistortPreference();
-        if (previous !== shouldUseDistort.value) {
-            refreshDistortEffects();
-        }
-    };
-
-    watch(services, async () => {
-        await refreshDistortEffects();
-    });
-
-    watch(shouldUseDistort, async () => {
-        await refreshDistortEffects();
-    });
-
     onMounted(async () => {
-        updateDistortPreference();
-        window.addEventListener('resize', handleResize, { passive: true });
+        // Asegurar que el video se reproduzca
+        if (videoElement.value) {
+            videoElement.value.play().catch(err => {
+                console.warn('Error al reproducir video:', err);
+            });
+        }
 
         await fetchServices(activeFilter.value);
-        await refreshDistortEffects();
-    });
-
-    onBeforeUnmount(() => {
-        window.removeEventListener('resize', handleResize);
-        teardownDistortEffects();
-    });
-
-    const getImagePassThrough = (index) => ({
-        image: {
-            loading: 'lazy',
-            decoding: 'async',
-            'data-filter-id': `filter-distort-${index}`,
-        },
-        pcPreviewButton: {
-            class: 'services-preview-trigger',
-        },
     });
 </script>
 
@@ -347,21 +249,81 @@
     }
 
     .services-page {
+        position: relative;
         display: flex;
         flex-direction: column;
-        gap: 48px;
-        padding: 24px 20px 80px;
+        gap: 0;
+        padding: 0;
+        margin: 0;
+        margin-top: -96px;
+        /* Compensar altura del header para que el video empiece desde top: 0 del viewport */
         background: var(--qode-background-color);
         color: var(--qode-text-color);
     }
 
-    .services-hero {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        max-width: var(--services-page-max-width);
+    /* Video Hero Section - Full Screen */
+    .services-hero-video {
+        position: relative;
         width: 100%;
-        margin: 0 auto;
+        height: 100vh;
+        min-height: 645px;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        z-index: 0;
+        /* Debajo del header que tiene z-index: 1000 */
+    }
+
+    .services-hero-video-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .services-hero-video-element {
+        position: absolute;
+        top: -120px;
+        left: 0;
+        width: 100%;
+        height: 125%;
+        object-fit: cover;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Services Intro Section */
+    .services-intro {
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: var(--qode-background-color);
+        z-index: 1;
+    }
+
+    .services-intro__container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: clamp(24px, 6vw, 80px);
+        padding-top: 0;
+        padding-bottom: 0;
+        padding-left: 10.5%;
+        padding-right: 10%;
+        max-width: 100%;
+        box-sizing: border-box;
+
+    }
+
+    .services-intro__hero {
+        flex: 0 0 auto;
+        margin: 0;
+        padding: 0;
+        width: 50%;
     }
 
     .services-hero__eyebrow {
@@ -372,6 +334,7 @@
         font-size: 12px;
         letter-spacing: 0.12em;
         text-transform: uppercase;
+        color: var(--qode-text-color);
     }
 
     .services-hero__dot {
@@ -379,86 +342,126 @@
         height: 6px;
         border-radius: 50%;
         background: currentColor;
+        flex-shrink: 0;
     }
 
-    .services-hero__header {
-        display: flex;
-        flex-direction: column;
-        gap: 28px;
-    }
-
-    .services-hero__title-group {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
+    .services-hero__label {
+        margin: 0;
+        padding: 0;
     }
 
     .services-hero__title {
-        margin: 0;
         font-family: 'Lexend', sans-serif;
-        font-size: clamp(36px, 9vw, 60px);
+        font-size: clamp(32px, 8vw, 56px);
         font-weight: 400;
-        letter-spacing: -0.01em;
         line-height: 1.05;
+        letter-spacing: -0.01em;
         text-transform: uppercase;
+        color: var(--qode-heading-color);
+        margin: 0;
+        padding: 0;
+    }
+
+    .services-intro__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        width: 50%;
     }
 
     .services-hero__description {
-        margin: 0;
         font-family: 'Inter', sans-serif;
-        font-size: 15px;
+        font-size: 17px;
         line-height: 1.6;
-        max-width: 28ch;
         color: rgba(23, 23, 23, 0.78);
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+        padding-left: 9%;
     }
 
     body.dark-mode .services-hero__description {
         color: rgba(243, 243, 243, 0.78);
     }
 
-    .services-hero__actions {
-        display: inline-flex;
-        gap: 10px;
+    /* Services Image Gallery */
+    .services-image-gallery {
+        position: relative;
+        width: 100%;
+        padding-top: 225px;
+        padding-bottom: 100px;
+        padding-left: 0;
+        padding-right: 0;
+        background: var(--qode-background-color);
+        z-index: 1;
     }
 
-    .services-filter-button {
-        border: 1px solid currentColor;
-        background: transparent;
-        color: inherit;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 12px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        padding: 10px 18px;
-        border-radius: 999px;
-        cursor: pointer;
-        transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    .services-image-gallery__container {
+        max-width: 1400px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
     }
 
-    .services-filter-button:disabled {
-        opacity: 0.5;
-        cursor: wait;
+    .services-image-gallery__grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(293px, 1fr));
+        row-gap: 75px;
+        column-gap: 75px;
+        width: 100%;
+        max-width: 1400px;
+        justify-items: center;
     }
 
-    .services-filter-button--active {
-        background: #dd3333;
-        border-color: #dd3333;
-        color: #ffffff;
+    .services-image-gallery__item {
+        position: relative;
+        width: 100%;
+        max-width: 293px;
+        margin: 0;
+        padding: 0;
+        aspect-ratio: 293 / 604;
+        overflow: hidden;
+        border-radius: 50px;
     }
 
-    .services-filter-button:not(.services-filter-button--active):hover {
-        transform: translateY(-1px);
-        background: rgba(23, 23, 23, 0.06);
+    .services-image-gallery__link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        text-decoration: none;
+        overflow: hidden;
     }
 
-    body.dark-mode .services-filter-button:not(.services-filter-button--active):hover {
-        background: rgba(243, 243, 243, 0.08);
+    .services-image-gallery__image {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.3s ease;
+        border-radius: 50px;
+    }
+
+    .services-image-gallery__link:hover .services-image-gallery__image {
+        transform: scale(1.05);
     }
 
     .services-gallery {
+        position: relative;
         max-width: var(--services-page-max-width);
         width: 100%;
         margin: 0 auto;
+        padding: 24px 20px 80px;
+        z-index: 1;
+        background: var(--qode-background-color);
     }
 
     .services-gallery__state {
@@ -520,27 +523,64 @@
         border-color: #dd3333;
     }
 
-    .services-gallery__list {
+    .services-gallery__wrapper {
         display: flex;
         flex-direction: column;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        gap: 40px;
     }
 
-    body.dark-mode .services-gallery__list {
-        border-top-color: rgba(255, 255, 255, 0.12);
+    .services-gallery__divider {
+        width: 100%;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin: 0;
+        padding: 0;
+    }
+
+    body.dark-mode .services-gallery__divider {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .services-gallery__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--qode-text-color);
+        margin: 0;
+        padding: 0;
+    }
+
+    .services-gallery__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+    }
+
+    .services-gallery__label {
+        margin: 0;
+        padding: 0;
+    }
+
+    .services-gallery__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 40px 60px;
+        padding-top: 0;
     }
 
     .services-card {
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        padding: 22px 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    }
-
-    body.dark-mode .services-card {
-        border-bottom-color: rgba(255, 255, 255, 0.12);
+        gap: 16px;
+        padding: 0;
+        border-bottom: none;
     }
 
     .services-card__header {
@@ -598,7 +638,8 @@
     .services-card__body {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 12px;
+        flex: 1;
     }
 
     .services-card__description {
@@ -614,76 +655,6 @@
         color: rgba(243, 243, 243, 0.78);
     }
 
-    .services-card__media {
-        position: relative;
-        width: min(100%, 320px);
-        overflow: hidden;
-        isolation: isolate;
-        aspect-ratio: 4 / 5;
-        background: rgba(0, 0, 0, 0.02);
-    }
-
-    .services-card__image-wrapper {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    .services-card__image {
-        display: block;
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        transition: transform 0.35s ease;
-    }
-
-    .services-card__media :deep(.p-image) {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    .services-card__media :deep(.p-image img) {
-        width: 100%;
-        height: auto;
-    }
-
-    .services-card__media :deep(.p-image-preview-indicator) {
-        background: rgba(23, 23, 23, 0.85);
-        color: #f5f5f5;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        transition: transform 0.25s ease;
-    }
-
-    .services-card__media :deep(.p-image-preview-indicator:hover) {
-        transform: scale(1.05);
-    }
-
-    .services-card__media :deep(.p-image-preview-content) {
-        background: rgba(0, 0, 0, 0.85);
-        padding: 0;
-    }
-
-    .services-card__media :deep(.p-image-preview-container) {
-        width: min(90vw, 520px);
-        max-height: min(80vh, 620px);
-    }
-
-    .services-card__media :deep(.p-image-preview-container img) {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
-    }
-
-    .services-card--interactive:hover .services-card__image {
-        transform: scale(1.02);
-    }
-
-    .services-card__distort {
-        display: none;
-    }
 
     .services-card__footer {
         display: flex;
@@ -726,18 +697,14 @@
 
     @media (min-width: 768px) {
         .services-page {
-            padding: 40px 40px 120px;
-            gap: 64px;
+            padding: 0;
+            gap: 0;
         }
 
         .services-hero__header {
             flex-direction: row;
             justify-content: space-between;
             align-items: flex-end;
-        }
-
-        .services-hero__description {
-            max-width: 36ch;
         }
 
         .services-hero__actions {
@@ -749,119 +716,331 @@
             justify-content: space-between;
             align-items: center;
         }
+    }
 
-        .services-card__media {
-            width: clamp(260px, 45vw, 420px);
+    @media (max-width: 1200px) {
+        .services-image-gallery__grid {
+            row-gap: 60px;
+            column-gap: 60px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .services-intro__container {
+            flex-direction: row;
+            gap: clamp(20px, 4vw, 40px);
+            padding-left: 5%;
+            padding-right: 5%;
+        }
+
+        .services-hero__title {
+            font-size: clamp(28px, 6vw, 44px);
+        }
+
+        .services-hero__description {
+            font-size: 14px;
+        }
+
+        .services-image-gallery__grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            row-gap: 30px;
+            column-gap: 30px;
+        }
+    }
+
+    @media (max-width: 880px) {
+        .services-image-gallery__grid {
+            row-gap: 30px;
+            column-gap: 30px;
         }
     }
 
     @media (max-width: 758px) {
-        .services-card__media {
-            position: relative;
-            top: auto;
-            right: auto;
-            opacity: 1;
-            pointer-events: auto;
+        .services-intro__container {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 24px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .services-intro__hero {
+            width: 100%;
+        }
+
+        .services-hero__title {
+            font-size: clamp(28px, 8vw, 40px);
+        }
+
+        .services-hero__description {
+            font-size: 14px;
+        }
+
+        .services-intro__content {
+            width: 100%;
+        }
+
+        .services-image-gallery {
+            padding-top: 120px;
+            padding-bottom: 120px;
+        }
+
+        .services-image-gallery__container {
+            padding: 0 20px;
+        }
+
+        .services-image-gallery__grid {
+            max-width: 100%;
+        }
+
+    }
+
+    @media (min-width: 1513px) {
+        .services-image-gallery__container {
+            max-width: 1400px;
         }
     }
 
     @media (min-width: 1024px) {
-        .services-card__body {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            gap: clamp(24px, 6vw, 48px);
-        }
-
-        .services-card__media {
-            position: relative;
-            right: auto;
-            top: auto;
-            opacity: 1;
-            pointer-events: auto;
-            margin-left: auto;
-        }
-
-        .services-card__description {
-            max-width: 44ch;
+        .services-gallery__list {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px 40px;
         }
     }
 
     @media (min-width: 1280px) {
         .services-page {
-            padding: 60px 80px 140px;
+            padding: 0;
         }
 
         .services-gallery__list {
-            border-top-width: 2px;
-        }
-
-        .services-card {
-            padding: 36px 0;
-            border-bottom-width: 2px;
-        }
-
-        .services-card__distort {
-            display: block;
-            position: absolute;
-            inset: 0;
-            width: 0;
-            height: 0;
-            pointer-events: none;
-        }
-
-        .services-card__media {
-            position: absolute;
-            right: clamp(300px, 9vw, 300px);
-            top: 40px;
-            width: clamp(220px, 32vw, 320px);
-            opacity: 0;
-            transition: opacity 0.2s ease-out;
-            pointer-events: none;
-        }
-
-        .services-card--interactive:hover .services-card__media {
-            opacity: 1;
-            pointer-events: auto;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px 60px;
         }
     }
 
     @media (min-width: 1600px) {
         .services-page {
-            padding: 60px 80px 140px;
+            padding: 0;
         }
 
         .services-gallery__list {
-            border-top-width: 2px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px 80px;
+        }
+    }
+
+    /* Services Contact Section */
+    .services-contact-section {
+        position: relative;
+        width: 100%;
+        padding-top: 120px;
+        padding-bottom: 120px;
+        padding-left: 0;
+        padding-right: 0;
+        background: var(--qode-background-color);
+        z-index: 1;
+    }
+
+    .services-contact-section__container {
+        max-width: 1400px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        gap: clamp(40px, 8vw, 120px);
+        align-items: flex-start;
+    }
+
+    .services-contact-section__form {
+        flex: 0 0 auto;
+        width: 50%;
+        max-width: 600px;
+    }
+
+    .services-contact-section__title {
+        font-family: 'Lexend', sans-serif;
+        font-weight: 400;
+        color: var(--qode-heading-color);
+        font-size: 56px;
+        line-height: 1.07143em;
+        text-transform: uppercase;
+        margin: 25px 0 40px 0;
+        word-wrap: break-word;
+    }
+
+    .services-contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .services-contact-form__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .services-contact-form__field {
+        position: relative;
+        width: 100%;
+    }
+
+    .services-contact-form__input,
+    .services-contact-form__textarea {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid rgba(23, 23, 23, 0.6);
+        background: transparent;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: var(--qode-text-color);
+        padding: 12px 0;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    body.dark-mode .services-contact-form__input,
+    body.dark-mode .services-contact-form__textarea {
+        border-bottom-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .services-contact-form__input:focus,
+    .services-contact-form__textarea:focus {
+        border-bottom-color: var(--qode-text-color);
+    }
+
+    .services-contact-form__input::placeholder,
+    .services-contact-form__textarea::placeholder {
+        color: rgba(23, 23, 23, 0.8);
+        font-family: 'Inter', sans-serif;
+    }
+
+    body.dark-mode .services-contact-form__input::placeholder,
+    body.dark-mode .services-contact-form__textarea::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .services-contact-form__textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .services-contact-form__submit {
+        align-self: flex-start;
+        border: none;
+        background: #171717;
+        color: #dd3333;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: lowercase;
+        padding: 10px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+        margin-top: 8px;
+    }
+
+    body.dark-mode .services-contact-form__submit {
+        background: #ffffff;
+    }
+
+    .services-contact-form__submit:hover:not(:disabled) {
+        background: #2a2a2a;
+        transform: translateY(-2px);
+    }
+
+    body.dark-mode .services-contact-form__submit:hover:not(:disabled) {
+        background: #e5e5e5;
+    }
+
+    .services-contact-form__submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .services-contact-section__services {
+        flex: 1;
+        width: 50%;
+    }
+
+    .services-contact-services__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 32px;
+    }
+
+    .services-contact-services__item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .services-contact-services__title {
+        font-family: 'Space Mono', monospace;
+        font-size: 18px;
+        font-weight: 400;
+        text-transform: uppercase;
+        color: var(--qode-heading-color);
+        margin: 0;
+        padding: 0;
+        line-height: 1.3;
+    }
+
+    .services-contact-services__description {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: rgba(23, 23, 23, 0.78);
+        margin: 0;
+        padding: 0;
+    }
+
+    body.dark-mode .services-contact-services__description {
+        color: rgba(243, 243, 243, 0.78);
+    }
+
+    @media (max-width: 1024px) {
+        .services-contact-section__container {
+            flex-direction: column;
+            gap: 60px;
         }
 
-        .services-card {
-            padding: 36px 0;
-            border-bottom-width: 2px;
+        .services-contact-section__form {
+            width: 100%;
+            max-width: 100%;
         }
 
-        .services-card__distort {
-            display: block;
-            position: absolute;
-            inset: 0;
-            width: 0;
-            height: 0;
-            pointer-events: none;
+        .services-contact-section__title {
+            font-size: clamp(32px, 8vw, 48px);
         }
 
-        .services-card__media {
-            position: absolute;
-            right: clamp(600px, 9vw, 300px);
-            top: 40px;
-            width: clamp(220px, 32vw, 320px);
-            opacity: 0;
-            transition: opacity 0.2s ease-out;
-            pointer-events: none;
+        .services-contact-section__services {
+            width: 100%;
         }
 
-        .services-card--interactive:hover .services-card__media {
-            opacity: 1;
-            pointer-events: auto;
+        .services-contact-services__grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 758px) {
+        .services-contact-section {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        .services-contact-form__row {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .services-contact-services__grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>

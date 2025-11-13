@@ -33,7 +33,6 @@ Route::get('/downloads/{template}', DownloadController::class)->name('downloads.
 
 Route::get('/contact-information', [SiteContactInformationController::class, 'show'])->name('contact-information.show');
 Route::get('/plans', [SitePlanController::class, 'index'])->name('plans.index');
-Route::post('/plans/{plan}/checkout', [SitePlanController::class, 'checkout'])->name('plans.checkout');
 Route::post('/contact-messages', [ContactMessageController::class, 'store'])->name('contact-messages.store');
 Route::get('/services', [SiteServiceController::class, 'index'])->name('services.index');
 
@@ -48,6 +47,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->name('admin.
 });
 
 Route::middleware(['auth:sanctum', 'role:client'])->group(function (): void {
+    Route::post('/plans/{plan}/checkout', [SitePlanController::class, 'checkout'])->name('plans.checkout');
     Route::post('/checkout/subscription', SubscriptionCheckoutController::class)->name('checkout.subscription');
     Route::post('/checkout/purchase', PurchaseCheckoutController::class)->name('checkout.purchase');
 });
@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum', 'role:client'])->group(function (): void {
 Route::middleware(['auth:sanctum', 'role:client'])->prefix('client')->name('client.')->group(function (): void {
     Route::get('/subscriptions', [ClientController::class, 'subscriptions'])->name('subscriptions.index');
     Route::post('/subscriptions/{subscription}/cancel', [ClientSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::post('/subscriptions/{subscription}/reactivate', [ClientSubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
     
     Route::get('/purchases', [ClientController::class, 'purchases'])->name('purchases.index');
     Route::post('/purchases/{purchase}/resend-code', [ClientPurchaseController::class, 'resendCode'])->name('purchases.resend-code');

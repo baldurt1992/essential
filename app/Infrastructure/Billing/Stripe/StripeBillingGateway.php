@@ -36,7 +36,7 @@ class StripeBillingGateway implements BillingGateway
             'allow_promotion_codes' => true,
             'success_url' => Arr::get($options, 'success_url', config('billing.stripe.success_url')),
             'cancel_url' => Arr::get($options, 'cancel_url', config('billing.stripe.cancel_url')),
-            'subscription_data' => [
+            'subscription_data' => array_filter([
                 'metadata' => array_merge(
                     [
                         'plan_uuid' => $plan->uuid,
@@ -44,8 +44,8 @@ class StripeBillingGateway implements BillingGateway
                     ],
                     Arr::get($options, 'subscription_metadata', []),
                 ),
-                'trial_period_days' => Arr::get($options, 'trial_period_days', config('billing.stripe.subscription_trial_days')),
-            ],
+                'trial_period_days' => ($trialDays = Arr::get($options, 'trial_period_days', config('billing.stripe.subscription_trial_days'))) > 0 ? $trialDays : null,
+            ], fn($value) => $value !== null),
             'metadata' => array_merge(
                 [
                     'plan_uuid' => $plan->uuid,
@@ -77,19 +77,20 @@ class StripeBillingGateway implements BillingGateway
             'allow_promotion_codes' => true,
             'success_url' => Arr::get($options, 'success_url', config('billing.stripe.success_url')),
             'cancel_url' => Arr::get($options, 'cancel_url', config('billing.stripe.cancel_url')),
-            'subscription_data' => [
+            'subscription_data' => array_filter([
                 'metadata' => array_merge(
                     [
                         'plan_uuid' => $plan->uuid,
                     ],
                     Arr::get($options, 'subscription_metadata', []),
                 ),
-                'trial_period_days' => Arr::get($options, 'trial_period_days', config('billing.stripe.subscription_trial_days')),
-            ],
+                'trial_period_days' => ($trialDays = Arr::get($options, 'trial_period_days', config('billing.stripe.subscription_trial_days'))) > 0 ? $trialDays : null,
+            ], fn($value) => $value !== null),
             'metadata' => array_merge(
                 [
                     'plan_uuid' => $plan->uuid,
                     'session_type' => 'public_subscription',
+                    'user_id' => Arr::get($options, 'user_id'),
                 ],
                 Arr::get($options, 'metadata', []),
             ),
@@ -149,14 +150,39 @@ class StripeBillingGateway implements BillingGateway
             throw new InvalidArgumentException('Subscription does not have an associated Stripe subscription ID.');
         }
 
-        $response = $this->stripe->subscriptions->cancel($subscription->stripe_subscription_id, [
-            'cancel_at_period_end' => $atPeriodEnd,
-        ]);
+        // If canceling at period end, use update() instead of cancel()
+        if ($atPeriodEnd) {
+            $response = $this->stripe->subscriptions->update($subscription->stripe_subscription_id, [
+                'cancel_at_period_end' => true,
+            ]);
+        } else {
+            // Cancel immediately
+            $response = $this->stripe->subscriptions->cancel($subscription->stripe_subscription_id);
+        }
 
         Log::info('Stripe subscription canceled', [
             'local_subscription_id' => $subscription->getKey(),
             'stripe_subscription_id' => $subscription->stripe_subscription_id,
             'at_period_end' => $atPeriodEnd,
+        ]);
+
+        return $response;
+    }
+
+    public function reactivateSubscription(Subscription $subscription): StripeSubscription
+    {
+        if (! $subscription->stripe_subscription_id) {
+            throw new InvalidArgumentException('Subscription does not have an associated Stripe subscription ID.');
+        }
+
+        // Reactivate by setting cancel_at_period_end to false
+        $response = $this->stripe->subscriptions->update($subscription->stripe_subscription_id, [
+            'cancel_at_period_end' => false,
+        ]);
+
+        Log::info('Stripe subscription reactivated', [
+            'local_subscription_id' => $subscription->getKey(),
+            'stripe_subscription_id' => $subscription->stripe_subscription_id,
         ]);
 
         return $response;
