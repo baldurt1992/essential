@@ -26,10 +26,9 @@
                                 <span>{{ service.description }}</span>
                             </div>
                             <div class="qodef-e-image" :data-distort-id="`distort-${index}`">
-                                <a itemprop="url" :href="service.link" target="_self">
-                                    <img loading="lazy" decoding="async" :src="service.image" :alt="service.title"
-                                        class="attachment-full size-full" :data-filter-id="`filter-distort-${index}`" />
-                                </a>
+                                <Image :src="service.image" :alt="service.title"
+                                    class="attachment-full size-full" :data-filter-id="`filter-distort-${index}`" 
+                                    preview />
                                 <svg class="qodef-svg--distort" width="100" height="100" viewBox="0 0 100 100"
                                     :data-strength="25">
                                     <defs>
@@ -73,6 +72,7 @@
 
 <script setup>
     import { ref, onMounted, onBeforeUnmount } from 'vue';
+    import Image from 'primevue/image';
 
     const animationFrames = ref({});
     const isAnimating = ref({});
@@ -378,7 +378,7 @@
         height: auto;
     }
 
-    .qodef-awards-list .qodef-e-image img {
+    .qodef-awards-list .qodef-e-image :deep(img) {
         width: 100%;
         height: auto;
         display: block;

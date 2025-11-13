@@ -95,14 +95,16 @@ class DownloadLicenseService
             if ($license->source_type === Subscription::class) {
                 $subscription = $license->source;
                 if ($subscription) {
+                    // Resetear contador mensual si es necesario (esto actualiza la BD)
+                    $this->resetMonthlyDownloadsIfNeeded($subscription);
+
+                    // Recargar la suscripción desde la BD para obtener el downloads_used actualizado
+                    $subscription->refresh();
+
                     // Asegurar que el plan esté cargado
                     if (! $subscription->relationLoaded('plan')) {
                         $subscription->load('plan');
                     }
-
-                    // Resetear contador mensual si es necesario
-                    $this->resetMonthlyDownloadsIfNeeded($subscription);
-                    $subscription->refresh();
 
                     if ($subscription->plan) {
                         $plan = $subscription->plan;
@@ -110,6 +112,14 @@ class DownloadLicenseService
                         // Si el plan tiene límite y no es ilimitado, verificar contador mensual
                         if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
                             if ($subscription->downloads_used >= $plan->download_limit) {
+                                \Illuminate\Support\Facades\Log::info('Download limit reached in findValidLicense', [
+                                    'user_id' => $subscription->user_id,
+                                    'subscription_id' => $subscription->getKey(),
+                                    'downloads_used' => $subscription->downloads_used,
+                                    'download_limit' => $plan->download_limit,
+                                    'plan_name' => $plan->name,
+                                    'plan_id' => $plan->getKey(),
+                                ]);
                                 return false; // Ya alcanzó el límite mensual
                             }
                         }
@@ -192,15 +202,31 @@ class DownloadLicenseService
             return null;
         }
 
-        $plan = $subscription->plan;
-
-        // Resetear contador mensual si es necesario
+        // Resetear contador mensual si es necesario (esto actualiza la BD)
         $this->resetMonthlyDownloadsIfNeeded($subscription);
+
+        // Recargar la suscripción desde la BD para obtener el downloads_used actualizado
+        $subscription->refresh();
+
+        // Asegurar que el plan esté cargado
+        if (! $subscription->relationLoaded('plan')) {
+            $subscription->load('plan');
+        }
+
+        $plan = $subscription->plan;
 
         // Verificar límite de descargas si el plan tiene límite
         if ($plan && ! $plan->unlimited_downloads && $plan->download_limit !== null) {
             // Si el usuario ya alcanzó el límite mensual, no permitir más descargas
             if ($subscription->downloads_used >= $plan->download_limit) {
+                \Illuminate\Support\Facades\Log::info('Download limit reached in issueForActiveSubscription', [
+                    'user_id' => $user->getKey(),
+                    'subscription_id' => $subscription->getKey(),
+                    'downloads_used' => $subscription->downloads_used,
+                    'download_limit' => $plan->download_limit,
+                    'plan_name' => $plan->name,
+                    'plan_id' => $plan->getKey(),
+                ]);
                 return null;
             }
         }

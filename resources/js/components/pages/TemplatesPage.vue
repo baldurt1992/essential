@@ -65,8 +65,7 @@
             <div v-else class="templates-grid">
                 <article v-for="template in templates" :key="template.uuid" class="template-card">
                     <div class="template-card__media">
-                        <img :src="template.previewUrl" :alt="template.title" loading="lazy" decoding="async"
-                            class="template-card__image" />
+                        <Image :src="template.previewUrl" :alt="template.title" class="template-card__image" preview />
 
                         <div class="template-card__badges">
                             <span v-if="isTemplatePopular(template)" class="template-badge template-badge--popular">
@@ -100,8 +99,12 @@
                         </div>
 
                         <div class="template-card__actions">
-                            <button type="button" class="template-card__cta" @click="handlePrimaryAction(template)">
-                                {{ template.isAccessible ? 'Descargar' : 'Comprar' }}
+                            <button type="button" class="template-card__cta"
+                                :disabled="isDownloading && downloadingTemplateId === template.id"
+                                @click="handlePrimaryAction(template)">
+                                <i v-if="isDownloading && downloadingTemplateId === template.id"
+                                    class="pi pi-spin pi-spinner template-card__cta-spinner"></i>
+                                <span v-else>{{ template.isAccessible ? 'Descargar' : 'Comprar' }}</span>
                             </button>
                             <button v-if="!auth.isAuthenticated.value" type="button" class="template-card__link"
                                 @click="openAuthModal('login')">
@@ -123,8 +126,7 @@
             class="template-preview-dialog" :style="{ width: previewDialogWidth }" :breakpoints="previewBreakpoints">
             <div v-if="selectedTemplate" class="template-preview">
                 <div class="template-preview__media">
-                    <img :src="selectedTemplate.previewUrl" :alt="selectedTemplate.title" loading="lazy"
-                        decoding="async" />
+                    <Image :src="selectedTemplate.previewUrl" :alt="selectedTemplate.title" preview />
                 </div>
 
                 <div class="template-preview__content">
@@ -152,8 +154,11 @@
 
                     <div class="template-preview__actions">
                         <button type="button" class="template-preview__buy"
+                            :disabled="isDownloading && downloadingTemplateId === selectedTemplate.id"
                             @click="handlePrimaryAction(selectedTemplate)">
-                            {{ selectedTemplate.isAccessible ? 'Descargar' : 'Comprar ahora' }}
+                            <i v-if="isDownloading && downloadingTemplateId === selectedTemplate.id"
+                                class="pi pi-spin pi-spinner template-preview__buy-spinner"></i>
+                            <span v-else>{{ selectedTemplate.isAccessible ? 'Descargar' : 'Comprar ahora' }}</span>
                         </button>
                     </div>
                 </div>
@@ -191,7 +196,7 @@
         <Dialog v-model:visible="showDownloadErrorDialog" modal class="download-error-dialog"
             :style="{ width: '90%', maxWidth: '500px' }" :closable="true" :draggable="false">
             <template #header>
-                <h2 class="download-error-dialog__title">Límite alcanzado</h2>
+                <h2 class="download-error-dialog__title">Error al descargar</h2>
             </template>
 
             <div class="download-error-dialog__content">
@@ -215,6 +220,7 @@
     import { useAuthModal } from '../../composables/useAuthModal';
     import { useToast } from 'primevue/usetoast';
     import Dialog from 'primevue/dialog';
+    import Image from 'primevue/image';
     import Button from 'primevue/button';
     import axios from 'axios';
 
@@ -273,6 +279,7 @@
     const showDownloadErrorDialog = ref(false);
     const downloadErrorMessage = ref('');
     const isDownloading = ref(false);
+    const downloadingTemplateId = ref(null);
 
     const previewDialogWidth = ref('92vw');
 
@@ -318,6 +325,7 @@
 
     const handleDownload = async (template) => {
         isDownloading.value = true;
+        downloadingTemplateId.value = template.id;
 
         try {
             const downloadUrl = `/api/downloads/${template.slug}`;
@@ -372,6 +380,7 @@
             showDownloadErrorDialog.value = true;
         } finally {
             isDownloading.value = false;
+            downloadingTemplateId.value = null;
         }
     };
 
@@ -861,11 +870,16 @@
     .template-card__image {
         width: 100%;
         height: 100%;
+    }
+
+    .template-card__image :deep(img) {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         transition: transform 0.35s ease;
     }
 
-    .template-card__media:hover .template-card__image {
+    .template-card__media:hover .template-card__image :deep(img) {
         transform: scale(1.04);
     }
 
@@ -1013,13 +1027,24 @@
         padding: 8px 16px;
         border-radius: 999px;
         cursor: pointer;
-        transition: background 0.2s ease, transform 0.2s ease;
+        transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
         white-space: nowrap;
+        position: relative;
     }
 
-    .template-card__cta:hover {
+    .template-card__cta:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .template-card__cta:hover:not(:disabled) {
         background: #c42b2b;
         transform: translateY(-1px);
+    }
+
+    .template-card__cta-spinner {
+        margin-right: 8px;
     }
 
     .template-card__link {
@@ -1089,7 +1114,7 @@
         background: rgba(23, 23, 23, 0.06);
     }
 
-    .template-preview__media img {
+    .template-preview__media :deep(img) {
         width: 100%;
         height: auto;
         display: block;
@@ -1147,6 +1172,7 @@
     }
 
     .template-preview__buy {
+        position: relative;
         border: none;
         background: #dd3333;
         color: #ffffff;
@@ -1157,11 +1183,25 @@
         padding: 12px 22px;
         border-radius: 999px;
         cursor: pointer;
-        transition: background 0.2s ease;
+        transition: background 0.2s ease, opacity 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
 
-    .template-preview__buy:hover {
+    .template-preview__buy:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .template-preview__buy:hover:not(:disabled) {
         background: #c42b2b;
+    }
+
+    .template-preview__buy-spinner {
+        margin-right: 8px;
     }
 
     .template-preview__link {

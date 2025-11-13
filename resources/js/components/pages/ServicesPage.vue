@@ -35,11 +35,9 @@
                 <div class="services-image-gallery__grid">
                     <div v-for="(service, index) in services" :key="service.id || index"
                         class="services-image-gallery__item">
-                        <a v-if="service.imageUrl" class="services-image-gallery__link" :href="service.imageUrl"
-                            target="_blank" rel="noopener noreferrer">
-                            <img :src="service.imageUrl" :alt="service.title || 'Service image'"
-                                class="services-image-gallery__image" loading="lazy" decoding="async" />
-                        </a>
+                        <Image v-if="service.imageUrl" :src="service.imageUrl" 
+                            :alt="service.title || 'Service image'"
+                            class="services-image-gallery__image" preview />
                     </div>
                 </div>
             </div>
@@ -139,6 +137,7 @@
     import ServicesMarquee from '../sections/ServicesMarquee.vue';
     import axios from 'axios';
     import { useToast } from 'primevue/usetoast';
+    import Image from 'primevue/image';
 
     const toast = useToast();
     const servicesStore = useSiteServices();
@@ -444,13 +443,18 @@
         width: 100%;
         height: 100%;
         display: block;
+    }
+
+    .services-image-gallery__image :deep(img) {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         object-position: center;
         transition: transform 0.3s ease;
         border-radius: 50px;
     }
 
-    .services-image-gallery__link:hover .services-image-gallery__image {
+    .services-image-gallery__image:hover :deep(img) {
         transform: scale(1.05);
     }
 

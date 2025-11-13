@@ -50,19 +50,47 @@ class DownloadController extends BaseController
         // Verificar límite de descargas mensual por suscripción si la licencia viene de una suscripción
         if ($license->source_type === \App\Domain\Billing\Models\Subscription::class) {
             $subscription = $license->source;
-            if ($subscription && $subscription->plan) {
-                $plan = $subscription->plan;
-
-                // Resetear contador mensual si es necesario
+            if ($subscription) {
+                // Resetear contador mensual si es necesario (esto actualiza la BD)
                 $this->resetMonthlyDownloadsIfNeeded($subscription);
+
+                // Recargar la suscripción desde la BD para obtener el downloads_used actualizado
                 $subscription->refresh();
 
-                // Si el plan tiene límite y no es ilimitado, verificar contador mensual
-                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
-                    if ($subscription->downloads_used >= $plan->download_limit) {
-                        return response([
-                            'message' => "Límite de descargas para el plan {$plan->name} ({$plan->download_limit} descargas/mes) alcanzado. Espera al siguiente mes para seguir descargando o actualiza tu plan.",
-                        ], 403);
+                // Asegurar que el plan esté cargado
+                if (! $subscription->relationLoaded('plan')) {
+                    $subscription->load('plan');
+                }
+
+                if ($subscription->plan) {
+                    $plan = $subscription->plan;
+
+                    // Si el plan tiene límite y no es ilimitado, verificar contador mensual
+                    if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                        Log::info('Checking download limit in __invoke', [
+                            'user_id' => $subscription->user_id,
+                            'subscription_id' => $subscription->getKey(),
+                            'downloads_used' => $subscription->downloads_used,
+                            'download_limit' => $plan->download_limit,
+                            'plan_name' => $plan->name,
+                            'plan_id' => $plan->getKey(),
+                            'unlimited_downloads' => $plan->unlimited_downloads,
+                        ]);
+
+                        if ($subscription->downloads_used >= $plan->download_limit) {
+                            Log::warning('Download limit reached in __invoke', [
+                                'user_id' => $subscription->user_id,
+                                'subscription_id' => $subscription->getKey(),
+                                'downloads_used' => $subscription->downloads_used,
+                                'download_limit' => $plan->download_limit,
+                                'plan_name' => $plan->name,
+                                'plan_id' => $plan->getKey(),
+                            ]);
+
+                            return response([
+                                'message' => "Límite de descargas para el plan {$plan->name} ({$plan->download_limit} descargas/mes) alcanzado. Espera al siguiente mes para seguir descargando o actualiza tu plan.",
+                            ], 403);
+                        }
                     }
                 }
             }
@@ -85,12 +113,34 @@ class DownloadController extends BaseController
         // Si la licencia viene de una suscripción, incrementar el contador de la suscripción
         if ($license->source_type === \App\Domain\Billing\Models\Subscription::class) {
             $subscription = $license->source;
-            if ($subscription && $subscription->plan) {
-                $plan = $subscription->plan;
+            if ($subscription) {
+                // Recargar la suscripción para asegurar que tenemos los datos actualizados
+                $subscription->refresh();
 
-                // Solo incrementar si el plan tiene límite (no es ilimitado)
-                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
-                    $subscription->increment('downloads_used');
+                // Asegurar que el plan esté cargado
+                if (! $subscription->relationLoaded('plan')) {
+                    $subscription->load('plan');
+                }
+
+                if ($subscription->plan) {
+                    $plan = $subscription->plan;
+
+                    // Solo incrementar si el plan tiene límite (no es ilimitado)
+                    if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                        // Usar increment para actualizar directamente en la BD
+                        $subscription->increment('downloads_used');
+
+                        // Recargar la suscripción después del incremento para tener el valor actualizado
+                        $subscription->refresh();
+
+                        Log::info('Download counter incremented', [
+                            'user_id' => $subscription->user_id,
+                            'subscription_id' => $subscription->getKey(),
+                            'downloads_used' => $subscription->downloads_used,
+                            'download_limit' => $plan->download_limit,
+                            'plan_name' => $plan->name,
+                        ]);
+                    }
                 }
             }
         }
@@ -137,22 +187,49 @@ class DownloadController extends BaseController
                 ->latest('current_period_end')
                 ->first();
 
-            if ($subscription && $subscription->plan) {
-                // Resetear contador mensual si es necesario
+            if ($subscription) {
+                // Resetear contador mensual si es necesario (esto actualiza la BD)
                 $this->resetMonthlyDownloadsIfNeeded($subscription);
+
+                // Recargar la suscripción desde la BD para obtener el downloads_used actualizado
                 $subscription->refresh();
 
-                $plan = $subscription->plan;
+                // Asegurar que el plan esté cargado
+                if (! $subscription->relationLoaded('plan')) {
+                    $subscription->load('plan');
+                }
 
-                // Si el plan tiene límite y se alcanzó, guardar info para mensaje de error
-                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
-                    if ($subscription->downloads_used >= $plan->download_limit) {
-                        // Guardar info en la sesión para el mensaje de error
-                        $request->session()->put('download_limit_reached', [
-                            'plan_name' => $plan->name,
+                if ($subscription->plan) {
+                    $plan = $subscription->plan;
+
+                    // Si el plan tiene límite y se alcanzó, guardar info para mensaje de error
+                    if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                        Log::info('Checking download limit in resolveLicense', [
+                            'user_id' => $user->getKey(),
+                            'subscription_id' => $subscription->getKey(),
+                            'downloads_used' => $subscription->downloads_used,
                             'download_limit' => $plan->download_limit,
+                            'plan_name' => $plan->name,
+                            'plan_id' => $plan->getKey(),
                         ]);
-                        return null;
+
+                        if ($subscription->downloads_used >= $plan->download_limit) {
+                            Log::warning('Download limit reached in resolveLicense', [
+                                'user_id' => $user->getKey(),
+                                'subscription_id' => $subscription->getKey(),
+                                'downloads_used' => $subscription->downloads_used,
+                                'download_limit' => $plan->download_limit,
+                                'plan_name' => $plan->name,
+                                'plan_id' => $plan->getKey(),
+                            ]);
+
+                            // Guardar info en la sesión para el mensaje de error
+                            $request->session()->put('download_limit_reached', [
+                                'plan_name' => $plan->name,
+                                'download_limit' => $plan->download_limit,
+                            ]);
+                            return null;
+                        }
                     }
                 }
             }
