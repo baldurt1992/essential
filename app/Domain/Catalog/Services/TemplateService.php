@@ -6,6 +6,7 @@ use App\Domain\Catalog\Models\Template;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Stripe\StripeClient;
@@ -119,7 +120,7 @@ class TemplateService
     private function handleUploads(Template $template, array $data): void
     {
         if ($preview = Arr::get($data, 'preview_image')) {
-            \Log::info('Handling preview image upload', [
+            Log::info('Handling preview image upload', [
                 'template_id' => $template->id,
                 'file_name' => $preview->getClientOriginalName(),
                 'file_size' => $preview->getSize(),
@@ -128,26 +129,31 @@ class TemplateService
 
             // Asegurar que el directorio existe
             $previewDir = 'templates/previews';
-            $publicDisk = Storage::disk('public');
-            if (! $publicDisk->exists($previewDir)) {
-                \Log::info('Creating preview directory', ['directory' => $previewDir]);
-                $publicDisk->makeDirectory($previewDir, 0755, true);
+            // Usar 'public_storage' para guardar directamente en public/storage/
+            $publicStorageDisk = Storage::disk('public_storage');
+            if (! $publicStorageDisk->exists($previewDir)) {
+                Log::info('Creating preview directory', ['directory' => $previewDir]);
+                $publicStorageDisk->makeDirectory($previewDir, 0755, true);
             }
 
+            // Eliminar archivo antiguo (verificar en ambos discos por compatibilidad)
             $this->deleteFile($template->preview_image_path, 'public');
-            $storedPath = $this->storeFile($preview, $previewDir, 'public');
-            
-            \Log::info('Preview image stored', [
+            $this->deleteFile($template->preview_image_path, 'public_storage');
+
+            $storedPath = $this->storeFile($preview, $previewDir, 'public_storage');
+
+            Log::info('Preview image stored', [
                 'template_id' => $template->id,
                 'stored_path' => $storedPath,
-                'file_exists' => $publicDisk->exists($storedPath),
+                'file_exists' => $publicStorageDisk->exists($storedPath),
+                'full_path' => $publicStorageDisk->path($storedPath),
             ]);
 
             $template->preview_image_path = $storedPath;
         }
 
         if ($package = Arr::get($data, 'package_file')) {
-            \Log::info('Handling package file upload', [
+            Log::info('Handling package file upload', [
                 'template_id' => $template->id,
                 'file_name' => $package->getClientOriginalName(),
                 'file_size' => $package->getSize(),
@@ -157,14 +163,14 @@ class TemplateService
             $packageDir = 'templates/packages';
             $localDisk = Storage::disk('local');
             if (! $localDisk->exists($packageDir)) {
-                \Log::info('Creating package directory', ['directory' => $packageDir]);
+                Log::info('Creating package directory', ['directory' => $packageDir]);
                 $localDisk->makeDirectory($packageDir, 0755, true);
             }
 
             $this->deleteFile($template->download_path, 'local');
             $storedPath = $this->storeFile($package, $packageDir, 'local');
-            
-            \Log::info('Package file stored', [
+
+            Log::info('Package file stored', [
                 'template_id' => $template->id,
                 'stored_path' => $storedPath,
                 'file_exists' => $localDisk->exists($storedPath),
@@ -211,8 +217,8 @@ class TemplateService
     {
         $storage = Storage::disk($disk);
         $path = $file->store($directory, ['disk' => $disk]);
-        
-        \Log::info('File stored', [
+
+        Log::info('File stored', [
             'original_name' => $file->getClientOriginalName(),
             'directory' => $directory,
             'disk' => $disk,
@@ -227,8 +233,23 @@ class TemplateService
 
     private function deleteFile(?string $path, string $disk): void
     {
-        if ($path && Storage::disk($disk)->exists($path)) {
-            Storage::disk($disk)->delete($path);
+        if (! $path) {
+            return;
+        }
+
+        // Normalizar el path antes de verificar
+        $normalizedPath = ltrim($path, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            $normalizedPath = substr($normalizedPath, 8);
+        }
+
+        $storage = Storage::disk($disk);
+        if ($storage->exists($normalizedPath)) {
+            $storage->delete($normalizedPath);
+            Log::info('File deleted', [
+                'path' => $normalizedPath,
+                'disk' => $disk,
+            ]);
         }
     }
 

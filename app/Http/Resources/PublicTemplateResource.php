@@ -44,18 +44,23 @@ class PublicTemplateResource extends JsonResource
             $normalizedPath = substr($normalizedPath, 8); // Remover 'storage/'
         }
 
-        $url = Storage::disk('public')->url($normalizedPath);
-        
-        // Verificar que el archivo existe antes de retornar la URL
-        if (! Storage::disk('public')->exists($normalizedPath)) {
-            \Log::warning('Preview image file does not exist', [
-                'template_id' => $this->id,
-                'normalized_path' => $normalizedPath,
-                'original_path' => $this->preview_image_path,
-                'full_path' => Storage::disk('public')->path($normalizedPath),
-            ]);
+        // Verificar primero en public_storage (directo en public/storage/)
+        if (Storage::disk('public_storage')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
         }
 
-        return $url;
+        // Fallback a public (storage/app/public/)
+        if (Storage::disk('public')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
+        }
+        
+        // Log warning si el archivo no existe en ningún disco
+        \Log::warning('Preview image file does not exist', [
+            'template_id' => $this->id,
+            'normalized_path' => $normalizedPath,
+            'original_path' => $this->preview_image_path,
+        ]);
+
+        return null;
     }
 }

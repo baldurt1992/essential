@@ -54,6 +54,16 @@ class TemplateResource extends JsonResource
             $normalizedPath = substr($normalizedPath, 8); // Remover 'storage/'
         }
 
-        return Storage::disk('public')->url($normalizedPath);
+        // Verificar primero en public_storage (directo en public/storage/)
+        if (Storage::disk('public_storage')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
+        }
+
+        // Fallback a public (storage/app/public/)
+        if (Storage::disk('public')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
+        }
+
+        return null;
     }
 }
