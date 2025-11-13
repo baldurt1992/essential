@@ -197,7 +197,7 @@
             <div class="download-error-dialog__content">
                 <p class="download-error-dialog__message">{{ downloadErrorMessage }}</p>
             </div>
-
+            fix
             <template #footer>
                 <Button @click="showDownloadErrorDialog = false" class="qodef-button qodef-button--primary">
                     Entendido

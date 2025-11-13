@@ -416,10 +416,6 @@
         padding: 0;
     }
 
-    .admin-header__logout-button:hover {
-        background: #000000;
-    }
-
     .admin-header__logout-button:active {
         transform: translateY(0);
     }
