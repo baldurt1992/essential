@@ -180,6 +180,11 @@
         if (imageUrl.value) {
             return imageUrl.value;
         }
+        // Usar image_url del backend si está disponible (URL completa)
+        if (props.service?.image_url) {
+            return props.service.image_url;
+        }
+        // Fallback a image_path si image_url no está disponible
         if (props.service?.image_path) {
             return resolveImagePath(props.service.image_path);
         }

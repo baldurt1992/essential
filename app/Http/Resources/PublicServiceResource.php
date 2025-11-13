@@ -17,11 +17,39 @@ class PublicServiceResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'link_url' => $this->resolveLinkUrl(),
-            'image_url' => $this->image_path ? Storage::disk('public')->url($this->image_path) : null,
+            'image_url' => $this->getImageUrl(),
             'is_popular' => (bool) $this->is_popular,
             'sort_order' => $this->sort_order,
             'metadata' => $this->metadata ?? [],
         ];
+    }
+
+    /**
+     * Genera la URL completa de la imagen, normalizando el path
+     */
+    private function getImageUrl(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        // Normalizar el path: remover 'storage/' del inicio si existe
+        $normalizedPath = ltrim($this->image_path, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            $normalizedPath = substr($normalizedPath, 8); // Remover 'storage/'
+        }
+
+        // Verificar primero en public_storage (directo en public/storage/)
+        if (Storage::disk('public_storage')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
+        }
+
+        // Fallback a public (storage/app/public/)
+        if (Storage::disk('public')->exists($normalizedPath)) {
+            return asset('storage/' . $normalizedPath);
+        }
+
+        return null;
     }
 
     private function resolveLinkUrl(): string

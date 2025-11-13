@@ -34,7 +34,9 @@ class ServiceService
 
     public function delete(Service $service): void
     {
+        // Eliminar archivo de ambos discos por compatibilidad
         $this->deleteFile($service->image_path, 'public');
+        $this->deleteFile($service->image_path, 'public_storage');
         $service->delete();
     }
 
@@ -94,8 +96,19 @@ class ServiceService
     private function handleUploads(Service $service, array $data): void
     {
         if ($image = Arr::get($data, 'image')) {
+            // Eliminar archivo antiguo (verificar en ambos discos por compatibilidad)
             $this->deleteFile($service->image_path, 'public');
-            $service->image_path = $this->storeFile($image, 'services/images', 'public');
+            $this->deleteFile($service->image_path, 'public_storage');
+
+            // Asegurar que el directorio existe
+            $imageDir = 'services/images';
+            $publicStorageDisk = Storage::disk('public_storage');
+            if (! $publicStorageDisk->exists($imageDir)) {
+                $publicStorageDisk->makeDirectory($imageDir, 0755, true);
+            }
+
+            // Usar 'public_storage' para guardar directamente en public/storage/
+            $service->image_path = $this->storeFile($image, $imageDir, 'public_storage');
         }
     }
 
@@ -107,8 +120,19 @@ class ServiceService
 
     private function deleteFile(?string $path, string $disk): void
     {
-        if ($path && Storage::disk($disk)->exists($path)) {
-            Storage::disk($disk)->delete($path);
+        if (! $path) {
+            return;
+        }
+
+        // Normalizar el path antes de verificar
+        $normalizedPath = ltrim($path, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            $normalizedPath = substr($normalizedPath, 8);
+        }
+
+        $storage = Storage::disk($disk);
+        if ($storage->exists($normalizedPath)) {
+            $storage->delete($normalizedPath);
         }
     }
 }

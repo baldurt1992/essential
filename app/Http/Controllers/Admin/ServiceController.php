@@ -27,7 +27,14 @@ class ServiceController extends Controller
 
     public function store(StoreServiceRequest $request): JsonResponse
     {
-        $service = $this->serviceService->store($request->user(), $request->validated());
+        $data = $request->validated();
+        
+        // Agregar el archivo de imagen si está presente
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image');
+        }
+        
+        $service = $this->serviceService->store($request->user(), $data);
 
         return (new ServiceResource($service))->response()->setStatusCode(Response::HTTP_CREATED);
     }
@@ -39,7 +46,14 @@ class ServiceController extends Controller
 
     public function update(UpdateServiceRequest $request, Service $service): JsonResponse
     {
-        $updated = $this->serviceService->update($service, $request->validated());
+        $data = $request->validated();
+        
+        // Agregar el archivo de imagen si está presente
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image');
+        }
+        
+        $updated = $this->serviceService->update($service, $data);
 
         return (new ServiceResource($updated))->response();
     }
