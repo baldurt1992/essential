@@ -37,6 +37,22 @@ async function resendPurchaseCode(purchaseUuid) {
     }
 }
 
+async function validatePurchaseCode(purchaseUuid, code) {
+    try {
+        const response = await axios.post(`/api/client/purchases/${purchaseUuid}/validate-code`, {
+            code,
+        });
+        return {
+            success: true,
+            download_url: response.data.download_url,
+        };
+    } catch (error) {
+        const message = error.response?.data?.message || 'Error al validar el código';
+        console.error('[useClientPurchases] Error validating code:', error);
+        return { success: false, error: message };
+    }
+}
+
 export function useClientPurchases() {
     return {
         purchases: readonly(purchases),
@@ -45,6 +61,7 @@ export function useClientPurchases() {
         state: readonly(state),
         fetchPurchases,
         resendPurchaseCode,
+        validatePurchaseCode,
     };
 }
 

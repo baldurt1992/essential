@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Log;
 
-class SendPurchaseCompletedMail implements ShouldQueue
+class SendPurchaseCompletedMail // implements ShouldQueue // Temporalmente desactivado para debugging
 {
     public function __construct(private readonly Mailer $mailer) {}
 
@@ -17,12 +17,39 @@ class SendPurchaseCompletedMail implements ShouldQueue
         $purchase = $event->purchase;
         $license = $event->license;
 
-        $this->mailer->to($purchase->user->email)->send(new PurchaseCompletedMail($license));
+        // Determinar el email del destinatario
+        $recipientEmail = $purchase->user_id
+            ? $purchase->user->email
+            : $purchase->guest_email;
+
+        if (! $recipientEmail) {
+            Log::warning('Purchase completed without recipient email', [
+                'purchase_id' => $purchase->getKey(),
+                'license_id' => $license->getKey(),
+            ]);
+
+            return;
+        }
+
+        try {
+            $this->mailer->to($recipientEmail)->send(new PurchaseCompletedMail($license, $purchase));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send purchase completed email', [
+                'purchase_id' => $purchase->getKey(),
+                'license_id' => $license->getKey(),
+                'recipient_email' => $recipientEmail,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         Log::info('Purchase email sent', [
             'purchase_id' => $purchase->getKey(),
             'license_id' => $license->getKey(),
             'user_id' => $purchase->user_id,
+            'guest_email' => $purchase->guest_email,
+            'recipient_email' => $recipientEmail,
         ]);
     }
 }

@@ -68,7 +68,7 @@
                         <i class="pi pi-info-circle"></i>
                         <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
                             Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
-                                }}</strong> y perderás el acceso a los beneficios del plan.
+                            }}</strong> y perderás el acceso a los beneficios del plan.
                         </span>
                         <span v-else-if="activeSubscription?.current_period_end">
                             Tu suscripción se renueva automáticamente el <strong>{{
@@ -130,7 +130,7 @@
                         <i class="pi pi-info-circle"></i>
                         <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
                             Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
-                                }}</strong> y perderás el acceso a los beneficios del plan.
+                            }}</strong> y perderás el acceso a los beneficios del plan.
                         </span>
                         <span v-else-if="activeSubscription?.current_period_end">
                             Tu suscripción se renueva automáticamente el <strong>{{
@@ -202,6 +202,31 @@
                 </RouterLink>
             </div>
         </section>
+
+        <!-- Modal de autenticación requerida -->
+        <Dialog v-model:visible="showAuthModal" modal :style="{ width: '90%', maxWidth: '500px' }" :closable="true"
+            :draggable="false">
+            <template #header>
+                <h2 class="auth-modal__title">Cuenta requerida</h2>
+            </template>
+
+            <div class="auth-modal__content">
+                <p class="auth-modal__message">
+                    Necesitas tener una cuenta para poder comprar un plan de suscripción.
+                </p>
+            </div>
+
+            <template #footer>
+                <div class="auth-modal__actions">
+                    <button type="button" class="auth-nav-button auth-nav-button--ghost" @click="openLoginModal">
+                        Iniciar sesión
+                    </button>
+                    <button type="button" class="auth-nav-button auth-nav-button--primary" @click="openRegisterModal">
+                        Registrarse
+                    </button>
+                </div>
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -211,17 +236,21 @@
     import { useSitePlans } from '../../composables/useSitePlans';
     import { useAuth } from '../../composables/useAuth';
     import { useClientSubscriptions } from '../../composables/useClientSubscriptions';
+    import { useAuthModal } from '../../composables/useAuthModal';
     import axios from 'axios';
     import { useToast } from 'primevue/usetoast';
+    import Dialog from 'primevue/dialog';
 
     const router = useRouter();
     const route = useRoute();
     const toast = useToast();
     const auth = useAuth();
+    const { openAuthModal } = useAuthModal();
     const plansSection = ref(null);
     const plansStore = useSitePlans();
     const subscriptionsStore = useClientSubscriptions();
     const isCreatingCheckout = ref(null);
+    const showAuthModal = ref(false);
 
     const plans = plansStore.plans;
     const isLoading = plansStore.isLoading;
@@ -404,6 +433,12 @@
             return;
         }
 
+        // Verificar si el usuario está autenticado
+        if (!auth.isAuthenticated.value) {
+            showAuthModal.value = true;
+            return;
+        }
+
         isCreatingCheckout.value = plan.id;
 
         try {
@@ -443,6 +478,18 @@
         }
         return plans.value.find(p => p.uuid === currentPlanUuid.value);
     });
+
+    const openLoginModal = () => {
+        showAuthModal.value = false;
+        // Abrir el modal de autenticación del header
+        openAuthModal('login');
+    };
+
+    const openRegisterModal = () => {
+        showAuthModal.value = false;
+        // Abrir el modal de autenticación del header
+        openAuthModal('register');
+    };
 
     onMounted(async () => {
         await plansStore.fetchPlans();
@@ -966,6 +1013,93 @@
         .plan-card__cta-button,
         .contact-card__action {
             transition: none;
+        }
+    }
+
+    /* Modal de autenticación */
+    .auth-modal__title {
+        margin: 0;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(24px, 5vw, 32px);
+        font-weight: 400;
+        text-transform: uppercase;
+        color: var(--qode-heading-color);
+    }
+
+    .auth-modal__content {
+        padding: 20px 0;
+    }
+
+    .auth-modal__message {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--qode-text-color);
+    }
+
+    .auth-modal__actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    /* Estilos de botones del modal (iguales a los del header) */
+    .auth-nav-button {
+        font-family: "IBM Plex Mono", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 13px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--qode-text-color);
+        background: transparent;
+        color: var(--qode-text-color);
+        cursor: pointer;
+        transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-nav-button--primary {
+        background-color: #DD3333;
+        border-color: #DD3333;
+        color: #ffffff;
+    }
+
+    .auth-nav-button--primary:hover {
+        background-color: #c42b2b;
+        border-color: #c42b2b;
+    }
+
+    .auth-nav-button--ghost:hover {
+        background-color: var(--qode-heading-color);
+        color: var(--qode-background-color);
+    }
+
+    body.dark-mode .auth-nav-button {
+        border-color: var(--qode-border-color);
+        color: var(--qode-text-color);
+    }
+
+    body.dark-mode .auth-nav-button--ghost:hover {
+        background-color: #ffffff;
+        color: #171717;
+    }
+
+    body.dark-mode .auth-nav-button--primary {
+        border-color: #ffffff;
+    }
+
+    @media (max-width: 480px) {
+        .auth-modal__actions {
+            flex-direction: column;
+        }
+
+        .auth-nav-button {
+            width: 100%;
         }
     }
 </style>

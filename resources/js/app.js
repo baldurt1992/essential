@@ -48,4 +48,12 @@ app.directive('tooltip', Tooltip);
 
 app.use(router);
 
-app.mount('#app');
+// Esperar a que el router esté listo antes de montar la app
+// Esto asegura que las rutas se resuelvan correctamente en cargas iniciales
+router.isReady().then(() => {
+    app.mount('#app');
+}).catch((error) => {
+    console.error('[app] Error al inicializar router:', error);
+    // Montar de todas formas para evitar que la app no se cargue
+    app.mount('#app');
+});

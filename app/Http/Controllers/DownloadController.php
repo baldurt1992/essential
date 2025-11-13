@@ -72,6 +72,7 @@ class DownloadController extends BaseController
             }
         }
 
+        // Intentar con purchase_code (usuarios autenticados sin suscripción)
         $code = $request->string('code')->trim();
 
         if ($code->isNotEmpty()) {
@@ -79,6 +80,37 @@ class DownloadController extends BaseController
 
             if ($license && $license->canDownload()) {
                 return $license;
+            }
+        }
+
+        // Intentar con token temporal (invitados)
+        $token = $request->string('token')->trim();
+
+        if ($token->isNotEmpty()) {
+            Log::info('Attempting to find license by purchase token', [
+                'token' => $token->toString(),
+                'template_id' => $template->getKey(),
+                'template_slug' => $template->slug,
+            ]);
+
+            $license = $this->licenseService->findByPurchaseToken($token->toString(), $template);
+
+            if ($license) {
+                Log::info('License found by purchase token', [
+                    'license_id' => $license->getKey(),
+                    'can_download' => $license->canDownload(),
+                    'user_id' => $license->user_id,
+                    'purchase_code' => $license->purchase_code,
+                ]);
+
+                if ($license->canDownload()) {
+                    return $license;
+                }
+            } else {
+                Log::warning('License not found by purchase token', [
+                    'token' => $token->toString(),
+                    'template_id' => $template->getKey(),
+                ]);
             }
         }
 

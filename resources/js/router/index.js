@@ -50,6 +50,14 @@ const router = createRouter({
                     name: 'contact',
                     component: ContactPage,
                 },
+                {
+                    path: 'compra/confirmacion',
+                    name: 'purchase.confirmation',
+                    component: () => import('../components/pages/PurchaseConfirmationPage.vue'),
+                    meta: {
+                        public: true, // Ruta pública, no requiere autenticación
+                    },
+                },
             ],
         },
         {
@@ -126,7 +134,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+
     const auth = useAuth();
+
+    // Permitir rutas públicas sin verificación de autenticación
+    if (to.meta.public) {
+        return next();
+    }
 
     if (!auth.state.initialized) {
         await auth.init();
@@ -145,34 +159,22 @@ router.beforeEach(async (to, from, next) => {
         isClient = userRoles.some((role) => role.name === 'client');
     }
 
-    console.log('[router][guard]', {
-        to: to.fullPath,
-        isAuthenticated,
-        isAdmin,
-        isClient,
-        user: auth.user.value,
-    });
-
     if (to.meta.requiresAdmin) {
         if (!isAuthenticated) {
-            console.warn('[router][guard] Usuario no autenticado. Redirigiendo a home.');
             return next({ name: 'home' });
         }
 
         if (!isAdmin) {
-            console.warn('[router][guard] Usuario sin rol admin. Redirigiendo a home.');
             return next({ name: 'home' });
         }
     }
 
     if (to.meta.requiresClient) {
         if (!isAuthenticated) {
-            console.warn('[router][guard] Usuario no autenticado. Redirigiendo a home.');
             return next({ name: 'home' });
         }
 
         if (!isClient) {
-            console.warn('[router][guard] Usuario sin rol client. Redirigiendo a home.');
             return next({ name: 'home' });
         }
     }

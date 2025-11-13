@@ -46,7 +46,18 @@ class TemplateController extends Controller
 
     public function update(UpdateTemplateRequest $request, Template $template): JsonResponse
     {
-        $updated = $this->templateService->update($template, $request->validated());
+        $data = $request->validated();
+        
+        // Incluir archivos en los datos si están presentes
+        if ($request->hasFile('preview_image')) {
+            $data['preview_image'] = $request->file('preview_image');
+        }
+        
+        if ($request->hasFile('package_file')) {
+            $data['package_file'] = $request->file('package_file');
+        }
+
+        $updated = $this->templateService->update($template, $data);
 
         return (new TemplateResource($updated))->response();
     }

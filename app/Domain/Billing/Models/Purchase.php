@@ -16,6 +16,7 @@ class Purchase extends Model
     protected $fillable = [
         'uuid',
         'user_id',
+        'guest_email',
         'template_id',
         'checkout_session_id',
         'stripe_session_id',

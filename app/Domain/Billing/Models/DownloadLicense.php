@@ -40,7 +40,9 @@ class DownloadLicense extends Model
                 $license->uuid = (string) Str::uuid();
             }
 
-            if (! $license->purchase_code) {
+            // Solo generar purchase_code si no es una licencia de invitado (user_id es null)
+            // Las licencias de invitados usan links temporales firmados, no purchase_code
+            if (! $license->purchase_code && $license->user_id !== null) {
                 $license->purchase_code = strtoupper(Str::random(5) . '-' . Str::random(5));
             }
         });

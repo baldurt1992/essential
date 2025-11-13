@@ -166,6 +166,51 @@
                 </div>
             </div>
         </Dialog>
+
+        <!-- Modal para solicitar email (invitados) -->
+        <Dialog v-model:visible="showEmailModal" modal :style="{ width: '90%', maxWidth: '500px' }" :closable="true"
+            :draggable="false">
+            <template #header>
+                <h2 class="template-email-modal__title">Completa tu compra</h2>
+            </template>
+
+            <div class="template-email-modal__content">
+                <p class="template-email-modal__message">
+                    Para continuar con la compra, necesitamos tu correo electrónico. Te enviaremos el enlace de descarga
+                    una vez
+                    completado el pago.
+                </p>
+                <form @submit.prevent="handleGuestCheckout" class="template-email-modal__form">
+                    <div class="template-email-modal__field">
+                        <InputText v-model="guestEmail" type="email" name="email" placeholder="tu@email.com" required
+                            :disabled="isCreatingCheckout" class="w-full" />
+                    </div>
+                    <Button type="submit" class="qodef-button qodef-button--primary"
+                        :disabled="isCreatingCheckout || !guestEmail">
+                        <span v-if="!isCreatingCheckout">Continuar al pago</span>
+                        <span v-else>Procesando...</span>
+                    </Button>
+                </form>
+            </div>
+        </Dialog>
+
+        <!-- Dialog de error de descarga -->
+        <Dialog v-model:visible="showDownloadErrorDialog" modal :style="{ width: '90%', maxWidth: '500px' }"
+            :closable="true" :draggable="false">
+            <template #header>
+                <h2 class="download-error-dialog__title">Error al descargar</h2>
+            </template>
+
+            <div class="download-error-dialog__content">
+                <p class="download-error-dialog__message">{{ downloadErrorMessage }}</p>
+            </div>
+
+            <template #footer>
+                <Button @click="showDownloadErrorDialog = false" class="qodef-button qodef-button--primary">
+                    Entendido
+                </Button>
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -173,10 +218,17 @@
     import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
     import { RouterLink, useRoute, useRouter } from 'vue-router';
     import { useSiteTemplates } from '../../composables/useSiteTemplates';
+    import { useAuth } from '../../composables/useAuth';
+    import { useToast } from 'primevue/usetoast';
+    import Dialog from 'primevue/dialog';
+    import Button from 'primevue/button';
+    import axios from 'axios';
 
     const siteTemplates = useSiteTemplates();
     const router = useRouter();
     const route = useRoute();
+    const auth = useAuth();
+    const toast = useToast();
 
     const filters = computed(() => siteTemplates.filters.value);
     const templates = computed(() => siteTemplates.templates.value);
@@ -219,6 +271,13 @@
     const selectedTemplate = ref(null);
     const lastSyncedQueryKey = ref('');
     const hasSyncedOnce = ref(false);
+    const showEmailModal = ref(false);
+    const guestEmail = ref('');
+    const isCreatingCheckout = ref(false);
+    const pendingTemplate = ref(null);
+    const showDownloadErrorDialog = ref(false);
+    const downloadErrorMessage = ref('');
+    const isDownloading = ref(false);
 
     const previewDialogWidth = ref('92vw');
 
@@ -267,13 +326,116 @@
         previewVisible.value = true;
     };
 
-    const handlePrimaryAction = (template) => {
+    const handleDownload = async (template) => {
+        isDownloading.value = true;
+
+        try {
+            const downloadUrl = `/api/downloads/${template.slug}`;
+            const response = await axios.get(downloadUrl, {
+                responseType: 'blob',
+                timeout: 300000, // 5 minutos
+            });
+
+            // Si la respuesta es exitosa, crear un enlace temporal y descargar
+            const blob = new Blob([response.data]);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = template.slug + '.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            // Interceptar errores 503 (archivo no disponible) y otros errores
+            if (error.response?.status === 503) {
+                const errorData = error.response.data;
+                downloadErrorMessage.value = errorData?.message || 'El archivo no está disponible temporalmente. Inténtalo más tarde.';
+                showDownloadErrorDialog.value = true;
+            } else if (error.response?.status === 403) {
+                const errorData = error.response.data;
+                downloadErrorMessage.value = errorData?.message || 'No tienes permiso para descargar este archivo.';
+                showDownloadErrorDialog.value = true;
+            } else {
+                downloadErrorMessage.value = 'Ocurrió un error al intentar descargar el archivo. Inténtalo más tarde.';
+                showDownloadErrorDialog.value = true;
+            }
+        } finally {
+            isDownloading.value = false;
+        }
+    };
+
+    const handlePrimaryAction = async (template) => {
         if (template.isAccessible) {
-            window.location.href = `/api/downloads/${template.slug}`;
+            await handleDownload(template);
             return;
         }
 
-        router.push({ name: 'templates', query: { purchase: template.slug } });
+        // Si el usuario está autenticado, proceder con el checkout normal
+        if (auth.isAuthenticated.value) {
+            await handleAuthenticatedCheckout(template);
+            return;
+        }
+
+        // Si es invitado, mostrar modal para solicitar email
+        pendingTemplate.value = template;
+        showEmailModal.value = true;
+    };
+
+    const handleAuthenticatedCheckout = async (template) => {
+        isCreatingCheckout.value = true;
+
+        try {
+            const response = await axios.post('/api/checkout/purchase', {
+                template_slug: template.slug,
+                is_guest: false,
+            });
+
+            if (response.data.checkout_url) {
+                window.location.href = response.data.checkout_url;
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Error al crear la sesión de pago. Intenta nuevamente.';
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+                life: 5000,
+            });
+        } finally {
+            isCreatingCheckout.value = false;
+        }
+    };
+
+    const handleGuestCheckout = async () => {
+        if (!pendingTemplate.value || !guestEmail.value) {
+            return;
+        }
+
+        isCreatingCheckout.value = true;
+
+        try {
+            const response = await axios.post('/api/checkout/purchase', {
+                template_slug: pendingTemplate.value.slug,
+                is_guest: true,
+                email: guestEmail.value,
+            });
+
+            if (response.data.checkout_url) {
+                showEmailModal.value = false;
+                window.location.href = response.data.checkout_url;
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Error al crear la sesión de pago. Intenta nuevamente.';
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+                life: 5000,
+            });
+        } finally {
+            isCreatingCheckout.value = false;
+        }
     };
 
     const updatePreviewWidth = () => {
@@ -1039,5 +1201,89 @@
         .templates-grid {
             grid-template-columns: repeat(auto-fit, minmax(296px, 1fr));
         }
+    }
+
+    /* Modal de email para invitados */
+    .template-email-modal__title {
+        margin: 0;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(24px, 5vw, 32px);
+        font-weight: 400;
+        text-transform: uppercase;
+        color: var(--qode-heading-color);
+    }
+
+    .template-email-modal__content {
+        padding: 20px 0;
+    }
+
+    .template-email-modal__message {
+        margin: 0 0 24px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--qode-text-color);
+    }
+
+    .template-email-modal__form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .template-email-modal__field {
+        width: 100%;
+    }
+
+    .template-email-modal__field :deep(.p-inputtext) {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid rgba(23, 23, 23, 0.6);
+        background: transparent;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: var(--qode-text-color);
+        padding: 12px 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    body.dark-mode .template-email-modal__field :deep(.p-inputtext) {
+        border-bottom-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .template-email-modal__field :deep(.p-inputtext:focus) {
+        border-bottom-color: var(--qode-text-color);
+        box-shadow: none;
+    }
+
+    .template-email-modal__field :deep(.p-inputtext::placeholder) {
+        color: rgba(23, 23, 23, 0.8);
+        font-family: 'Inter', sans-serif;
+    }
+
+    body.dark-mode .template-email-modal__field :deep(.p-inputtext::placeholder) {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .download-error-dialog__title {
+        margin: 0;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(24px, 5vw, 32px);
+        font-weight: 400;
+        text-transform: uppercase;
+        color: var(--qode-heading-color);
+    }
+
+    .download-error-dialog__content {
+        padding: 20px 0;
+    }
+
+    .download-error-dialog__message {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--qode-text-color);
     }
 </style>

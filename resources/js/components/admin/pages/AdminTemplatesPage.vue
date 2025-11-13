@@ -189,15 +189,37 @@
 
         try {
             if (modalMode.value === 'edit' && selectedTemplate.value) {
-                const response = await updateTemplate(selectedTemplate.value.id, formData ?? payload);
+                // Si hay formData (con archivos), usarlo directamente; si no, usar payload
+                const dataToSend = formData || payload;
+                if (import.meta.env.DEV) {
+                    console.debug('[admin][templates][update][dataToSend]', {
+                        isFormData: dataToSend instanceof FormData,
+                        hasPackageFile: dataToSend instanceof FormData 
+                            ? dataToSend.has('package_file')
+                            : 'package_file' in dataToSend,
+                    });
+                }
+                const response = await updateTemplate(selectedTemplate.value.id, dataToSend);
                 const currentPage = pagination.value?.current_page ?? 1;
                 await fetchTemplates({ page: currentPage });
+                toast.add({
+                    severity: 'success',
+                    summary: 'Plantilla actualizada',
+                    detail: 'La plantilla se ha actualizado correctamente.',
+                    life: 3000,
+                });
                 isModalOpen.value = false;
                 return response;
             }
 
             await createTemplate(formData ?? payload);
             await fetchTemplates({ page: 1 });
+            toast.add({
+                severity: 'success',
+                summary: 'Plantilla creada',
+                detail: 'La plantilla se ha creado correctamente.',
+                life: 3000,
+            });
             isModalOpen.value = false;
         } catch (error) {
             const backendErrors = error.response?.data?.errors ?? {};

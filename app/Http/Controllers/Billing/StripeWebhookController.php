@@ -146,16 +146,16 @@ class StripeWebhookController extends Controller
         }
 
         $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->current_period_end ?? null);
-        
+
         // If Stripe doesn't provide current_period_end, calculate it
         if (! $currentPeriodEnd && $stripeSubscription->current_period_start && $plan) {
             $currentPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start);
-            
+
             if ($currentPeriodStart) {
                 $interval = $plan->billing_interval;
                 $intervalCount = $plan->billing_interval_count ?? 1;
-                
-                $currentPeriodEnd = match($interval) {
+
+                $currentPeriodEnd = match ($interval) {
                     'year' => $currentPeriodStart->copy()->addYears($intervalCount),
                     'month' => $currentPeriodStart->copy()->addMonths($intervalCount),
                     'week' => $currentPeriodStart->copy()->addWeeks($intervalCount),
@@ -205,9 +205,11 @@ class StripeWebhookController extends Controller
         $session = StripeSession::constructFrom($object->toArray());
         $templateUuid = $session->metadata['template_uuid'] ?? null;
         $userId = $session->metadata['user_id'] ?? null;
+        $customerEmail = $session->metadata['customer_email'] ?? $session->customer_email ?? null;
+        $sessionType = $session->metadata['session_type'] ?? null;
 
-        if (! $templateUuid || ! $userId) {
-            Log::warning('Stripe payment session missing metadata', [
+        if (! $templateUuid) {
+            Log::warning('Stripe payment session missing template_uuid', [
                 'session' => $session->id,
                 'metadata' => $session->metadata,
             ]);
@@ -215,49 +217,113 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        $user = User::find($userId);
         $template = Template::where('uuid', $templateUuid)->first();
 
-        if (! $user || ! $template) {
-            Log::error('Template or user not found for payment session', [
+        if (! $template) {
+            Log::error('Template not found for payment session', [
                 'session' => $session->id,
                 'template_uuid' => $templateUuid,
-                'user_id' => $userId,
             ]);
 
             return;
         }
 
-        $checkoutSession = CheckoutSession::where('stripe_session_id', $session->id)->first();
+        $isGuestPurchase = $sessionType === 'guest_template_purchase' || (! $userId && $customerEmail);
 
-        $purchase = Purchase::updateOrCreate(
-            ['stripe_session_id' => $session->id],
-            [
-                'user_id' => $user->getKey(),
+        if ($isGuestPurchase) {
+            // Compra de invitado
+            if (! $customerEmail) {
+                Log::error('Guest purchase missing customer email', [
+                    'session' => $session->id,
+                    'metadata' => $session->metadata,
+                ]);
+
+                return;
+            }
+
+            $purchase = Purchase::updateOrCreate(
+                ['stripe_session_id' => $session->id],
+                [
+                    'user_id' => null,
+                    'guest_email' => $customerEmail,
+                    'template_id' => $template->getKey(),
+                    'checkout_session_id' => null,
+                    'stripe_payment_intent_id' => $session->payment_intent,
+                    'amount_cents' => $session->amount_total ?? $template->price_cents,
+                    'currency' => strtoupper($session->currency ?? $template->currency ?? 'EUR'),
+                    'status' => 'completed',
+                    'metadata' => $session->metadata ? $session->metadata->toArray() : null,
+                    'purchased_at' => now(),
+                ],
+            );
+
+            $this->markCheckoutSession($session->id, 'complete');
+
+            $licenseService = app(DownloadLicenseService::class);
+            $license = $licenseService->issueForGuestPurchase($purchase);
+
+            event(new PurchaseCompleted($purchase->fresh(['template']), $license));
+
+            Log::info('Guest template purchase recorded', [
+                'purchase_id' => $purchase->getKey(),
                 'template_id' => $template->getKey(),
-                'checkout_session_id' => $checkoutSession?->getKey(),
-                'stripe_payment_intent_id' => $session->payment_intent,
-                'amount_cents' => $session->amount_total ?? $template->price_cents,
-                'currency' => strtoupper($session->currency ?? $template->currency ?? 'EUR'),
-                'status' => 'completed',
-                'metadata' => $session->metadata ? $session->metadata->toArray() : null,
-                'purchased_at' => now(),
-            ],
-        );
+                'guest_email' => $customerEmail,
+                'stripe_session_id' => $session->id,
+            ]);
+        } else {
+            // Compra de usuario autenticado
+            if (! $userId) {
+                Log::warning('Stripe payment session missing user_id for authenticated purchase', [
+                    'session' => $session->id,
+                    'metadata' => $session->metadata,
+                ]);
 
-        $this->markCheckoutSession($session->id, 'complete');
+                return;
+            }
 
-        $licenseService = app(DownloadLicenseService::class);
-        $license = $licenseService->issueForPurchase($purchase);
+            $user = User::find($userId);
 
-        event(new PurchaseCompleted($purchase->fresh(['user', 'template']), $license));
+            if (! $user) {
+                Log::error('User not found for payment session', [
+                    'session' => $session->id,
+                    'user_id' => $userId,
+                ]);
 
-        Log::info('Template purchase recorded', [
-            'purchase_id' => $purchase->getKey(),
-            'template_id' => $template->getKey(),
-            'user_id' => $user->getKey(),
-            'stripe_session_id' => $session->id,
-        ]);
+                return;
+            }
+
+            $checkoutSession = CheckoutSession::where('stripe_session_id', $session->id)->first();
+
+            $purchase = Purchase::updateOrCreate(
+                ['stripe_session_id' => $session->id],
+                [
+                    'user_id' => $user->getKey(),
+                    'guest_email' => null,
+                    'template_id' => $template->getKey(),
+                    'checkout_session_id' => $checkoutSession?->getKey(),
+                    'stripe_payment_intent_id' => $session->payment_intent,
+                    'amount_cents' => $session->amount_total ?? $template->price_cents,
+                    'currency' => strtoupper($session->currency ?? $template->currency ?? 'EUR'),
+                    'status' => 'completed',
+                    'metadata' => $session->metadata ? $session->metadata->toArray() : null,
+                    'purchased_at' => now(),
+                ],
+            );
+
+            $this->markCheckoutSession($session->id, 'complete');
+
+            $licenseService = app(DownloadLicenseService::class);
+            $license = $licenseService->issueForPurchase($purchase);
+
+            event(new PurchaseCompleted($purchase->fresh(['user', 'template']), $license));
+
+            Log::info('Template purchase recorded', [
+                'purchase_id' => $purchase->getKey(),
+                'template_id' => $template->getKey(),
+                'user_id' => $user->getKey(),
+                'stripe_session_id' => $session->id,
+            ]);
+        }
     }
 
     private function handleCheckoutSessionExpired(StripeObject $object): void
@@ -326,21 +392,21 @@ class StripeWebhookController extends Controller
         }
 
         $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->current_period_end ?? null);
-        
+
         // If current_period_end is null but cancel_at exists and subscription is canceled, use cancel_at as fallback
         if (! $currentPeriodEnd && $stripeSubscription->cancel_at_period_end && $stripeSubscription->cancel_at) {
             $currentPeriodEnd = $this->timestampToDateTime($stripeSubscription->cancel_at);
         }
-        
+
         // If still null and subscription is active, try to calculate from current_period_start and plan
         if (! $currentPeriodEnd && ! $stripeSubscription->cancel_at_period_end) {
             $currentPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start ?? null);
-            
+
             if ($currentPeriodStart && $subscription->plan) {
                 $interval = $subscription->plan->billing_interval;
                 $intervalCount = $subscription->plan->billing_interval_count ?? 1;
-                
-                $currentPeriodEnd = match($interval) {
+
+                $currentPeriodEnd = match ($interval) {
                     'year' => $currentPeriodStart->copy()->addYears($intervalCount),
                     'month' => $currentPeriodStart->copy()->addMonths($intervalCount),
                     'week' => $currentPeriodStart->copy()->addWeeks($intervalCount),
@@ -352,7 +418,7 @@ class StripeWebhookController extends Controller
                 $currentPeriodEnd = $subscription->current_period_end;
             }
         }
-        
+
         $subscription->update([
             'status' => SubscriptionStatus::fromStripe($stripeSubscription->status ?? 'active'),
             'cancel_at_period_end' => (bool) ($stripeSubscription->cancel_at_period_end ?? false),

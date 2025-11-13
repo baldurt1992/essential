@@ -27,7 +27,17 @@ class UpdateTemplateRequest extends FormRequest
             'is_new' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'preview_image' => ['sometimes', 'nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'package_file' => ['sometimes', 'nullable', 'file', 'mimes:zip,rar', 'max:51200'],
+            'package_file' => ['sometimes', 'nullable', 'file', 'mimes:zip,rar', 'max:51200'], // 50MB en KB
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'package_file.max' => 'El archivo es demasiado grande. El tamaño máximo permitido es 50MB.',
+            'package_file.mimes' => 'El archivo debe ser un archivo ZIP o RAR.',
+            'preview_image.max' => 'La imagen es demasiado grande. El tamaño máximo permitido es 5MB.',
+            'preview_image.mimes' => 'La imagen debe ser JPG, JPEG, PNG o WEBP.',
         ];
     }
 }

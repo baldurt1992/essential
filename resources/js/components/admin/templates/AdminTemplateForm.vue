@@ -394,6 +394,13 @@
             return;
         }
 
+        // Validar tamaño máximo: 50MB (50 * 1024 * 1024 bytes)
+        const maxSize = 50 * 1024 * 1024; // 50MB en bytes
+        if (file.size > maxSize) {
+            errors.package_file = `El archivo es demasiado grande. El tamaño máximo permitido es 50MB. Tu archivo tiene ${(file.size / (1024 * 1024)).toFixed(2)}MB.`;
+            return;
+        }
+
         packageFile.value = file;
         delete errors.package_file;
     };
@@ -533,11 +540,6 @@
 
         const payload = buildPayload();
         const formData = buildFormData(payload);
-
-        if (import.meta.env.DEV) {
-            console.debug('[template-form][payload]', payload);
-            console.debug('[template-form][formData]', Array.from(formData.entries()));
-        }
 
         emit('submit', {
             payload,

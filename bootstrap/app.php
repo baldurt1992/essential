@@ -4,7 +4,6 @@ use App\Providers\AppServiceProvider;
 use App\Providers\BillingServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Http\Middleware\EnsureEmailIsVerified;
-use App\Http\Middleware\DebugRequest;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Auth\Middleware\Authenticate as AuthenticateMiddleware;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
@@ -68,7 +67,6 @@ return Application::configure(basePath: dirname(__DIR__))
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
-            DebugRequest::class,
             ShareErrorsFromSession::class,
             ValidateCsrfToken::class,
             SubstituteBindings::class,

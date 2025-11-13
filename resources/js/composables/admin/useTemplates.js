@@ -90,11 +90,12 @@ export function useAdminTemplates() {
         try {
             const formData = ensureFormData(payload);
 
-            if (import.meta.env.DEV) {
-                console.debug('[admin][templates][create][payload]', Array.from(formData.entries()));
-            }
-
-            const response = await axios.post('/api/admin/templates', formData);
+            // Configurar timeout largo para archivos grandes (hasta 50MB)
+            const response = await axios.post('/api/admin/templates', formData, {
+                timeout: 300000, // 5 minutos para archivos grandes
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+            });
 
             const template = response.data.data;
             state.templates = [template, ...state.templates];
@@ -113,14 +114,20 @@ export function useAdminTemplates() {
         state.error = null;
 
         try {
-            const formData = ensureFormData(payload);
-            formData.append('_method', 'PUT');
+            // Si payload ya es FormData, usarlo directamente; si no, convertirlo
+            const formData = payload instanceof FormData ? payload : ensureFormData(payload);
 
-            if (import.meta.env.DEV) {
-                console.debug('[admin][templates][update][payload]', Array.from(formData.entries()));
+            // Agregar _method solo si no existe
+            if (!formData.has('_method')) {
+                formData.append('_method', 'PUT');
             }
 
-            const response = await axios.post(`/api/admin/templates/${templateId}`, formData);
+            // Configurar timeout largo para archivos grandes (hasta 50MB)
+            const response = await axios.post(`/api/admin/templates/${templateId}`, formData, {
+                timeout: 300000, // 5 minutos para archivos grandes
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+            });
 
             const template = response.data.data;
             state.templates = state.templates.map((item) => (item.id === template.id ? template : item));

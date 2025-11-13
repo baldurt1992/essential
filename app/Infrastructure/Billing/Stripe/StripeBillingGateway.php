@@ -106,17 +106,56 @@ class StripeBillingGateway implements BillingGateway
 
     public function createOneTimeCheckoutSession(User $user, array $payload, array $options = []): StripeSession
     {
-        $lineItem = Arr::only($payload, ['price', 'quantity', 'adjustable_quantity', 'tax_rates']);
+        $lineItem = [];
 
-        if (! isset($lineItem['price'])) {
-            throw new InvalidArgumentException('A price identifier is required to create a one-time checkout session.');
+        // Si hay un price ID, usarlo directamente
+        if (isset($payload['price'])) {
+            $lineItem = [
+                'price' => $payload['price'],
+                'quantity' => Arr::get($payload, 'quantity', 1),
+            ];
+
+            // Agregar campos opcionales permitidos
+            if (isset($payload['adjustable_quantity'])) {
+                $lineItem['adjustable_quantity'] = $payload['adjustable_quantity'];
+            }
+            if (isset($payload['tax_rates'])) {
+                $lineItem['tax_rates'] = $payload['tax_rates'];
+            }
+        } else {
+            // Si no hay price, construir price_data con los datos del payload
+            $amount = Arr::get($payload, 'amount');
+            $currency = Arr::get($payload, 'currency', 'usd');
+            $name = Arr::get($payload, 'name', 'Item');
+            $description = Arr::get($payload, 'description');
+
+            if (! $amount) {
+                throw new InvalidArgumentException('Either a price identifier or amount is required to create a checkout session.');
+            }
+
+            $priceData = [
+                'currency' => $currency,
+                'unit_amount' => $amount,
+                'product_data' => [
+                    'name' => $name,
+                ],
+            ];
+
+            if ($description) {
+                $priceData['product_data']['description'] = $description;
+            }
+
+            $lineItem = [
+                'price_data' => $priceData,
+                'quantity' => Arr::get($payload, 'quantity', 1),
+            ];
         }
 
         $sessionPayload = [
             'mode' => 'payment',
             'payment_method_types' => ['card'],
             'customer_email' => $user->email,
-            'line_items' => [array_merge(['quantity' => 1], $lineItem)],
+            'line_items' => [$lineItem],
             'success_url' => Arr::get($options, 'success_url', config('billing.stripe.success_url')),
             'cancel_url' => Arr::get($options, 'cancel_url', config('billing.stripe.cancel_url')),
             'metadata' => array_merge(
@@ -128,9 +167,67 @@ class StripeBillingGateway implements BillingGateway
             ),
         ];
 
-        if ($description = Arr::get($payload, 'description')) {
-            $sessionPayload['line_items'][0]['description'] = $description;
+        if ($clientReferenceId = Arr::get($options, 'client_reference_id')) {
+            $sessionPayload['client_reference_id'] = $clientReferenceId;
         }
+
+        return $this->stripe->checkout->sessions->create($sessionPayload);
+    }
+
+    public function createGuestCheckoutSession(string $email, array $payload, array $options = []): StripeSession
+    {
+        $lineItem = [];
+
+        // Si hay un price ID, usarlo directamente
+        if (isset($payload['price'])) {
+            $lineItem = [
+                'price' => $payload['price'],
+                'quantity' => Arr::get($payload, 'quantity', 1),
+            ];
+        } else {
+            // Si no hay price, construir price_data con los datos del payload
+            $amount = Arr::get($payload, 'amount');
+            $currency = Arr::get($payload, 'currency', 'usd');
+            $name = Arr::get($payload, 'name', 'Item');
+            $description = Arr::get($payload, 'description');
+
+            if (! $amount) {
+                throw new InvalidArgumentException('Either a price identifier or amount is required to create a checkout session.');
+            }
+
+            $priceData = [
+                'currency' => $currency,
+                'unit_amount' => $amount,
+                'product_data' => [
+                    'name' => $name,
+                ],
+            ];
+
+            if ($description) {
+                $priceData['product_data']['description'] = $description;
+            }
+
+            $lineItem = [
+                'price_data' => $priceData,
+                'quantity' => Arr::get($payload, 'quantity', 1),
+            ];
+        }
+
+        $sessionPayload = [
+            'mode' => 'payment',
+            'payment_method_types' => ['card'],
+            'customer_email' => $email,
+            'line_items' => [$lineItem],
+            'success_url' => Arr::get($options, 'success_url', config('billing.stripe.success_url')),
+            'cancel_url' => Arr::get($options, 'cancel_url', config('billing.stripe.cancel_url')),
+            'metadata' => array_merge(
+                [
+                    'customer_email' => $email,
+                    'session_type' => 'guest_purchase',
+                ],
+                Arr::get($options, 'metadata', []),
+            ),
+        ];
 
         if ($clientReferenceId = Arr::get($options, 'client_reference_id')) {
             $sessionPayload['client_reference_id'] = $clientReferenceId;

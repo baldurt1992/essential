@@ -392,20 +392,22 @@
 </template>
 
 <script setup>
-    import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+    import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
     import { RouterLink, useRoute } from 'vue-router';
     import SideArea from './SideArea.vue';
     import NavMenuItem from './NavMenuItem.vue';
     import AuthModal from '../auth/AuthModal.vue';
     import { useAuth } from '../../composables/useAuth';
+    import { useAuthModal } from '../../composables/useAuthModal';
 
     const auth = useAuth();
     const route = useRoute();
     const isDarkMode = ref(false);
     const isSideAreaOpen = ref(false);
     const isMobileMenuOpen = ref(false);
-    const authModalVisible = ref(false);
-    const authModalForm = ref('login');
+
+    // Usar el composable global para el modal de autenticación
+    const { authModalVisible, authModalForm, openAuthModal: openAuthModalGlobal, closeAuthModal } = useAuthModal();
 
     const isLoggedIn = computed(() => auth.isAuthenticated.value);
     const isAdmin = computed(() => auth.isAdmin.value);
@@ -432,20 +434,36 @@
     };
 
     const openAuthModal = (form = 'login') => {
-        authModalForm.value = form;
         auth.clearErrors();
-        authModalVisible.value = true;
+        openAuthModalGlobal(form);
         closeMobileMenu();
     };
 
     const handleAuthSuccess = () => {
-        authModalVisible.value = false;
+        closeAuthModal();
+        // Refrescar la página para actualizar el estado del frontend
+        window.location.reload();
     };
+
+    // Detectar query params para abrir el modal automáticamente
+    watch(() => route.query.auth, (authQuery) => {
+        if (authQuery === 'login' || authQuery === 'register') {
+            openAuthModal(authQuery);
+            // Limpiar el query param después de abrir el modal
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('auth');
+                window.history.replaceState({}, '', url);
+            }
+        }
+    }, { immediate: true });
 
     const handleLogout = async () => {
         const success = await auth.logout();
         if (success) {
             closeMobileMenu();
+            // Refrescar la página para actualizar el estado del frontend
+            window.location.reload();
         }
     };
 
