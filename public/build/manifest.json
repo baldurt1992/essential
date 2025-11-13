@@ -20,7 +20,7 @@
     "src": "node_modules/primeicons/fonts/primeicons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-DEIwavkF.css",
+    "file": "assets/app-Tje2T8BL.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -29,7 +29,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-W7imG21U.js",
+    "file": "assets/app-CzwZ2A68.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -37,8 +37,8 @@
       "resources/js/components/pages/PurchaseConfirmationPage.vue"
     ],
     "css": [
-      "assets/app-BSwPerW6.css",
-      "assets/app-DEIwavkF.css"
+      "assets/app-zuWZPNal.css",
+      "assets/app-Tje2T8BL.css"
     ],
     "assets": [
       "assets/primeicons-DMOk5skT.eot",
@@ -49,7 +49,7 @@
     ]
   },
   "resources/js/components/pages/PurchaseConfirmationPage.vue": {
-    "file": "assets/PurchaseConfirmationPage-DDRpT2jV.js",
+    "file": "assets/PurchaseConfirmationPage-DJ_aL2OD.js",
     "name": "PurchaseConfirmationPage",
     "src": "resources/js/components/pages/PurchaseConfirmationPage.vue",
     "isDynamicEntry": true,
@@ -58,7 +58,7 @@
     ],
     "css": [
       "assets/PurchaseConfirmationPage-B3DNgv9p.css",
-      "assets/app-DEIwavkF.css"
+      "assets/app-Tje2T8BL.css"
     ],
     "assets": [
       "assets/primeicons-DMOk5skT.eot",
