@@ -46,18 +46,44 @@ class TemplateController extends Controller
 
     public function update(UpdateTemplateRequest $request, Template $template): JsonResponse
     {
+        \Log::info('[admin][templates][update] Starting update', [
+            'template_id' => $template->id,
+            'has_preview_image' => $request->hasFile('preview_image'),
+            'has_package_file' => $request->hasFile('package_file'),
+        ]);
+
         $data = $request->validated();
         
         // Incluir archivos en los datos si están presentes
         if ($request->hasFile('preview_image')) {
-            $data['preview_image'] = $request->file('preview_image');
+            $previewFile = $request->file('preview_image');
+            \Log::info('[admin][templates][update] Preview image file details', [
+                'original_name' => $previewFile->getClientOriginalName(),
+                'mime_type' => $previewFile->getMimeType(),
+                'size' => $previewFile->getSize(),
+                'is_valid' => $previewFile->isValid(),
+            ]);
+            $data['preview_image'] = $previewFile;
         }
         
         if ($request->hasFile('package_file')) {
-            $data['package_file'] = $request->file('package_file');
+            $packageFile = $request->file('package_file');
+            \Log::info('[admin][templates][update] Package file details', [
+                'original_name' => $packageFile->getClientOriginalName(),
+                'mime_type' => $packageFile->getMimeType(),
+                'size' => $packageFile->getSize(),
+                'is_valid' => $packageFile->isValid(),
+            ]);
+            $data['package_file'] = $packageFile;
         }
 
         $updated = $this->templateService->update($template, $data);
+
+        \Log::info('[admin][templates][update] Update completed', [
+            'template_id' => $updated->id,
+            'preview_image_path' => $updated->preview_image_path,
+            'download_path' => $updated->download_path,
+        ]);
 
         return (new TemplateResource($updated))->response();
     }

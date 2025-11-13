@@ -267,6 +267,12 @@
             return previewUrl.value;
         }
 
+        // Usar preview_image_url del backend si está disponible (URL completa)
+        if (props.template?.preview_image_url) {
+            return props.template.preview_image_url;
+        }
+
+        // Fallback al path relativo si no hay URL
         if (props.template?.preview_image_path) {
             return resolvePreviewUrl(props.template.preview_image_path);
         }

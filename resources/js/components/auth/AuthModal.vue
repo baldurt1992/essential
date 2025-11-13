@@ -99,11 +99,15 @@
             </button>
         </template>
     </Dialog>
+
+    <EmailVerificationModal v-model="emailVerificationModalVisible" :email="registeredEmail"
+        @verified="handleEmailVerified" />
 </template>
 
 <script setup>
-    import { computed, reactive, watch } from 'vue';
+    import { computed, reactive, ref, watch } from 'vue';
     import { useAuth } from '../../composables/useAuth';
+    import EmailVerificationModal from './EmailVerificationModal.vue';
 
     const props = defineProps({
         modelValue: {
@@ -120,6 +124,8 @@
     const emit = defineEmits(['update:modelValue', 'update:form', 'success']);
 
     const auth = useAuth();
+    const emailVerificationModalVisible = ref(false);
+    const registeredEmail = ref('');
 
     const localVisible = computed({
         get: () => props.modelValue,
@@ -204,17 +210,24 @@
     }
 
     async function handleRegister() {
-        const success = await auth.register({
+        const result = await auth.register({
             name: registerForm.name,
             email: registerForm.email,
             password: registerForm.password,
             password_confirmation: registerForm.password_confirmation,
         });
 
-        if (success) {
-            emit('success', 'register');
+        if (result.success) {
+            // Mostrar modal de verificación de email
+            registeredEmail.value = result.email;
+            emailVerificationModalVisible.value = true;
             closeModal();
         }
+    }
+
+    function handleEmailVerified() {
+        emailVerificationModalVisible.value = false;
+        emit('success', 'register');
     }
 
     function closeModal() {

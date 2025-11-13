@@ -33,6 +33,15 @@ Route::middleware('web')->group(function () {
         ->middleware(['auth', 'throttle:6,1'])
         ->name('verification.send');
 
+    // OTP Email Verification
+    Route::post('/verify-otp', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'verify'])
+        ->middleware('guest')
+        ->name('otp.verify');
+
+    Route::post('/resend-otp', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'resend'])
+        ->middleware('guest')
+        ->name('otp.resend');
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->middleware('auth')
         ->name('logout');

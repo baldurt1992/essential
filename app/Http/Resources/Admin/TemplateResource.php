@@ -4,6 +4,7 @@ namespace App\Http\Resources\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /** @mixin \App\Domain\Catalog\Models\Template */
 class TemplateResource extends JsonResource
@@ -25,6 +26,9 @@ class TemplateResource extends JsonResource
             'stripe_product_id' => $this->stripe_product_id,
             'stripe_price_id' => $this->stripe_price_id,
             'preview_image_path' => $this->preview_image_path,
+            'preview_image_url' => $this->preview_image_path 
+                ? Storage::disk('public')->url($this->preview_image_path) 
+                : null,
             'download_path' => $this->download_path,
             'tags' => $this->tags ?? [],
             'metadata' => $this->metadata ?? [],

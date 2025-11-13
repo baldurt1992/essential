@@ -119,13 +119,58 @@ class TemplateService
     private function handleUploads(Template $template, array $data): void
     {
         if ($preview = Arr::get($data, 'preview_image')) {
+            \Log::info('Handling preview image upload', [
+                'template_id' => $template->id,
+                'file_name' => $preview->getClientOriginalName(),
+                'file_size' => $preview->getSize(),
+                'mime_type' => $preview->getMimeType(),
+            ]);
+
+            // Asegurar que el directorio existe
+            $previewDir = 'templates/previews';
+            $publicDisk = Storage::disk('public');
+            if (! $publicDisk->exists($previewDir)) {
+                \Log::info('Creating preview directory', ['directory' => $previewDir]);
+                $publicDisk->makeDirectory($previewDir, 0755, true);
+            }
+
             $this->deleteFile($template->preview_image_path, 'public');
-            $template->preview_image_path = $this->storeFile($preview, 'templates/previews', 'public');
+            $storedPath = $this->storeFile($preview, $previewDir, 'public');
+            
+            \Log::info('Preview image stored', [
+                'template_id' => $template->id,
+                'stored_path' => $storedPath,
+                'file_exists' => $publicDisk->exists($storedPath),
+            ]);
+
+            $template->preview_image_path = $storedPath;
         }
 
         if ($package = Arr::get($data, 'package_file')) {
+            \Log::info('Handling package file upload', [
+                'template_id' => $template->id,
+                'file_name' => $package->getClientOriginalName(),
+                'file_size' => $package->getSize(),
+            ]);
+
+            // Asegurar que el directorio existe
+            $packageDir = 'templates/packages';
+            $localDisk = Storage::disk('local');
+            if (! $localDisk->exists($packageDir)) {
+                \Log::info('Creating package directory', ['directory' => $packageDir]);
+                $localDisk->makeDirectory($packageDir, 0755, true);
+            }
+
             $this->deleteFile($template->download_path, 'local');
-            $template->download_path = $this->storeFile($package, 'templates/packages', 'local');
+            $storedPath = $this->storeFile($package, $packageDir, 'local');
+            
+            \Log::info('Package file stored', [
+                'template_id' => $template->id,
+                'stored_path' => $storedPath,
+                'file_exists' => $localDisk->exists($storedPath),
+            ]);
+
+            $template->download_path = $storedPath;
         }
     }
 
@@ -164,7 +209,20 @@ class TemplateService
 
     private function storeFile(UploadedFile $file, string $directory, string $disk): string
     {
-        return $file->store($directory, ['disk' => $disk]);
+        $storage = Storage::disk($disk);
+        $path = $file->store($directory, ['disk' => $disk]);
+        
+        \Log::info('File stored', [
+            'original_name' => $file->getClientOriginalName(),
+            'directory' => $directory,
+            'disk' => $disk,
+            'stored_path' => $path,
+            'full_path' => $storage->path($path),
+            'file_exists' => $storage->exists($path),
+            'file_size' => $storage->exists($path) ? $storage->size($path) : null,
+        ]);
+
+        return $path;
     }
 
     private function deleteFile(?string $path, string $disk): void

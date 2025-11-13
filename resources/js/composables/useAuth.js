@@ -138,12 +138,18 @@ async function register(payload) {
     resetErrors();
 
     try {
-        await withCsrfRequest(() => axios.post('/register', payload));
-        await fetchUser();
-        return true;
+        const response = await withCsrfRequest(() => axios.post('/register', payload));
+        // No iniciamos sesión automáticamente - el usuario debe verificar el OTP primero
+        return {
+            success: true,
+            email: response.data?.email ?? payload.email,
+        };
     } catch (error) {
         handleError(error);
-        return false;
+        return {
+            success: false,
+            email: null,
+        };
     } finally {
         state.loading = false;
     }
