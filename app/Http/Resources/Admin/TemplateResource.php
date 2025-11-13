@@ -26,9 +26,7 @@ class TemplateResource extends JsonResource
             'stripe_product_id' => $this->stripe_product_id,
             'stripe_price_id' => $this->stripe_price_id,
             'preview_image_path' => $this->preview_image_path,
-            'preview_image_url' => $this->preview_image_path 
-                ? Storage::disk('public')->url($this->preview_image_path) 
-                : null,
+            'preview_image_url' => $this->getPreviewImageUrl(),
             'download_path' => $this->download_path,
             'tags' => $this->tags ?? [],
             'metadata' => $this->metadata ?? [],
@@ -39,5 +37,23 @@ class TemplateResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    /**
+     * Genera la URL completa de la imagen de preview, normalizando el path
+     */
+    private function getPreviewImageUrl(): ?string
+    {
+        if (! $this->preview_image_path) {
+            return null;
+        }
+
+        // Normalizar el path: remover 'storage/' del inicio si existe
+        $normalizedPath = ltrim($this->preview_image_path, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            $normalizedPath = substr($normalizedPath, 8); // Remover 'storage/'
+        }
+
+        return Storage::disk('public')->url($normalizedPath);
     }
 }
