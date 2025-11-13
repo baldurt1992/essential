@@ -159,7 +159,7 @@
             rejectLabel: 'Volver',
             accept: async () => {
                 try {
-                    await cancelSubscription(subscription.id);
+                    await cancelSubscription(subscription.uuid);
                     const currentPage = pagination.value?.current_page ?? 1;
                     await fetchSubscriptions({ page: currentPage });
                     toast.add({ severity: 'success', summary: 'Suscripción actualizada', detail: 'Se cancelará al fin del periodo.', life: 4000 });

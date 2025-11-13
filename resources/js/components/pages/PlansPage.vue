@@ -68,7 +68,7 @@
                         <i class="pi pi-info-circle"></i>
                         <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
                             Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
-                            }}</strong> y perderás el acceso a los beneficios del plan.
+                                }}</strong> y perderás el acceso a los beneficios del plan.
                         </span>
                         <span v-else-if="activeSubscription?.current_period_end">
                             Tu suscripción se renueva automáticamente el <strong>{{
@@ -130,7 +130,7 @@
                         <i class="pi pi-info-circle"></i>
                         <span v-if="activeSubscription?.will_cancel && activeSubscription?.current_period_end">
                             Tu suscripción finalizará el <strong>{{ formatDate(activeSubscription.current_period_end)
-                            }}</strong> y perderás el acceso a los beneficios del plan.
+                                }}</strong> y perderás el acceso a los beneficios del plan.
                         </span>
                         <span v-else-if="activeSubscription?.current_period_end">
                             Tu suscripción se renueva automáticamente el <strong>{{
@@ -890,7 +890,7 @@
         justify-content: center;
         border-radius: 6px;
         background: rgba(23, 23, 23, 0.08);
-        color: #dd3333;
+        color: #171717;
         flex-shrink: 0;
     }
 
@@ -900,9 +900,13 @@
         fill: currentColor;
     }
 
+    .plan-card__feature-icon svg path {
+        fill: currentColor;
+    }
+
     body.dark-mode .plan-card__feature-icon {
         background: rgba(243, 243, 243, 0.08);
-        color: #ff6666;
+        color: #ffffff;
     }
 
     .plan-card__cta {

@@ -85,6 +85,8 @@ class PlanService
             'metadata' => Arr::get($data, 'metadata', []),
             'is_active' => Arr::get($data, 'is_active', true),
             'sort_order' => Arr::get($data, 'sort_order', 0),
+            'download_limit' => Arr::get($data, 'download_limit'),
+            'unlimited_downloads' => Arr::get($data, 'unlimited_downloads', false),
         ];
     }
 
@@ -130,6 +132,14 @@ class PlanService
 
         if (array_key_exists('sort_order', $data)) {
             $payload['sort_order'] = (int) $data['sort_order'];
+        }
+
+        if (array_key_exists('download_limit', $data)) {
+            $payload['download_limit'] = $data['download_limit'] ? (int) $data['download_limit'] : null;
+        }
+
+        if (array_key_exists('unlimited_downloads', $data)) {
+            $payload['unlimited_downloads'] = (bool) $data['unlimited_downloads'];
         }
 
         return $payload;

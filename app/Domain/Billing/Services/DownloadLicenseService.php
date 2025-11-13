@@ -76,11 +76,49 @@ class DownloadLicenseService
 
     public function findValidLicense(int $userId, Template $template): ?DownloadLicense
     {
-        return DownloadLicense::query()
+        $licenses = DownloadLicense::query()
             ->where('user_id', $userId)
             ->where('template_id', $template->getKey())
-            ->get()
-            ->first(fn(DownloadLicense $license) => $license->canDownload());
+            ->with(['source' => function ($query) {
+                if ($query->getModel() instanceof Subscription) {
+                    $query->with('plan');
+                }
+            }])
+            ->get();
+
+        return $licenses->first(function (DownloadLicense $license) {
+            if (! $license->canDownload()) {
+                return false;
+            }
+
+            // Si la licencia viene de una suscripción, verificar límite de descargas mensual
+            if ($license->source_type === Subscription::class) {
+                $subscription = $license->source;
+                if ($subscription) {
+                    // Asegurar que el plan esté cargado
+                    if (! $subscription->relationLoaded('plan')) {
+                        $subscription->load('plan');
+                    }
+
+                    // Resetear contador mensual si es necesario
+                    $this->resetMonthlyDownloadsIfNeeded($subscription);
+                    $subscription->refresh();
+
+                    if ($subscription->plan) {
+                        $plan = $subscription->plan;
+
+                        // Si el plan tiene límite y no es ilimitado, verificar contador mensual
+                        if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                            if ($subscription->downloads_used >= $plan->download_limit) {
+                                return false; // Ya alcanzó el límite mensual
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        });
     }
 
     public function findByPurchaseCode(string $code, Template $template): ?DownloadLicense
@@ -146,6 +184,7 @@ class DownloadLicenseService
         $subscription = Subscription::query()
             ->where('user_id', $user->getKey())
             ->active()
+            ->with('plan')
             ->latest('current_period_end')
             ->first();
 
@@ -153,6 +192,35 @@ class DownloadLicenseService
             return null;
         }
 
+        $plan = $subscription->plan;
+
+        // Resetear contador mensual si es necesario
+        $this->resetMonthlyDownloadsIfNeeded($subscription);
+
+        // Verificar límite de descargas si el plan tiene límite
+        if ($plan && ! $plan->unlimited_downloads && $plan->download_limit !== null) {
+            // Si el usuario ya alcanzó el límite mensual, no permitir más descargas
+            if ($subscription->downloads_used >= $plan->download_limit) {
+                return null;
+            }
+        }
+
         return $this->issueForSubscription($subscription, $template);
+    }
+
+    /**
+     * Resetea el contador de descargas si cambió el mes
+     */
+    private function resetMonthlyDownloadsIfNeeded(Subscription $subscription): void
+    {
+        $now = now();
+        $resetAt = $subscription->downloads_reset_at;
+
+        // Si no hay fecha de reset o cambió el mes, resetear
+        if (! $resetAt || $resetAt->format('Y-m') !== $now->format('Y-m')) {
+            $subscription->downloads_used = 0;
+            $subscription->downloads_reset_at = $now->startOfMonth();
+            $subscription->save();
+        }
     }
 }

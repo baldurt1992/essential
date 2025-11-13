@@ -38,7 +38,14 @@ class PublicPlanResource extends JsonResource
 
     private function resolveFeatures(): array
     {
-        $features = data_get($this->metadata, 'features', []);
+        // Primero intentar desde el campo directo 'features'
+        $features = $this->features ?? [];
+        
+        // Si no hay features directas, buscar en metadata
+        if (empty($features)) {
+            $features = data_get($this->metadata, 'features', []);
+        }
+        
         if (! is_array($features)) {
             return [];
         }

@@ -165,6 +165,25 @@ class StripeWebhookController extends Controller
             }
         }
 
+        $newPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start ?? null);
+        
+        // Buscar suscripción existente para detectar renovación
+        $existingSubscription = Subscription::where('stripe_subscription_id', $stripeSubscription->id)->first();
+        $periodRenewed = false;
+        
+        if ($existingSubscription && $newPeriodStart && $existingSubscription->current_period_start) {
+            // Si el nuevo período es mayor que el anterior, se renovó
+            $periodRenewed = $newPeriodStart->gt($existingSubscription->current_period_start);
+        }
+
+        // Inicializar downloads_reset_at si no existe o si se renovó el período
+        $downloadsResetAt = null;
+        if ($periodRenewed || ! $existingSubscription || ! $existingSubscription->downloads_reset_at) {
+            $downloadsResetAt = now()->startOfMonth();
+        } else {
+            $downloadsResetAt = $existingSubscription->downloads_reset_at;
+        }
+
         $subscription = Subscription::updateOrCreate(
             ['stripe_subscription_id' => $stripeSubscription->id],
             [
@@ -174,10 +193,12 @@ class StripeWebhookController extends Controller
                 'stripe_price_id' => $stripeSubscription->items->data[0]?->price?->id,
                 'status' => SubscriptionStatus::fromStripe($stripeSubscription->status ?? 'active'),
                 'quantity' => $stripeSubscription->items->data[0]?->quantity ?? 1,
+                'downloads_used' => $periodRenewed ? 0 : ($existingSubscription->downloads_used ?? 0),
+                'downloads_reset_at' => $downloadsResetAt,
                 'cancel_at_period_end' => (bool) ($stripeSubscription->cancel_at_period_end ?? false),
                 'trial_ends_at' => $this->timestampToDateTime($stripeSubscription->trial_end ?? null),
                 'starts_at' => $this->timestampToDateTime($stripeSubscription->start_date ?? null),
-                'current_period_start' => $this->timestampToDateTime($stripeSubscription->current_period_start ?? null),
+                'current_period_start' => $newPeriodStart,
                 'current_period_end' => $currentPeriodEnd,
                 'cancel_at' => $this->timestampToDateTime($stripeSubscription->cancel_at ?? null),
                 'canceled_at' => $this->timestampToDateTime($stripeSubscription->canceled_at ?? null),
@@ -419,21 +440,38 @@ class StripeWebhookController extends Controller
             }
         }
 
+        $newPeriodStart = $this->timestampToDateTime($stripeSubscription->current_period_start ?? null);
+        
+        // Detectar si el período se renovó (current_period_start cambió)
+        $periodRenewed = $newPeriodStart 
+            && $subscription->current_period_start 
+            && $newPeriodStart->gt($subscription->current_period_start);
+
+        // Resetear contador mensual si cambió el mes (no solo cuando se renueva el período completo)
+        $now = now();
+        $shouldResetMonthly = ! $subscription->downloads_reset_at 
+            || $subscription->downloads_reset_at->format('Y-m') !== $now->format('Y-m');
+
         $subscription->update([
             'status' => SubscriptionStatus::fromStripe($stripeSubscription->status ?? 'active'),
             'cancel_at_period_end' => (bool) ($stripeSubscription->cancel_at_period_end ?? false),
-            'current_period_start' => $this->timestampToDateTime($stripeSubscription->current_period_start ?? null),
+            'current_period_start' => $newPeriodStart,
             'current_period_end' => $currentPeriodEnd,
             'cancel_at' => $this->timestampToDateTime($stripeSubscription->cancel_at ?? null),
             'canceled_at' => $this->timestampToDateTime($stripeSubscription->canceled_at ?? null),
             'ends_at' => $this->timestampToDateTime($stripeSubscription->ended_at ?? null),
             'metadata' => $stripeSubscription->metadata ? $stripeSubscription->metadata->toArray() : null,
+            // Resetear contador de descargas si el período se renovó o si cambió el mes
+            'downloads_used' => ($periodRenewed || $shouldResetMonthly) ? 0 : $subscription->downloads_used,
+            'downloads_reset_at' => ($periodRenewed || $shouldResetMonthly) ? $now->copy()->startOfMonth() : $subscription->downloads_reset_at,
         ]);
 
         Log::info('Stripe subscription updated', [
             'subscription_id' => $subscription->getKey(),
             'stripe_subscription_id' => $stripeSubscriptionId,
             'status' => $subscription->status,
+            'period_renewed' => $periodRenewed,
+            'downloads_used_reset' => $periodRenewed,
         ]);
     }
 

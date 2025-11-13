@@ -26,6 +26,16 @@ class DownloadController extends BaseController
         $license = $this->resolveLicense($request, $template);
 
         if (! $license) {
+            // Verificar si el error es por límite de descargas alcanzado
+            $limitInfo = $request->session()->get('download_limit_reached');
+            $request->session()->forget('download_limit_reached');
+
+            if ($limitInfo) {
+                return response([
+                    'message' => "Límite de descargas para el plan {$limitInfo['plan_name']} ({$limitInfo['download_limit']} descargas/mes) alcanzado. Espera al siguiente mes para seguir descargando o actualiza tu plan.",
+                ], 403);
+            }
+
             return response([
                 'message' => 'No encontramos una licencia válida para esta descarga.',
             ], 403);
@@ -35,6 +45,27 @@ class DownloadController extends BaseController
             return response([
                 'message' => 'Esta licencia expiró o alcanzó su límite de descargas.',
             ], 403);
+        }
+
+        // Verificar límite de descargas mensual por suscripción si la licencia viene de una suscripción
+        if ($license->source_type === \App\Domain\Billing\Models\Subscription::class) {
+            $subscription = $license->source;
+            if ($subscription && $subscription->plan) {
+                $plan = $subscription->plan;
+
+                // Resetear contador mensual si es necesario
+                $this->resetMonthlyDownloadsIfNeeded($subscription);
+                $subscription->refresh();
+
+                // Si el plan tiene límite y no es ilimitado, verificar contador mensual
+                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                    if ($subscription->downloads_used >= $plan->download_limit) {
+                        return response([
+                            'message' => "Límite de descargas para el plan {$plan->name} ({$plan->download_limit} descargas/mes) alcanzado. Espera al siguiente mes para seguir descargando o actualiza tu plan.",
+                        ], 403);
+                    }
+                }
+            }
         }
 
         if (! $template->download_path || ! Storage::disk('local')->exists($template->download_path)) {
@@ -48,12 +79,42 @@ class DownloadController extends BaseController
             ], 503);
         }
 
+        // Registrar descarga en la licencia
         $license->registerDownload();
+
+        // Si la licencia viene de una suscripción, incrementar el contador de la suscripción
+        if ($license->source_type === \App\Domain\Billing\Models\Subscription::class) {
+            $subscription = $license->source;
+            if ($subscription && $subscription->plan) {
+                $plan = $subscription->plan;
+
+                // Solo incrementar si el plan tiene límite (no es ilimitado)
+                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                    $subscription->increment('downloads_used');
+                }
+            }
+        }
 
         $fileName = $template->slug . '.' . pathinfo($template->download_path, PATHINFO_EXTENSION);
         $absolutePath = Storage::disk('local')->path($template->download_path);
 
         return response()->download($absolutePath, $fileName);
+    }
+
+    /**
+     * Resetea el contador de descargas si cambió el mes
+     */
+    private function resetMonthlyDownloadsIfNeeded(\App\Domain\Billing\Models\Subscription $subscription): void
+    {
+        $now = now();
+        $resetAt = $subscription->downloads_reset_at;
+
+        // Si no hay fecha de reset o cambió el mes, resetear
+        if (! $resetAt || $resetAt->format('Y-m') !== $now->format('Y-m')) {
+            $subscription->downloads_used = 0;
+            $subscription->downloads_reset_at = $now->copy()->startOfMonth();
+            $subscription->save();
+        }
     }
 
     private function resolveLicense(Request $request, Template $template): ?DownloadLicense
@@ -65,6 +126,35 @@ class DownloadController extends BaseController
 
             if ($license) {
                 return $license;
+            }
+
+            // Intentar crear nueva licencia por suscripción
+            // Primero verificamos si tiene suscripción activa para dar mensaje más claro
+            $subscription = \App\Domain\Billing\Models\Subscription::query()
+                ->where('user_id', $user->getKey())
+                ->active()
+                ->with('plan')
+                ->latest('current_period_end')
+                ->first();
+
+            if ($subscription && $subscription->plan) {
+                // Resetear contador mensual si es necesario
+                $this->resetMonthlyDownloadsIfNeeded($subscription);
+                $subscription->refresh();
+
+                $plan = $subscription->plan;
+
+                // Si el plan tiene límite y se alcanzó, guardar info para mensaje de error
+                if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                    if ($subscription->downloads_used >= $plan->download_limit) {
+                        // Guardar info en la sesión para el mensaje de error
+                        $request->session()->put('download_limit_reached', [
+                            'plan_name' => $plan->name,
+                            'download_limit' => $plan->download_limit,
+                        ]);
+                        return null;
+                    }
+                }
             }
 
             if ($subscriptionLicense = $this->licenseService->issueForActiveSubscription($user, $template)) {

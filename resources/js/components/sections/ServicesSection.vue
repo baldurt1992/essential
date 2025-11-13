@@ -453,17 +453,27 @@
     .qodef-awards-list .qodef-e-button .qodef-svg--simple-arrow {
         width: 14.634px;
         height: 14.554px;
-        stroke: #171717 !important;
-        fill: #171717 !important;
+        stroke: #ffffff !important;
+        fill: #ffffff !important;
         stroke-width: 1.2;
         transition: transform 0.37s cubic-bezier(0.44, 0.73, 0.35, 0.97);
         transform-origin: center;
     }
 
-    .qodef-awards-list .qodef-e-button .qodef-svg--simple-arrow path {
+    body.dark-mode .qodef-awards-list .qodef-e-button .qodef-svg--simple-arrow {
         stroke: #171717 !important;
         fill: #171717 !important;
+    }
+
+    .qodef-awards-list .qodef-e-button .qodef-svg--simple-arrow path {
+        stroke: #ffffff !important;
+        fill: #ffffff !important;
         stroke-width: 1.2;
+    }
+
+    body.dark-mode .qodef-awards-list .qodef-e-button .qodef-svg--simple-arrow path {
+        stroke: #171717 !important;
+        fill: #171717 !important;
     }
 
     .qodef-awards-list .qodef-e:hover .qodef-svg--simple-arrow {

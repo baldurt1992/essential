@@ -62,14 +62,14 @@ export function useAdminSubscriptions() {
         }
     };
 
-    const cancelSubscription = async (subscriptionId) => {
+    const cancelSubscription = async (subscriptionUuid) => {
         state.saving = true;
         state.error = null;
 
         try {
-            const response = await axios.post(`/api/admin/subscriptions/${subscriptionId}/cancel`);
+            const response = await axios.post(`/api/admin/subscriptions/${subscriptionUuid}/cancel`);
             const subscription = response.data.data;
-            state.subscriptions = state.subscriptions.map((item) => (item.id === subscription.id ? subscription : item));
+            state.subscriptions = state.subscriptions.map((item) => (item.uuid === subscription.uuid ? subscription : item));
             return subscription;
         } catch (error) {
             state.error = handleError(error);

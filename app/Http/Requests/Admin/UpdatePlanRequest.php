@@ -28,6 +28,8 @@ class UpdatePlanRequest extends FormRequest
             'metadata' => ['sometimes', 'nullable', 'array'],
             'is_active' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'download_limit' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'unlimited_downloads' => ['sometimes', 'boolean'],
         ];
     }
 }

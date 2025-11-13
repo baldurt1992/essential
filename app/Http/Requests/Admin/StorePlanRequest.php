@@ -26,6 +26,8 @@ class StorePlanRequest extends FormRequest
             'metadata' => ['nullable', 'array'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
+            'download_limit' => ['nullable', 'integer', 'min:1'],
+            'unlimited_downloads' => ['boolean'],
         ];
     }
 }

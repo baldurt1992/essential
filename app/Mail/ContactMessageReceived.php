@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ContactMessageReceived extends Mailable implements ShouldQueue
+class ContactMessageReceived extends Mailable // implements ShouldQueue // Desactivado: requiere worker de colas en producción
 {
     use Queueable;
     use SerializesModels;

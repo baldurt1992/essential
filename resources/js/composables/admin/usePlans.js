@@ -80,14 +80,14 @@ export function useAdminPlans() {
         }
     };
 
-    const updatePlan = async (planId, payload) => {
+    const updatePlan = async (planUuid, payload) => {
         state.saving = true;
         state.error = null;
 
         try {
-            const response = await axios.put(`/api/admin/plans/${planId}`, payload);
+            const response = await axios.put(`/api/admin/plans/${planUuid}`, payload);
             const plan = response.data.data;
-            state.plans = state.plans.map((item) => (item.id === plan.id ? plan : item));
+            state.plans = state.plans.map((item) => (item.uuid === plan.uuid ? plan : item));
             return plan;
         } catch (error) {
             state.error = handleError(error);
@@ -97,13 +97,13 @@ export function useAdminPlans() {
         }
     };
 
-    const deletePlan = async (planId) => {
+    const deletePlan = async (planUuid) => {
         state.saving = true;
         state.error = null;
 
         try {
-            await axios.delete(`/api/admin/plans/${planId}`);
-            state.plans = state.plans.filter((item) => item.id !== planId);
+            await axios.delete(`/api/admin/plans/${planUuid}`);
+            state.plans = state.plans.filter((item) => item.uuid !== planUuid);
             state.meta.total = Math.max(0, state.meta.total - 1);
         } catch (error) {
             state.error = handleError(error);

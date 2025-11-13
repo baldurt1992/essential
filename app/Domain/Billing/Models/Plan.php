@@ -31,6 +31,8 @@ class Plan extends Model
         'features',
         'metadata',
         'sort_order',
+        'download_limit',
+        'unlimited_downloads',
         'created_by',
     ];
 
@@ -40,6 +42,8 @@ class Plan extends Model
         'is_active' => 'boolean',
         'features' => 'array',
         'metadata' => 'array',
+        'download_limit' => 'integer',
+        'unlimited_downloads' => 'boolean',
     ];
 
     protected static function booted(): void

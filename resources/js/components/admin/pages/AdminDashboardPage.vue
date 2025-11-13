@@ -239,6 +239,11 @@
         gap: 22px;
     }
 
+    body.dark-mode .dashboard-section {
+        background: rgba(23, 23, 23, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
     @media (min-width: 768px) {
         .dashboard-section {
             padding: 32px 36px;
@@ -252,6 +257,10 @@
         text-transform: uppercase;
         margin: 0;
         color: rgba(23, 23, 23, 0.78);
+    }
+
+    body.dark-mode .dashboard-section__title {
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .dashboard-grid {
@@ -383,9 +392,18 @@
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
+    body.dark-mode .action-card {
+        background: rgba(30, 30, 30, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
     .action-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
+    }
+
+    body.dark-mode .action-card:hover {
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
     }
 
     .action-card__icon {
@@ -425,12 +443,20 @@
         color: #171717;
     }
 
+    body.dark-mode .action-card__title {
+        color: #ffffff;
+    }
+
     .action-card__subtitle {
         font-family: 'Inter', sans-serif;
         font-size: 13px;
         line-height: 1.45;
         margin: 4px 0 0;
         color: rgba(23, 23, 23, 0.65);
+    }
+
+    body.dark-mode .action-card__subtitle {
+        color: rgba(255, 255, 255, 0.75);
     }
 
     .activity-card {

@@ -24,6 +24,8 @@ class Subscription extends Model
         'stripe_price_id',
         'status',
         'quantity',
+        'downloads_used',
+        'downloads_reset_at',
         'cancel_at_period_end',
         'trial_ends_at',
         'starts_at',
@@ -37,6 +39,8 @@ class Subscription extends Model
 
     protected $casts = [
         'quantity' => 'integer',
+        'downloads_used' => 'integer',
+        'downloads_reset_at' => 'datetime',
         'cancel_at_period_end' => 'boolean',
         'trial_ends_at' => 'datetime',
         'starts_at' => 'datetime',

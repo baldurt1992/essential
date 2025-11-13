@@ -50,20 +50,13 @@
                     </div>
 
                     <div class="plan-form__field" :class="{ 'plan-form__field--error': fieldError('billing_interval') }">
-                        <label for="plan-interval">Intervalo *</label>
-                        <Dropdown id="plan-interval" v-model="form.billing_interval" :options="billingIntervalOptions"
-                            optionLabel="label" optionValue="value" placeholder="Selecciona intervalo"
-                            @change="clearFieldError('billing_interval')" />
+                        <label for="plan-interval">Frecuencia de cobro *</label>
+                        <Dropdown id="plan-interval" v-model="selectedBillingInterval" :options="billingIntervalOptions"
+                            optionLabel="label" optionValue="value" placeholder="Selecciona frecuencia"
+                            @change="handleBillingIntervalChange" />
+                        <small class="plan-form__help-text">{{ getIntervalDescription() }}</small>
                         <div class="plan-form__error-slot">
                             <small v-if="fieldError('billing_interval')" class="plan-form__error">{{ fieldError('billing_interval') }}</small>
-                        </div>
-                    </div>
-
-                    <div class="plan-form__field" :class="{ 'plan-form__field--error': fieldError('billing_interval_count') }">
-                        <label for="plan-interval-count"># de intervalos *</label>
-                        <InputNumber input-id="plan-interval-count" v-model="form.billing_interval_count" :min="1"
-                            :max="24" :step="1" @input="clearFieldError('billing_interval_count')" />
-                        <div class="plan-form__error-slot">
                             <small v-if="fieldError('billing_interval_count')" class="plan-form__error">{{ fieldError('billing_interval_count') }}</small>
                         </div>
                     </div>
@@ -73,6 +66,28 @@
                         <div class="plan-form__switch-control">
                             <ToggleSwitch id="plan-active" v-model="form.is_active" />
                             <span>{{ form.is_active ? 'Activo' : 'Inactivo' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plan-form__section">
+                    <h3 class="plan-form__section-title">Límite de descargas</h3>
+                    <div class="plan-form__switch">
+                        <label for="plan-unlimited-downloads">Descargas ilimitadas</label>
+                        <div class="plan-form__switch-control">
+                            <ToggleSwitch id="plan-unlimited-downloads" v-model="form.unlimited_downloads"
+                                @update:model-value="handleUnlimitedDownloadsChange" />
+                            <span>{{ form.unlimited_downloads ? 'Ilimitado' : 'Limitado' }}</span>
+                        </div>
+                    </div>
+                    <div v-if="!form.unlimited_downloads" class="plan-form__field"
+                        :class="{ 'plan-form__field--error': fieldError('download_limit') }">
+                        <label for="plan-download-limit">Límite de descargas mensual *</label>
+                        <InputNumber input-id="plan-download-limit" v-model="form.download_limit" :min="1" :step="1"
+                            placeholder="Ej. 10, 30, 100" @input="clearFieldError('download_limit')" />
+                        <small class="plan-form__help-text">Número de plantillas que el usuario puede descargar por mes. El contador se resetea automáticamente cada mes.</small>
+                        <div class="plan-form__error-slot">
+                            <small v-if="fieldError('download_limit')" class="plan-form__error">{{ fieldError('download_limit') }}</small>
                         </div>
                     </div>
                 </div>
@@ -132,10 +147,14 @@
     import Message from 'primevue/message';
 
     const billingIntervalOptions = [
-        { label: 'Día', value: 'day' },
-        { label: 'Semana', value: 'week' },
-        { label: 'Mes', value: 'month' },
-        { label: 'Año', value: 'year' },
+        { label: 'Diario', value: 'day-1', interval: 'day', count: 1 },
+        { label: 'Semanal', value: 'week-1', interval: 'week', count: 1 },
+        { label: 'Quincenal', value: 'week-2', interval: 'week', count: 2 },
+        { label: 'Mensual', value: 'month-1', interval: 'month', count: 1 },
+        { label: 'Trimestral', value: 'month-3', interval: 'month', count: 3 },
+        { label: 'Semestral', value: 'month-6', interval: 'month', count: 6 },
+        { label: 'Anual', value: 'year-1', interval: 'year', count: 1 },
+        { label: 'Bienal', value: 'year-2', interval: 'year', count: 2 },
     ];
 
     const props = defineProps({
@@ -177,7 +196,11 @@
         features: [],
         is_active: true,
         sort_order: 0,
+        download_limit: null,
+        unlimited_downloads: false,
     });
+
+    const selectedBillingInterval = ref(null);
 
     const errors = reactive({});
     const backendFieldErrors = ref({});
@@ -262,6 +285,44 @@
         form.features = form.features.filter((tag) => tag !== value);
     };
 
+    const handleUnlimitedDownloadsChange = (value) => {
+        if (value) {
+            form.download_limit = null;
+        }
+    };
+
+    const handleBillingIntervalChange = () => {
+        const selected = billingIntervalOptions.find(opt => opt.value === selectedBillingInterval.value);
+        if (selected) {
+            form.billing_interval = selected.interval;
+            form.billing_interval_count = selected.count;
+            clearFieldError('billing_interval');
+            clearFieldError('billing_interval_count');
+        }
+    };
+
+    const getIntervalDescription = () => {
+        if (!selectedBillingInterval.value) {
+            return 'Selecciona la frecuencia de cobro del plan';
+        }
+        
+        const selected = billingIntervalOptions.find(opt => opt.value === selectedBillingInterval.value);
+        if (!selected) return '';
+        
+        const labels = {
+            'Diario': 'El usuario será cobrado cada día',
+            'Semanal': 'El usuario será cobrado cada semana',
+            'Quincenal': 'El usuario será cobrado cada 2 semanas',
+            'Mensual': 'El usuario será cobrado cada mes',
+            'Trimestral': 'El usuario será cobrado cada 3 meses',
+            'Semestral': 'El usuario será cobrado cada 6 meses',
+            'Anual': 'El usuario será cobrado cada año',
+            'Bienal': 'El usuario será cobrado cada 2 años',
+        };
+        
+        return labels[selected.label] || '';
+    };
+
     const clearErrors = () => {
         Object.keys(errors).forEach((key) => {
             delete errors[key];
@@ -278,6 +339,15 @@
         form.features = Array.isArray(props.plan?.features) ? [...props.plan.features] : [];
         form.is_active = props.plan?.is_active ?? true;
         form.sort_order = props.plan?.sort_order ?? 0;
+        form.download_limit = props.plan?.download_limit ?? null;
+        form.unlimited_downloads = props.plan?.unlimited_downloads ?? false;
+        
+        // Mapear billing_interval y billing_interval_count a la opción seleccionada
+        const matchingOption = billingIntervalOptions.find(opt => 
+            opt.interval === form.billing_interval && opt.count === form.billing_interval_count
+        );
+        selectedBillingInterval.value = matchingOption ? matchingOption.value : null;
+        
         tagInput.value = '';
         slugTouched.value = Boolean(form.slug);
         clearErrors();
@@ -300,16 +370,16 @@
             localErrors.slug = 'Máximo 255 caracteres.';
         }
 
-        if (!form.billing_interval) {
-            localErrors.billing_interval = 'Selecciona un intervalo.';
-        }
-
-        if (!form.billing_interval_count || form.billing_interval_count < 1) {
-            localErrors.billing_interval_count = 'Debe ser al menos 1.';
+        if (!selectedBillingInterval.value) {
+            localErrors.billing_interval = 'Selecciona una frecuencia de cobro.';
         }
 
         if (form.price === null || form.price === undefined || Number(form.price) < 0.5) {
             localErrors.price = 'Define un precio igual o superior a 0,50.';
+        }
+
+        if (!form.unlimited_downloads && (!form.download_limit || form.download_limit < 1)) {
+            localErrors.download_limit = 'Define un límite de descargas válido (mínimo 1).';
         }
 
         if (form.features?.some((tag) => tag.length > 150)) {
@@ -332,6 +402,8 @@
             features: Array.isArray(form.features) ? [...form.features] : [],
             is_active: Boolean(form.is_active),
             sort_order: form.sort_order ?? 0,
+            download_limit: form.unlimited_downloads ? null : (form.download_limit ?? null),
+            unlimited_downloads: Boolean(form.unlimited_downloads),
         };
     };
 
@@ -482,6 +554,18 @@
     .plan-form__error-slot {
         min-height: 18px;
     }
+
+    .plan-form__help-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: rgba(23, 23, 23, 0.6);
+        margin-top: 4px;
+    }
+
+    body.dark-mode .plan-form__help-text {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
 
     .plan-form__field--error :deep(.p-inputtext),
     .plan-form__field--error :deep(.p-inputnumber-input),

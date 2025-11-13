@@ -6,22 +6,36 @@
                     <div class="footer-column">
                         <h6 class="footer-column__title">Plantillas</h6>
                         <ul class="footer-column__list">
-                            <li><a href="/plantillas">Flyers</a></li>
-                            <li><a href="/plantillas">Novedades</a></li>
-                            <li><a href="/plantillas">Populares</a></li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { category: 'flyer' } }">Flyers
+                                </RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { fresh: '1' } }">Novedades</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'templates', query: { popular: '1' } }">Populares</RouterLink>
+                            </li>
                         </ul>
                     </div>
 
                     <div class="footer-column">
                         <h6 class="footer-column__title">Información</h6>
                         <ul class="footer-column__list">
-                            <li><a href="/precios">Precios</a></li>
-                            <li><a href="/servicios">Servicios</a></li>
-                            <li><a href="/contacto">Contactar</a></li>
+                            <li>
+                                <RouterLink :to="{ name: 'plans' }">Planes</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'services' }">Servicios</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink :to="{ name: 'contact' }">Contactar</RouterLink>
+                            </li>
                         </ul>
                     </div>
 
-                    <div class="footer-column">
+                    <!-- Menú Legal - Oculto hasta que esté implementado -->
+                    <!-- <div class="footer-column">
                         <h6 class="footer-column__title">Legal</h6>
                         <ul class="footer-column__list">
                             <li><a href="/cookies">Cookies</a></li>
@@ -29,7 +43,7 @@
                             <li><a href="/terminosdeuso">Términos de uso</a></li>
                             <li><a href="/copright">Copyright</a></li>
                         </ul>
-                    </div>
+                    </div> -->
 
                     <div class="footer-column footer-column--contact">
                         <h6 class="footer-column__title">Redes y contacto</h6>
@@ -80,9 +94,9 @@
                 <div class="footer-bottom__content">
                     <p>
                         © 2025
-                        <a href="/" target="_blank" rel="nofollow noopener">
+                        <RouterLink :to="{ name: 'home' }">
                             ESSENTIAL INNOVATION
-                        </a>
+                        </RouterLink>
                         , ALL RIGHTS RESERVED
                     </p>
                 </div>
@@ -93,6 +107,7 @@
 
 <script setup>
     import { computed, onMounted } from 'vue';
+    import { RouterLink } from 'vue-router';
     import { useSiteContactInformation } from '../../composables/useSiteContactInformation';
 
     const SOCIAL_ICON_MAP = {
@@ -293,19 +308,36 @@
 
     .footer-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: 1fr;
         gap: 36px;
+        justify-items: center;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 640px) {
         .footer-grid {
+            grid-template-columns: repeat(2, 1fr);
             gap: 42px;
+            justify-items: start;
         }
     }
 
     @media (min-width: 1024px) {
         .footer-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 220px));
+            gap: 42px;
+            justify-content: center;
+            max-width: calc(4 * 220px + 3 * 42px);
+            margin: 0 auto;
+        }
+    }
+
+    /* Mobile: una columna centrada */
+    @media (max-width: 639px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            text-align: center;
         }
     }
 
@@ -481,6 +513,12 @@
         font-family: 'IBM Plex Mono', monospace;
         font-size: 14px;
         color: #ffffff;
+    }
+
+    @media (max-width: 767px) {
+        .footer-bottom__content p {
+            font-size: 11px;
+        }
     }
 
     .footer-bottom__content a {

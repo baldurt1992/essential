@@ -27,6 +27,8 @@ class PlanResource extends JsonResource
             'metadata' => $this->metadata ?? [],
             'is_active' => $this->is_active,
             'sort_order' => $this->sort_order,
+            'download_limit' => $this->download_limit,
+            'unlimited_downloads' => $this->unlimited_downloads,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

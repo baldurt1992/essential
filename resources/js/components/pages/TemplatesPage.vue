@@ -93,10 +93,6 @@
                             </p>
                         </div>
 
-                        <p class="template-card__description">
-                            {{ template.description }}
-                        </p>
-
                         <div class="template-card__tags" v-if="template.tags.length">
                             <span v-for="tag in template.tags" :key="tag" class="template-tag">
                                 {{ tag }}
@@ -107,10 +103,11 @@
                             <button type="button" class="template-card__cta" @click="handlePrimaryAction(template)">
                                 {{ template.isAccessible ? 'Descargar' : 'Comprar' }}
                             </button>
-                            <RouterLink :to="detailTarget(template)" class="template-card__link">
-                                Ver ficha
-                                <i class="pi pi-arrow-right"></i>
-                            </RouterLink>
+                            <button v-if="!auth.isAuthenticated.value" type="button" class="template-card__link"
+                                @click="openAuthModal('login')">
+                                Iniciar sesión
+                                <i class="pi pi-arrow-right template-card__link-icon"></i>
+                            </button>
                         </div>
                     </div>
                 </article>
@@ -158,18 +155,14 @@
                             @click="handlePrimaryAction(selectedTemplate)">
                             {{ selectedTemplate.isAccessible ? 'Descargar' : 'Comprar ahora' }}
                         </button>
-                        <RouterLink :to="detailTarget(selectedTemplate)" class="template-preview__link"
-                            @click="previewVisible = false">
-                            Ver ficha completa
-                        </RouterLink>
                     </div>
                 </div>
             </div>
         </Dialog>
 
         <!-- Modal para solicitar email (invitados) -->
-        <Dialog v-model:visible="showEmailModal" modal :style="{ width: '90%', maxWidth: '500px' }" :closable="true"
-            :draggable="false">
+        <Dialog v-model:visible="showEmailModal" modal class="template-email-dialog"
+            :style="{ width: '90%', maxWidth: '500px' }" :closable="true" :draggable="false">
             <template #header>
                 <h2 class="template-email-modal__title">Completa tu compra</h2>
             </template>
@@ -195,10 +188,10 @@
         </Dialog>
 
         <!-- Dialog de error de descarga -->
-        <Dialog v-model:visible="showDownloadErrorDialog" modal :style="{ width: '90%', maxWidth: '500px' }"
-            :closable="true" :draggable="false">
+        <Dialog v-model:visible="showDownloadErrorDialog" modal class="download-error-dialog"
+            :style="{ width: '90%', maxWidth: '500px' }" :closable="true" :draggable="false">
             <template #header>
-                <h2 class="download-error-dialog__title">Error al descargar</h2>
+                <h2 class="download-error-dialog__title">Límite alcanzado</h2>
             </template>
 
             <div class="download-error-dialog__content">
@@ -219,6 +212,7 @@
     import { RouterLink, useRoute, useRouter } from 'vue-router';
     import { useSiteTemplates } from '../../composables/useSiteTemplates';
     import { useAuth } from '../../composables/useAuth';
+    import { useAuthModal } from '../../composables/useAuthModal';
     import { useToast } from 'primevue/usetoast';
     import Dialog from 'primevue/dialog';
     import Button from 'primevue/button';
@@ -228,6 +222,7 @@
     const router = useRouter();
     const route = useRoute();
     const auth = useAuth();
+    const { openAuthModal } = useAuthModal();
     const toast = useToast();
 
     const filters = computed(() => siteTemplates.filters.value);
@@ -315,16 +310,11 @@
         return !!(flags.is_new ?? template.metadata?.is_new);
     };
 
-    const detailTarget = (template) => ({
-        name: 'templates',
-        params: {},
-        hash: `#${template.slug}`,
-    });
-
     const openPreview = (template) => {
         selectedTemplate.value = template;
         previewVisible.value = true;
     };
+
 
     const handleDownload = async (template) => {
         isDownloading.value = true;
@@ -347,19 +337,39 @@
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            // Interceptar errores 503 (archivo no disponible) y otros errores
+            // Cuando responseType es 'blob', los errores también vienen como blob
+            let errorMessage = 'Ocurrió un error al intentar descargar el archivo. Inténtalo más tarde.';
+
             if (error.response?.status === 503) {
-                const errorData = error.response.data;
-                downloadErrorMessage.value = errorData?.message || 'El archivo no está disponible temporalmente. Inténtalo más tarde.';
-                showDownloadErrorDialog.value = true;
+                // Intentar parsear el blob como JSON
+                if (error.response.data instanceof Blob) {
+                    try {
+                        const text = await error.response.data.text();
+                        const errorData = JSON.parse(text);
+                        errorMessage = errorData?.message || 'El archivo no está disponible temporalmente. Inténtalo más tarde.';
+                    } catch (e) {
+                        errorMessage = 'El archivo no está disponible temporalmente. Inténtalo más tarde.';
+                    }
+                } else {
+                    errorMessage = error.response.data?.message || 'El archivo no está disponible temporalmente. Inténtalo más tarde.';
+                }
             } else if (error.response?.status === 403) {
-                const errorData = error.response.data;
-                downloadErrorMessage.value = errorData?.message || 'No tienes permiso para descargar este archivo.';
-                showDownloadErrorDialog.value = true;
-            } else {
-                downloadErrorMessage.value = 'Ocurrió un error al intentar descargar el archivo. Inténtalo más tarde.';
-                showDownloadErrorDialog.value = true;
+                // Intentar parsear el blob como JSON
+                if (error.response.data instanceof Blob) {
+                    try {
+                        const text = await error.response.data.text();
+                        const errorData = JSON.parse(text);
+                        errorMessage = errorData?.message || 'No tienes permiso para descargar este archivo.';
+                    } catch (e) {
+                        errorMessage = 'No tienes permiso para descargar este archivo.';
+                    }
+                } else {
+                    errorMessage = error.response.data?.message || 'No tienes permiso para descargar este archivo.';
+                }
             }
+
+            downloadErrorMessage.value = errorMessage;
+            showDownloadErrorDialog.value = true;
         } finally {
             isDownloading.value = false;
         }
@@ -790,10 +800,36 @@
 
     .templates-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(248px, 248px));
         gap: clamp(20px, 4.5vw, 32px);
         padding: 0 clamp(10px, 2vw, 24px);
-        justify-items: center;
+        justify-content: center;
+        max-width: calc(5 * 248px + 4 * clamp(20px, 4.5vw, 32px));
+        margin: 0 auto;
+    }
+
+    @media (max-width: 1400px) {
+        .templates-grid {
+            max-width: calc(4 * 248px + 3 * clamp(20px, 4.5vw, 32px));
+        }
+    }
+
+    @media (max-width: 1120px) {
+        .templates-grid {
+            max-width: calc(3 * 248px + 2 * clamp(20px, 4.5vw, 32px));
+        }
+    }
+
+    @media (max-width: 840px) {
+        .templates-grid {
+            max-width: calc(2 * 248px + 1 * clamp(20px, 4.5vw, 32px));
+        }
+    }
+
+    @media (max-width: 560px) {
+        .templates-grid {
+            max-width: 248px;
+        }
     }
 
     .template-card {
@@ -803,8 +839,8 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        min-height: 100%;
-        max-width: 450px;
+        width: 248px;
+        height: 441px;
         box-shadow: 0 18px 32px rgba(0, 0, 0, 0.06);
     }
 
@@ -817,8 +853,9 @@
     .template-card__media {
         position: relative;
         overflow: hidden;
-        aspect-ratio: 4 / 5;
-        max-height: 320px;
+        width: 100%;
+        height: 248px;
+        flex-shrink: 0;
     }
 
     .template-card__image {
@@ -865,19 +902,19 @@
 
     .template-card__preview {
         position: absolute;
-        right: 16px;
-        bottom: 16px;
+        right: 12px;
+        bottom: 12px;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         border: none;
         background: rgba(23, 23, 23, 0.85);
         color: #ffffff;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 11px;
-        letter-spacing: 0.12em;
+        font-size: 9px;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 10px 16px;
+        padding: 6px 12px;
         border-radius: 999px;
         cursor: pointer;
         transition: background 0.2s ease;
@@ -891,8 +928,10 @@
         flex: 1 1 auto;
         display: flex;
         flex-direction: column;
-        gap: 16px;
-        padding: 20px 22px 24px;
+        gap: 10px;
+        padding: 14px 16px 16px;
+        overflow: hidden;
+        min-height: 0;
     }
 
     .template-card__header {
@@ -904,11 +943,10 @@
 
     .template-card__title {
         font-family: 'Space Mono', monospace;
-        font-size: 19px;
+        font-size: 14px;
         text-transform: uppercase;
         margin: 0;
         line-height: 1.3;
-        min-height: 2.6em;
         line-clamp: 2;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -919,40 +957,31 @@
 
     .template-card__price {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 14px;
+        font-size: 12px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         margin: 0;
         color: rgba(221, 51, 51, 0.95);
-    }
-
-    .template-card__description {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
-        margin: 0;
-        color: rgba(23, 23, 23, 0.74);
-    }
-
-    body.dark-mode .template-card__description {
-        color: rgba(243, 243, 243, 0.78);
+        white-space: nowrap;
     }
 
     .template-card__tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 4px;
+        flex-shrink: 0;
     }
 
     .template-tag {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 11px;
-        letter-spacing: 0.08em;
+        font-size: 9px;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        padding: 6px 10px;
+        padding: 4px 8px;
         border-radius: 999px;
         background: rgba(23, 23, 23, 0.08);
         color: rgba(23, 23, 23, 0.7);
+        line-height: 1.2;
     }
 
     body.dark-mode .template-tag {
@@ -964,27 +993,28 @@
         margin-top: auto;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        flex: 1 1 auto;
-        justify-content: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+        padding-top: 8px;
     }
 
     .template-card__cta {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
         border: none;
         background: #dd3333;
         color: #ffffff;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 12px;
-        letter-spacing: 0.12em;
+        font-size: 10px;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 12px 20px;
+        padding: 8px 16px;
         border-radius: 999px;
         cursor: pointer;
         transition: background 0.2s ease, transform 0.2s ease;
+        white-space: nowrap;
     }
 
     .template-card__cta:hover {
@@ -995,14 +1025,23 @@
     .template-card__link {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 11px;
-        letter-spacing: 0.12em;
+        font-size: 9px;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
         color: inherit;
         text-decoration: none;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
         position: relative;
+        white-space: nowrap;
+    }
+
+    .template-card__link-icon {
+        font-size: 8px;
     }
 
     .template-card__link::after {
@@ -1191,16 +1230,6 @@
             align-items: center;
             justify-content: flex-start;
         }
-
-        .template-preview__link {
-            margin-left: 12px;
-        }
-    }
-
-    @media (min-width: 1320px) {
-        .templates-grid {
-            grid-template-columns: repeat(auto-fit, minmax(296px, 1fr));
-        }
     }
 
     /* Modal de email para invitados */
@@ -1286,4 +1315,15 @@
         line-height: 1.6;
         color: var(--qode-text-color);
     }
+
+    .download-error-dialog :deep(.p-dialog-footer) {
+        padding-top: 20px;
+        padding-bottom: 0;
+    }
+
+    .download-error-dialog :deep(.p-dialog-footer .qodef-button) {
+        margin: 0;
+    }
+
+    /* Los estilos de modales están ahora en app.css como reglas globales */
 </style>

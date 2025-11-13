@@ -185,7 +185,7 @@
 
         try {
             if (modalMode.value === 'edit' && selectedPlan.value) {
-                await updatePlan(selectedPlan.value.id, payload);
+                await updatePlan(selectedPlan.value.uuid, payload);
                 const currentPage = pagination.value?.current_page ?? 1;
                 await fetchPlans({ page: currentPage });
                 toast.add({ severity: 'success', summary: 'Plan actualizado', life: 3000 });
@@ -214,7 +214,7 @@
             rejectLabel: 'Cancelar',
             accept: async () => {
                 try {
-                    await deletePlan(plan.id);
+                    await deletePlan(plan.uuid);
                     const currentPage = pagination.value?.current_page ?? 1;
                     await fetchPlans({ page: currentPage });
                     toast.add({ severity: 'success', summary: 'Plan eliminado', life: 3000 });
