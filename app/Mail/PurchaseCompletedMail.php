@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\URL;
 
-class PurchaseCompletedMail extends Mailable implements ShouldQueue
+class PurchaseCompletedMail extends Mailable // implements ShouldQueue // Desactivado: requiere worker de colas en producción
 {
     use Queueable;
     use SerializesModels;

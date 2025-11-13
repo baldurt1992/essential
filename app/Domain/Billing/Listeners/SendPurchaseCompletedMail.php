@@ -32,24 +32,39 @@ class SendPurchaseCompletedMail // implements ShouldQueue // Temporalmente desac
         }
 
         try {
+            Log::info('Attempting to send purchase completed email', [
+                'purchase_id' => $purchase->getKey(),
+                'license_id' => $license->getKey(),
+                'recipient_email' => $recipientEmail,
+                'mail_config' => [
+                    'host' => config('mail.mailers.smtp.host'),
+                    'port' => config('mail.mailers.smtp.port'),
+                    'from_address' => config('mail.from.address'),
+                ],
+            ]);
+
             $this->mailer->to($recipientEmail)->send(new PurchaseCompletedMail($license, $purchase));
+
+            Log::info('Purchase email sent successfully', [
+                'purchase_id' => $purchase->getKey(),
+                'license_id' => $license->getKey(),
+                'user_id' => $purchase->user_id,
+                'guest_email' => $purchase->guest_email,
+                'recipient_email' => $recipientEmail,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to send purchase completed email', [
                 'purchase_id' => $purchase->getKey(),
                 'license_id' => $license->getKey(),
                 'recipient_email' => $recipientEmail,
                 'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw $e;
+            // No lanzar la excepción para que el webhook no falle
+            // El correo se puede reenviar manualmente si es necesario
         }
-
-        Log::info('Purchase email sent', [
-            'purchase_id' => $purchase->getKey(),
-            'license_id' => $license->getKey(),
-            'user_id' => $purchase->user_id,
-            'guest_email' => $purchase->guest_email,
-            'recipient_email' => $recipientEmail,
-        ]);
     }
 }
