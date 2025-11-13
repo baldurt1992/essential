@@ -162,8 +162,8 @@
                             class="plans-button plans-button--ghost plan-card__cta-button">
                             Plan Actual
                         </button>
-                        <button v-else-if="canUpgrade(plan)" type="button" :disabled="isCreatingCheckout === plan.id"
-                            @click="handleCheckout(plan, $event)"
+                        <button v-else-if="currentPlanUuid && canUpgrade(plan)" type="button"
+                            :disabled="isCreatingCheckout === plan.id" @click="handleCheckout(plan, $event)"
                             class="plans-button plans-button--primary plan-card__cta-button">
                             <span v-if="isCreatingCheckout === plan.id">Creando checkout…</span>
                             <span v-else>Actualizar Plan</span>
