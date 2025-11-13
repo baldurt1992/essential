@@ -29,12 +29,35 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-QU88AQqw.js",
+    "file": "assets/app-aIr2YbeG.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "resources/js/components/pages/PurchaseConfirmationPage.vue"
+    ],
     "css": [
-      "assets/app--0XK-0x3.css",
+      "assets/app-BQPv8ce2.css",
+      "assets/app-DEIwavkF.css"
+    ],
+    "assets": [
+      "assets/primeicons-DMOk5skT.eot",
+      "assets/primeicons-C6QP2o4f.woff2",
+      "assets/primeicons-WjwUDZjB.woff",
+      "assets/primeicons-MpK4pl85.ttf",
+      "assets/primeicons-Dr5RGzOO.svg"
+    ]
+  },
+  "resources/js/components/pages/PurchaseConfirmationPage.vue": {
+    "file": "assets/PurchaseConfirmationPage-B0lSFPX7.js",
+    "name": "PurchaseConfirmationPage",
+    "src": "resources/js/components/pages/PurchaseConfirmationPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/PurchaseConfirmationPage-B3DNgv9p.css",
       "assets/app-DEIwavkF.css"
     ],
     "assets": [
