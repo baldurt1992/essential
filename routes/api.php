@@ -50,6 +50,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->name('admin.
     Route::apiResource('services', ServiceController::class);
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::post('subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::post('subscriptions/{subscription}/reactivate', [SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
     Route::get('contact-information', [ContactInformationController::class, 'show'])->name('contact-information.show');
     Route::put('contact-information', [ContactInformationController::class, 'update'])->name('contact-information.update');
 });

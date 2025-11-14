@@ -89,11 +89,19 @@
                                     </div>
                                 </td>
                                 <td class="admin-table__actions">
-                                    <button type="button" class="admin-icon-button admin-icon-button--danger"
+                                    <button v-if="!subscription.cancel_at_period_end" type="button" 
+                                        class="admin-icon-button admin-icon-button--danger"
                                         v-tooltip.bottom="cancelTooltip(subscription)"
                                         :disabled="!canCancel(subscription)"
                                         @click="confirmCancel($event, subscription)">
                                         <i class="pi pi-times"></i>
+                                    </button>
+                                    <button v-else type="button" 
+                                        class="admin-icon-button admin-icon-button--success"
+                                        v-tooltip.bottom="reactivateTooltip(subscription)"
+                                        :disabled="!canReactivate(subscription)"
+                                        @click="confirmReactivate($event, subscription)">
+                                        <i class="pi pi-refresh"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -128,6 +136,7 @@
         isSaving,
         fetchSubscriptions,
         cancelSubscription,
+        reactivateSubscription,
     } = useAdminSubscriptions();
 
     const confirm = useConfirm();
@@ -175,12 +184,51 @@
         });
     };
 
+    const confirmReactivate = (event, subscription) => {
+        if (!canReactivate(subscription)) {
+            return;
+        }
+
+        confirm.require({
+            target: event.currentTarget,
+            message: `¿Reactivar la renovación del plan "${subscription.plan?.name}"?`,
+            icon: 'pi pi-refresh',
+            rejectClass: 'qodef-button qodef-button--ghost',
+            acceptClass: 'qodef-button qodef-button--primary',
+            acceptLabel: 'Reactivar renovación',
+            rejectLabel: 'Volver',
+            accept: async () => {
+                try {
+                    await reactivateSubscription(subscription.uuid);
+                    const currentPage = pagination.value?.current_page ?? 1;
+                    await fetchSubscriptions({ page: currentPage });
+                    toast.add({ severity: 'success', summary: 'Suscripción reactivada', detail: 'La suscripción continuará renovándose automáticamente.', life: 4000 });
+                } catch (error) {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'No se pudo reactivar',
+                        detail: error.response?.data?.message ?? 'Intenta nuevamente más tarde.',
+                        life: 5000,
+                    });
+                }
+            },
+        });
+    };
+
     const canCancel = (subscription) => {
         if (isSaving.value) {
             return false;
         }
 
         return !subscription.cancel_at_period_end && subscription.status === 'active';
+    };
+
+    const canReactivate = (subscription) => {
+        if (isSaving.value) {
+            return false;
+        }
+
+        return subscription.cancel_at_period_end && subscription.status === 'active';
     };
 
     const cancelTooltip = (subscription) => {
@@ -193,6 +241,18 @@
         }
 
         return 'Cancelar al finalizar periodo';
+    };
+
+    const reactivateTooltip = (subscription) => {
+        if (!subscription.cancel_at_period_end) {
+            return 'La suscripción no está programada para cancelarse';
+        }
+
+        if (subscription.status !== 'active') {
+            return 'Sólo las suscripciones activas pueden reactivarse';
+        }
+
+        return 'Reactivar renovación automática';
     };
 
     const formatDate = (value) => {
@@ -502,6 +562,16 @@
     .admin-icon-button--danger:hover:not(:disabled) {
         background: rgba(221, 51, 51, 0.12);
         color: #c42b2b;
+    }
+
+    .admin-icon-button--success {
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+
+    .admin-icon-button--success:hover:not(:disabled) {
+        background: rgba(34, 197, 94, 0.12);
+        color: #16a34a;
     }
 
     .admin-placeholder {

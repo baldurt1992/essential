@@ -79,6 +79,23 @@ export function useAdminSubscriptions() {
         }
     };
 
+    const reactivateSubscription = async (subscriptionUuid) => {
+        state.saving = true;
+        state.error = null;
+
+        try {
+            const response = await axios.post(`/api/admin/subscriptions/${subscriptionUuid}/reactivate`);
+            const subscription = response.data.data;
+            state.subscriptions = state.subscriptions.map((item) => (item.uuid === subscription.uuid ? subscription : item));
+            return subscription;
+        } catch (error) {
+            state.error = handleError(error);
+            throw error;
+        } finally {
+            state.saving = false;
+        }
+    };
+
     const subscriptions = computed(() => state.subscriptions);
     const pagination = computed(() => state.meta);
     const isLoading = computed(() => state.loading && !state.initialized);
@@ -94,5 +111,6 @@ export function useAdminSubscriptions() {
         isSaving,
         fetchSubscriptions,
         cancelSubscription,
+        reactivateSubscription,
     };
 }
