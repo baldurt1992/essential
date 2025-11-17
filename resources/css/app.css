@@ -1297,3 +1297,145 @@ body.dark-mode .contact-socials__dropdown .p-select-option.p-select-option-selec
         color: #f3f3f3;
     }
 }
+
+/* ============================================
+   SERVICES PAGE - Global Patterns
+   ============================================ */
+
+/* Eyebrow Pattern (reusable) */
+.essential-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--essential-font-menu);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--essential-text-color);
+    margin: 0;
+    padding: 0;
+}
+
+.essential-eyebrow__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.essential-eyebrow__label {
+    margin: 0;
+    padding: 0;
+}
+
+/* Spinner (reusable) */
+.essential-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid rgba(23, 23, 23, 0.15);
+    border-top-color: #dd3333;
+    animation: essential-spin 0.9s linear infinite;
+}
+
+body.dark-mode .essential-spinner {
+    border-color: rgba(255, 255, 255, 0.15);
+    border-top-color: #ff6666;
+}
+
+@keyframes essential-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Divider (reusable) */
+.essential-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 0;
+    padding: 0;
+}
+
+body.dark-mode .essential-divider {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* State Container (reusable) */
+.essential-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 60px 20px;
+    font-family: var(--essential-font-body);
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    text-align: center;
+    color: rgba(23, 23, 23, 0.72);
+}
+
+body.dark-mode .essential-state {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(243, 243, 243, 0.72);
+}
+
+/* Retry Button (reusable) */
+.essential-retry-button {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    font-family: var(--essential-font-menu);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.essential-retry-button:hover {
+    background: #dd3333;
+    color: #ffffff;
+    border-color: #dd3333;
+}
+
+/* Underline Link CTA (reusable) */
+.essential-underline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--essential-font-menu);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+.essential-underline-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.essential-underline-link:hover::after {
+    transform: scaleX(1);
+}
+
+.essential-underline-link .pi {
+    font-size: 12px;
+}
