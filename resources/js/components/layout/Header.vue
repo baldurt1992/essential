@@ -1,25 +1,26 @@
 <template>
-    <header id="qodef-page-header"
-        :class="['qodef-header--standard-no-logo', { 'qodef-header--transparent': shouldBeTransparent }]" role="banner">
-        <div id="qodef-page-header-inner">
-            <div class="qodef-header-wrapper">
+    <header id="essential-page-header"
+        :class="['essential-header--standard-no-logo', { 'essential-header--transparent': shouldBeTransparent }]"
+        role="banner">
+        <div id="essential-page-header-inner">
+            <div class="essential-header-wrapper">
                 <!-- Widget Holder Left - Dark/Light Switcher -->
-                <div class="qodef-widget-holder qodef--two">
+                <div class="essential-widget-holder essential--two">
                     <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
-                        <div class="widget qodef-switcher">
-                            <div class="qodef-switch">
-                                <input type="checkbox" name="switch" class="qodef-switch-input" id="qodef-switch-88"
-                                    :checked="!isDarkMode" @change="toggleDarkMode">
-                                <label class="qodef-switch-label" for="qodef-switch-88">
-                                    <span class="qodef-on-off-switch-inner"></span>
-                                    <span class="qodef-on-off-switch-switch">
-                                        <span class="qodef-switch--light">
-                                            <svg class="qodef-svg--sun" xmlns="http://www.w3.org/2000/svg"
+                        <div class="widget essential-switcher">
+                            <div class="essential-switch">
+                                <input type="checkbox" name="switch" class="essential-switch-input"
+                                    id="essential-switch-88" :checked="!isDarkMode" @change="toggleDarkMode">
+                                <label class="essential-switch-label" for="essential-switch-88">
+                                    <span class="essential-on-off-switch-inner"></span>
+                                    <span class="essential-on-off-switch-switch">
+                                        <span class="essential-switch--light">
+                                            <svg class="essential-svg--sun" xmlns="http://www.w3.org/2000/svg"
                                                 width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                <path class="qodef-path-fill"
+                                                <path class="essential-path-fill"
                                                     d="M9.649 12.281a2.538 2.538 0 0 0 1.864-.768 2.538 2.538 0 0 0 .768-1.864 2.538 2.538 0 0 0-.768-1.864 2.538 2.538 0 0 0-1.864-.768 2.538 2.538 0 0 0-1.864.768 2.538 2.538 0 0 0-.768 1.864 2.538 2.538 0 0 0 .768 1.864 2.538 2.538 0 0 0 1.864.768Zm0 1.754a4.227 4.227 0 0 1-3.1-1.283 4.227 4.227 0 0 1-1.283-3.1 4.227 4.227 0 0 1 1.283-3.1 4.227 4.227 0 0 1 3.1-1.283 4.227 4.227 0 0 1 3.1 1.283 4.227 4.227 0 0 1 1.283 3.1 4.227 4.227 0 0 1-1.283 3.1 4.227 4.227 0 0 1-3.1 1.283Zm-6.14-3.509H0V8.772h3.509Zm15.79 0H15.79V8.772h3.51ZM8.773 3.508V0h1.754v3.509Zm0 15.79v-3.509h1.754v3.509ZM4.738 5.921 2.523 3.794 3.773 2.5l2.105 2.193ZM15.526 16.8 13.4 14.583l1.162-1.206 2.215 2.127ZM13.377 4.739l2.127-2.215 1.294 1.25-2.193 2.105ZM2.5 15.526l2.215-2.127 1.206 1.162-2.127 2.215Zm7.149-5.877Z">
                                                 </path>
-                                                <g class="qodef-path-outline" fill="none">
+                                                <g class="essential-path-outline" fill="none">
                                                     <circle cx="9.649" cy="9.649" r="4.227" />
                                                     <line x1="9.649" y1="0" x2="9.649" y2="3.509" />
                                                     <line x1="9.649" y1="15.79" x2="9.649" y2="19.298" />
@@ -32,13 +33,13 @@
                                                 </g>
                                             </svg>
                                         </span>
-                                        <span class="qodef-switch--dark">
-                                            <svg class="qodef-svg--moon" xmlns="http://www.w3.org/2000/svg"
+                                        <span class="essential-switch--dark">
+                                            <svg class="essential-svg--moon" xmlns="http://www.w3.org/2000/svg"
                                                 width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                <path class="qodef-path-fill"
+                                                <path class="essential-path-fill"
                                                     d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Zm0-2.144a7.261 7.261 0 0 0 4.235-1.3 7.519 7.519 0 0 0 2.734-3.391q-.536.134-1.072.214a7.22 7.22 0 0 1-1.072.08 7.648 7.648 0 0 1-5.615-2.318 7.648 7.648 0 0 1-2.318-5.615 7.218 7.218 0 0 1 .08-1.072q.08-.536.214-1.072a7.519 7.519 0 0 0-3.391 2.734 7.261 7.261 0 0 0-1.3 4.235 7.231 7.231 0 0 0 2.2 5.307 7.231 7.231 0 0 0 5.305 2.196Zm-.268-7.239Z">
                                                 </path>
-                                                <path class="qodef-path-outline" fill="none"
+                                                <path class="essential-path-outline" fill="none"
                                                     d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Z">
                                                 </path>
                                             </svg>
@@ -51,7 +52,7 @@
                 </div>
 
                 <!-- Navigation -->
-                <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
+                <nav class="essential-header-navigation" role="navigation" aria-label="Top Menu">
                     <ul id="menu-main-menu-1" class="menu">
                         <NavMenuItem text="INICIO" :link="{ name: 'home' }" />
                         <NavMenuItem text="SERVICIOS" :link="{ name: 'services' }" />
@@ -89,11 +90,11 @@
                 </nav>
 
                 <!-- Widget Holder Right - Side Area Opener / Burger Menu -->
-                <div class="qodef-widget-holder qodef--one">
+                <div class="essential-widget-holder essential--one">
                     <!-- Mobile Menu Opener (uses side area SVG) -->
-                    <button class="qodef-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
-                        <span class="qodef-m-icon">
-                            <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                    <button class="essential-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
+                        <span class="essential-m-icon">
+                            <svg class="essential-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
                                 height="41.477" viewBox="0 0 41.477 41.477">
                                 <g>
                                     <g transform="translate(8.257 8.257)">
@@ -114,12 +115,13 @@
                     </button>
 
                     <!-- Side Area Opener (Desktop Only) -->
-                    <div class="widget widget_moreau_core_side_area_opener qodef-desktop-only" data-area="main-home">
+                    <div class="widget widget_moreau_core_side_area_opener essential-desktop-only"
+                        data-area="main-home">
                         <a href="javascript:void(0)"
-                            class="qodef-opener-icon qodef-m qodef-source--predefined qodef-side-area-opener"
+                            class="essential-opener-icon essential-m essential-source--predefined essential-side-area-opener"
                             @click="toggleSideArea">
-                            <span class="qodef-m-icon qodef--open">
-                                <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                            <span class="essential-m-icon essential--open">
+                                <svg class="essential-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
                                     height="41.477" viewBox="0 0 41.477 41.477">
                                     <g>
                                         <g transform="translate(8.257 8.257)">
@@ -144,10 +146,10 @@
         </div>
 
         <!-- Mobile Menu (includes navigation and side area content) -->
-        <div class="qodef-mobile-menu" :class="{ 'qodef--opened': isMobileMenuOpen }">
+        <div class="essential-mobile-menu" :class="{ 'essential--opened': isMobileMenuOpen }">
             <!-- Close Button inside menu -->
-            <button class="qodef-mobile-menu-close" @click="closeMobileMenu" aria-label="Close menu">
-                <svg class="qodef-svg--close" xmlns="http://www.w3.org/2000/svg" width="41.477" height="41.477"
+            <button class="essential-mobile-menu-close" @click="closeMobileMenu" aria-label="Close menu">
+                <svg class="essential-svg--close" xmlns="http://www.w3.org/2000/svg" width="41.477" height="41.477"
                     viewBox="0 0 41.477 41.477">
                     <g>
                         <g transform="translate(8.257 8.257)">
@@ -166,24 +168,24 @@
                 </svg>
             </button>
 
-            <nav class="qodef-mobile-menu-navigation">
-                <ul class="qodef-mobile-menu-list">
+            <nav class="essential-mobile-menu-navigation">
+                <ul class="essential-mobile-menu-list">
                     <li>
                         <RouterLink :to="{ name: 'home' }" @click="closeMobileMenu">INICIO</RouterLink>
                     </li>
                     <li>
                         <RouterLink :to="{ name: 'services' }" @click="closeMobileMenu">SERVICIOS</RouterLink>
                     </li>
-                    <li class="qodef-has-submenu">
-                        <div class="qodef-mobile-submenu-header">
+                    <li class="essential-has-submenu">
+                        <div class="essential-mobile-submenu-header">
                             <RouterLink :to="{ name: 'templates' }" @click="closeMobileMenu">PLANTILLAS</RouterLink>
-                            <button type="button" class="qodef-submenu-toggle"
+                            <button type="button" class="essential-submenu-toggle"
                                 aria-label="Mostrar submenú de plantillas" @click="toggleSubmenu($event)">
                                 <span></span>
                                 <span></span>
                             </button>
                         </div>
-                        <ul class="qodef-submenu">
+                        <ul class="essential-submenu">
                             <li>
                                 <RouterLink :to="{ name: 'templates', query: { category: 'flyer' } }"
                                     @click="closeMobileMenu">Flyers</RouterLink>
@@ -218,7 +220,7 @@
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <RouterLink :to="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{
                             mobileAccountLabel
-                            }}</RouterLink>
+                        }}</RouterLink>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button mobile-auth-button--primary"
@@ -228,41 +230,42 @@
             </nav>
 
             <!-- Side Area Content in Mobile Menu -->
-            <div class="qodef-mobile-side-area">
-                <div class="qodef-mobile-logo">
+            <div class="essential-mobile-side-area">
+                <div class="essential-mobile-logo">
                     <img src="/images/logo-web-negro.png" alt="Essential Innovation">
                 </div>
-                <div class="qodef-mobile-separator"></div>
-                <h2 class="qodef-mobile-title">PONTE EN CONTACTO</h2>
-                <div class="qodef-mobile-company">
+                <div class="essential-mobile-separator"></div>
+                <h2 class="essential-mobile-title">PONTE EN CONTACTO</h2>
+                <div class="essential-mobile-company">
                     ESSENTIAL INNOVATION<br>
                     CREATIVE DESINGS
                 </div>
-                <div class="qodef-mobile-email">
+                <div class="essential-mobile-email">
                     <a href="mailto:infoessential.innovation@gmail.com">infoessential.innovation@gmail.com</a>
                 </div>
             </div>
         </div>
 
         <!-- Header Sticky (duplicado para scroll) -->
-        <div class="qodef-header-sticky qodef-header-sticky--normal qodef-custom-header-layout qodef-appearance--down">
-            <div class="qodef-header-sticky-inner">
-                <div class="qodef-widget-holder qodef--two">
+        <div
+            class="essential-header-sticky essential-header-sticky--normal essential-custom-header-layout essential-appearance--down">
+            <div class="essential-header-sticky-inner">
+                <div class="essential-widget-holder essential--two">
                     <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
-                        <div class="widget qodef-switcher">
-                            <div class="qodef-switch">
-                                <input type="checkbox" name="switch" class="qodef-switch-input" id="qodef-switch-189"
-                                    :checked="!isDarkMode" @change="toggleDarkMode">
-                                <label class="qodef-switch-label" for="qodef-switch-189">
-                                    <span class="qodef-on-off-switch-inner"></span>
-                                    <span class="qodef-on-off-switch-switch">
-                                        <span class="qodef-switch--light">
-                                            <svg class="qodef-svg--sun" xmlns="http://www.w3.org/2000/svg"
+                        <div class="widget essential-switcher">
+                            <div class="essential-switch">
+                                <input type="checkbox" name="switch" class="essential-switch-input"
+                                    id="essential-switch-189" :checked="!isDarkMode" @change="toggleDarkMode">
+                                <label class="essential-switch-label" for="essential-switch-189">
+                                    <span class="essential-on-off-switch-inner"></span>
+                                    <span class="essential-on-off-switch-switch">
+                                        <span class="essential-switch--light">
+                                            <svg class="essential-svg--sun" xmlns="http://www.w3.org/2000/svg"
                                                 width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                <path class="qodef-path-fill"
+                                                <path class="essential-path-fill"
                                                     d="M9.649 12.281a2.538 2.538 0 0 0 1.864-.768 2.538 2.538 0 0 0 .768-1.864 2.538 2.538 0 0 0-.768-1.864 2.538 2.538 0 0 0-1.864-.768 2.538 2.538 0 0 0-1.864.768 2.538 2.538 0 0 0-.768 1.864 2.538 2.538 0 0 0 .768 1.864 2.538 2.538 0 0 0 1.864.768Zm0 1.754a4.227 4.227 0 0 1-3.1-1.283 4.227 4.227 0 0 1-1.283-3.1 4.227 4.227 0 0 1 1.283-3.1 4.227 4.227 0 0 1 3.1-1.283 4.227 4.227 0 0 1 3.1 1.283 4.227 4.227 0 0 1 1.283 3.1 4.227 4.227 0 0 1-1.283 3.1 4.227 4.227 0 0 1-3.1 1.283Zm-6.14-3.509H0V8.772h3.509Zm15.79 0H15.79V8.772h3.51ZM8.773 3.508V0h1.754v3.509Zm0 15.79v-3.509h1.754v3.509ZM4.738 5.921 2.523 3.794 3.773 2.5l2.105 2.193ZM15.526 16.8 13.4 14.583l1.162-1.206 2.215 2.127ZM13.377 4.739l2.127-2.215 1.294 1.25-2.193 2.105ZM2.5 15.526l2.215-2.127 1.206 1.162-2.127 2.215Zm7.149-5.877Z">
                                                 </path>
-                                                <g class="qodef-path-outline" fill="none">
+                                                <g class="essential-path-outline" fill="none">
                                                     <circle cx="9.649" cy="9.649" r="4.227" />
                                                     <line x1="9.649" y1="0" x2="9.649" y2="3.509" />
                                                     <line x1="9.649" y1="15.79" x2="9.649" y2="19.298" />
@@ -275,13 +278,13 @@
                                                 </g>
                                             </svg>
                                         </span>
-                                        <span class="qodef-switch--dark">
-                                            <svg class="qodef-svg--moon" xmlns="http://www.w3.org/2000/svg"
+                                        <span class="essential-switch--dark">
+                                            <svg class="essential-svg--moon" xmlns="http://www.w3.org/2000/svg"
                                                 width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                <path class="qodef-path-fill"
+                                                <path class="essential-path-fill"
                                                     d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Zm0-2.144a7.261 7.261 0 0 0 4.235-1.3 7.519 7.519 0 0 0 2.734-3.391q-.536.134-1.072.214a7.22 7.22 0 0 1-1.072.08 7.648 7.648 0 0 1-5.615-2.318 7.648 7.648 0 0 1-2.318-5.615 7.218 7.218 0 0 1 .08-1.072q.08-.536.214-1.072a7.519 7.519 0 0 0-3.391 2.734 7.261 7.261 0 0 0-1.3 4.235 7.231 7.231 0 0 0 2.2 5.307 7.231 7.231 0 0 0 5.305 2.196Zm-.268-7.239Z">
                                                 </path>
-                                                <path class="qodef-path-outline" fill="none"
+                                                <path class="essential-path-outline" fill="none"
                                                     d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Z">
                                                 </path>
                                             </svg>
@@ -293,7 +296,7 @@
                     </div>
                 </div>
 
-                <nav class="qodef-header-navigation" role="navigation" aria-label="Top Menu">
+                <nav class="essential-header-navigation" role="navigation" aria-label="Top Menu">
                     <ul id="menu-main-menu-2" class="menu">
                         <NavMenuItem text="INICIO" :link="{ name: 'home' }" />
                         <NavMenuItem text="SERVICIOS" :link="{ name: 'services' }" />
@@ -331,10 +334,10 @@
                     </ul>
                 </nav>
 
-                <div class="qodef-widget-holder qodef--one">
-                    <button class="qodef-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
-                        <span class="qodef-m-icon">
-                            <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                <div class="essential-widget-holder essential--one">
+                    <button class="essential-mobile-menu-opener" @click="toggleMobileMenu" aria-label="Toggle menu">
+                        <span class="essential-m-icon">
+                            <svg class="essential-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
                                 height="41.477" viewBox="0 0 41.477 41.477">
                                 <g>
                                     <g transform="translate(8.257 8.257)">
@@ -354,12 +357,13 @@
                         </span>
                     </button>
 
-                    <div class="widget widget_moreau_core_side_area_opener qodef-desktop-only" data-area="main-home">
+                    <div class="widget widget_moreau_core_side_area_opener essential-desktop-only"
+                        data-area="main-home">
                         <a href="javascript:void(0)"
-                            class="qodef-opener-icon qodef-m qodef-source--predefined qodef-side-area-opener"
+                            class="essential-opener-icon essential-m essential-source--predefined essential-side-area-opener"
                             @click="toggleSideArea">
-                            <span class="qodef-m-icon qodef--open">
-                                <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
+                            <span class="essential-m-icon essential--open">
+                                <svg class="essential-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477"
                                     height="41.477" viewBox="0 0 41.477 41.477">
                                     <g>
                                         <g transform="translate(8.257 8.257)">
@@ -476,8 +480,8 @@
         }
 
         // Header Sticky - Detectar scroll
-        const headerSticky = document.querySelector('.qodef-header-sticky');
-        const headerNormal = document.querySelector('#qodef-page-header');
+        const headerSticky = document.querySelector('.essential-header-sticky');
+        const headerNormal = document.querySelector('#essential-page-header');
         let lastScrollTop = 0;
 
         const handleScroll = () => {
@@ -488,10 +492,10 @@
             // El sticky se oculta cuando el header normal vuelve a estar en foco (scroll < altura del header)
             if (scrollTop > headerHeight) {
                 // Header normal ya no es visible - mostrar sticky
-                headerSticky?.classList.add('qodef--sticky');
+                headerSticky?.classList.add('essential--sticky');
             } else {
                 // Header normal está en foco - ocultar sticky
-                headerSticky?.classList.remove('qodef--sticky');
+                headerSticky?.classList.remove('essential--sticky');
             }
 
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
@@ -529,18 +533,18 @@
     };
 
     const toggleSubmenu = (event) => {
-        const parent = event.currentTarget.closest('.qodef-has-submenu');
+        const parent = event.currentTarget.closest('.essential-has-submenu');
         if (!parent) {
             return;
         }
-        parent.classList.toggle('qodef--opened');
+        parent.classList.toggle('essential--opened');
     };
 </script>
 
 <style scoped>
 
     /* Header Base */
-    #qodef-page-header {
+    #essential-page-header {
         position: relative;
         display: inline-block;
         width: 100%;
@@ -551,15 +555,15 @@
         box-sizing: border-box;
     }
 
-    .qodef-header--standard-no-logo #qodef-page-header {
+    .essential-header--standard-no-logo #essential-page-header {
         background-color: rgba(0, 0, 0, 0);
     }
 
     /* Header transparente solo en servicios (dark mode) - Máxima especificidad */
-    header#qodef-page-header.qodef-header--standard-no-logo.qodef-header--transparent,
-    header#qodef-page-header.qodef-header--transparent.qodef-header--standard-no-logo,
-    .qodef-header--standard-no-logo.qodef-header--transparent #qodef-page-header,
-    .qodef-header--transparent.qodef-header--standard-no-logo #qodef-page-header {
+    header#essential-page-header.essential-header--standard-no-logo.essential-header--transparent,
+    header#essential-page-header.essential-header--transparent.essential-header--standard-no-logo,
+    .essential-header--standard-no-logo.essential-header--transparent #essential-page-header,
+    .essential-header--transparent.essential-header--standard-no-logo #essential-page-header {
         background-color: transparent !important;
         background: transparent !important;
         position: absolute !important;
@@ -568,94 +572,94 @@
         z-index: 1000 !important;
     }
 
-    .qodef-header--standard-no-logo.qodef-header--transparent #qodef-page-header-inner,
-    .qodef-header--transparent.qodef-header--standard-no-logo #qodef-page-header-inner {
+    .essential-header--standard-no-logo.essential-header--transparent #essential-page-header-inner,
+    .essential-header--transparent.essential-header--standard-no-logo #essential-page-header-inner {
         background-color: transparent !important;
         border-bottom: 1px solid rgb(255, 255, 255) !important;
     }
 
-    /* Texto blanco en menú cuando header es transparente - Solo header normal (#qodef-page-header-inner), no sticky */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+    /* Texto blanco en menú cuando header es transparente - Solo header normal (#essential-page-header-inner), no sticky */
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-header-navigation>ul>li>a>.essential-menu-item-text,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text) {
         color: #ffffff !important;
     }
 
     /* Background del :before para hover en header transparente - debe ser negro */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before),
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-menu-item-link .qodef-menu-item-text:before) {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-header-navigation>ul>li>a>.essential-menu-item-text:before,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text:before),
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-menu-item-link .essential-menu-item-text:before) {
         background-color: #171717 !important;
     }
 
     /* Hover de nav links cuando header es transparente - fondo negro, letra blanca (sin cambiar color) - Solo header normal */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before),
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-menu-item-link:hover .qodef-menu-item-text:before),
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a:hover .qodef-menu-item-text:before) {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before),
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-menu-item-link:hover .essential-menu-item-text:before),
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a:hover .essential-menu-item-text:before) {
         background-color: #171717 !important;
         transform: scaleX(1) !important;
     }
 
     /* Estado activo en header transparente - fondo negro, letra blanca (similar al hover pero permanente) */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text) {
         color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before) {
         background-color: #171717 !important;
         transform: scaleX(1);
     }
 
-    /* Botones estilo dark mode cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button {
+    /* Botones estilo dark mode cuando header es transparente - Solo header normal (#essential-page-header-inner) */
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .auth-nav-button {
         border-color: rgba(255, 255, 255, 0.3) !important;
         color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--ghost:hover {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .auth-nav-button--ghost:hover {
         background-color: #ffffff !important;
         color: #171717 !important;
         border-color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--primary {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .auth-nav-button--primary {
         border-color: #ffffff !important;
         background-color: #DD3333 !important;
         color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .auth-nav-button--primary:hover {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .auth-nav-button--primary:hover {
         background-color: #c42b2b !important;
         border-color: #c42b2b !important;
     }
 
-    /* Mobile menu opener - blanco cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-mobile-menu-opener {
+    /* Mobile menu opener - blanco cuando header es transparente - Solo header normal (#essential-page-header-inner) */
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-mobile-menu-opener {
         color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-mobile-menu-opener svg {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-mobile-menu-opener svg {
         color: #ffffff !important;
     }
 
-    /* Side area opener - blanco cuando header es transparente - Solo header normal (#qodef-page-header-inner) */
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener {
+    /* Side area opener - blanco cuando header es transparente - Solo header normal (#essential-page-header-inner) */
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-side-area-opener {
         color: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-side-area-opener svg {
         color: #ffffff !important;
         stroke: #ffffff !important;
     }
 
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg ellipse,
-    #qodef-page-header.qodef-header--transparent #qodef-page-header-inner .qodef-side-area-opener svg path {
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-side-area-opener svg ellipse,
+    #essential-page-header.essential-header--transparent #essential-page-header-inner .essential-side-area-opener svg path {
         stroke: #ffffff !important;
     }
 
-    #qodef-page-header-inner {
+    #essential-page-header-inner {
         position: relative;
         display: flex;
         align-items: center;
@@ -666,7 +670,7 @@
         box-sizing: border-box;
     }
 
-    .qodef-header-wrapper {
+    .essential-header-wrapper {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -676,22 +680,22 @@
     }
 
     /* Widget Holder */
-    .qodef-widget-holder {
+    .essential-widget-holder {
         display: flex;
         align-items: center;
         flex-shrink: 0;
     }
 
-    .qodef-widget-holder.qodef--one {
+    .essential-widget-holder.essential--one {
         order: 3;
     }
 
-    .qodef-widget-holder.qodef--two {
+    .essential-widget-holder.essential--two {
         order: 1;
     }
 
     /* Navigation */
-    .qodef-header-navigation {
+    .essential-header-navigation {
         height: 100%;
         order: 2;
         flex: 1;
@@ -699,13 +703,13 @@
         justify-content: space-between;
     }
 
-    .qodef-header-navigation ul {
+    .essential-header-navigation ul {
         margin: 0 !important;
         padding: 0;
         list-style: none;
     }
 
-    .qodef-header-navigation>ul {
+    .essential-header-navigation>ul {
         position: relative;
         display: flex;
         align-items: center;
@@ -715,8 +719,8 @@
         white-space: nowrap;
     }
 
-    .qodef-header-navigation>ul>li,
-    :deep(.qodef-header-navigation>ul>li) {
+    .essential-header-navigation>ul>li,
+    :deep(.essential-header-navigation>ul>li) {
         position: relative;
         height: 100%;
         margin: 8px;
@@ -725,18 +729,18 @@
         justify-content: center;
     }
 
-    .qodef-header-navigation>ul>li:first-child,
-    :deep(.qodef-header-navigation>ul>li:first-child) {
+    .essential-header-navigation>ul>li:first-child,
+    :deep(.essential-header-navigation>ul>li:first-child) {
         margin-left: 0;
     }
 
-    .qodef-header-navigation>ul>li:last-child,
-    :deep(.qodef-header-navigation>ul>li:last-child) {
+    .essential-header-navigation>ul>li:last-child,
+    :deep(.essential-header-navigation>ul>li:last-child) {
         margin-right: 0;
     }
 
-    .qodef-header-navigation>ul>li>a,
-    :deep(.qodef-header-navigation>ul>li>a) {
+    .essential-header-navigation>ul>li>a,
+    :deep(.essential-header-navigation>ul>li>a) {
         position: relative;
         display: flex;
         align-items: center;
@@ -750,20 +754,20 @@
         text-decoration: none;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow>a,
-    :deep(.qodef-header-navigation>ul>li.qodef-menu-item--narrow>a) {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow>a,
+    :deep(.essential-header-navigation>ul>li.essential-menu-item--narrow>a) {
         cursor: pointer;
     }
 
-    .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
-    :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+    .essential-header-navigation>ul>li>a>.essential-menu-item-text,
+    :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text) {
         position: relative;
         transition: color 0.15s ease-out;
         padding: 0 5px 1px;
     }
 
-    .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
-    :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before) {
+    .essential-header-navigation>ul>li>a>.essential-menu-item-text:before,
+    :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text:before) {
         content: '';
         position: absolute;
         top: 0;
@@ -777,29 +781,29 @@
         z-index: -1;
     }
 
-    .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text,
-    :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text) {
+    .essential-header-navigation>ul>li>a:hover>.essential-menu-item-text,
+    :deep(.essential-header-navigation>ul>li>a:hover>.essential-menu-item-text) {
         color: var(--qode-background-color);
     }
 
-    .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
-    :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before) {
+    .essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before,
+    :deep(.essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before) {
         transform: scaleX(1);
     }
 
     /* Estado activo - fondo negro, letra blanca (similar al hover pero permanente) */
-    .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
-    :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+    .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text,
+    :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text) {
         color: var(--qode-background-color);
     }
 
-    .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
-    :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
+    .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before,
+    :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before) {
         transform: scaleX(1);
     }
 
     /* Menu Arrow */
-    .qodef-header-navigation ul li a .qodef-menu-item-arrow {
+    .essential-header-navigation ul li a .essential-menu-item-arrow {
         position: absolute;
         top: calc(50% - 3px);
         right: 0;
@@ -809,14 +813,14 @@
         margin-left: 5px;
     }
 
-    .qodef-svg--menu-arrow {
+    .essential-svg--menu-arrow {
         fill: currentColor;
         width: 6.05px;
         height: 9.272px;
     }
 
     /* Submenu - Estilos legacy para compatibilidad */
-    .qodef-header-navigation ul li.qodef-menu-item--narrow ul {
+    .essential-header-navigation ul li.essential-menu-item--narrow ul {
         position: absolute;
         top: 100%;
         left: 30px;
@@ -832,18 +836,18 @@
         z-index: 1000;
     }
 
-    .qodef-header-navigation ul li.qodef-menu-item--narrow ul li {
+    .essential-header-navigation ul li.essential-menu-item--narrow ul li {
         padding: 0 34px;
         margin: 0;
     }
 
-    .qodef-header-navigation ul li.qodef-menu-item--narrow:hover>ul {
+    .essential-header-navigation ul li.essential-menu-item--narrow:hover>ul {
         opacity: 1;
         visibility: visible;
         transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul li>a {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow ul li>a {
         color: #ffffff;
         font-family: "Inter", sans-serif;
         font-size: 17px;
@@ -853,7 +857,7 @@
         text-decoration: none;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li>a {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow ul:not(.essential-drop-down--right) li>a {
         position: relative;
         display: flex;
         white-space: normal;
@@ -863,7 +867,7 @@
         padding-right: 15px;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li>a:before {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow ul:not(.essential-drop-down--right) li>a:before {
         content: '';
         position: absolute;
         top: calc(50% - 3px);
@@ -874,17 +878,17 @@
         left: -15px;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li:hover>a {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow ul:not(.essential-drop-down--right) li:hover>a {
         padding-left: 15px;
         padding-right: 0;
     }
 
-    .qodef-header-navigation>ul>li.qodef-menu-item--narrow ul:not(.qodef-drop-down--right) li:hover>a:before {
+    .essential-header-navigation>ul>li.essential-menu-item--narrow ul:not(.essential-drop-down--right) li:hover>a:before {
         left: 0;
     }
 
     /* Dropdown Second - Estilos para el dropdown reutilizable (usando :deep para componentes hijos) */
-    :deep(.qodef-drop-down-second) {
+    :deep(.essential-drop-down-second) {
         position: absolute;
         top: 100%;
         left: 30px;
@@ -896,18 +900,18 @@
         z-index: 1000;
     }
 
-    :deep(.qodef-header-navigation>ul>li.qodef-menu-item--narrow:hover .qodef-drop-down-second) {
+    :deep(.essential-header-navigation>ul>li.essential-menu-item--narrow:hover .essential-drop-down-second) {
         opacity: 1;
         visibility: visible;
         transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
     }
 
-    :deep(.qodef-drop-down-second-inner) {
+    :deep(.essential-drop-down-second-inner) {
         padding: 14px 0;
         background-color: #DD3333;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu) {
+    :deep(.essential-drop-down-second .sub-menu) {
         position: relative;
         background-color: #DD3333;
         padding: 0;
@@ -915,12 +919,12 @@
         list-style: none;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu li) {
+    :deep(.essential-drop-down-second .sub-menu li) {
         padding: 0 34px;
         margin: 0;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu li a) {
+    :deep(.essential-drop-down-second .sub-menu li a) {
         position: relative;
         display: flex;
         white-space: normal;
@@ -937,7 +941,7 @@
         text-decoration: none;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu li a:before) {
+    :deep(.essential-drop-down-second .sub-menu li a:before) {
         content: '';
         position: absolute;
         top: calc(50% - 3px);
@@ -948,17 +952,17 @@
         left: -15px;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu li:hover a) {
+    :deep(.essential-drop-down-second .sub-menu li:hover a) {
         padding-left: 15px;
         padding-right: 0;
     }
 
-    :deep(.qodef-drop-down-second .sub-menu li:hover a:before) {
+    :deep(.essential-drop-down-second .sub-menu li:hover a:before) {
         left: 0;
     }
 
     /* Side Area Opener */
-    .qodef-side-area-opener {
+    .essential-side-area-opener {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -968,14 +972,14 @@
         padding: 0;
     }
 
-    .qodef-opener-icon {
+    .essential-opener-icon {
         display: inline-block;
         text-decoration: none;
         color: var(--qode-text-color);
         transition: transform 0.3s ease;
     }
 
-    .qodef-opener-icon svg {
+    .essential-opener-icon svg {
         display: block;
         width: 41.477px;
         height: 41.477px;
@@ -984,26 +988,26 @@
         transition: transform 0.3s ease;
     }
 
-    .qodef-opener-icon:hover svg {
+    .essential-opener-icon:hover svg {
         transform: rotate(90deg);
     }
 
     /* Círculo del SVG */
-    .qodef-opener-icon svg ellipse {
+    .essential-opener-icon svg ellipse {
         fill: none;
         stroke: currentColor;
         stroke-width: 1.5;
     }
 
     /* Líneas de la cruz (paths) - mismo grosor que el círculo */
-    .qodef-opener-icon svg path {
+    .essential-opener-icon svg path {
         stroke: currentColor;
         stroke-width: 2;
         fill: none;
         stroke-linecap: round;
     }
 
-    .qodef-m-icon {
+    .essential-m-icon {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1012,12 +1016,12 @@
     }
 
     /* Switch (Dark/Light Mode) - Toggle tipo pill */
-    .qodef-switcher {
+    .essential-switcher {
         display: flex;
         align-items: center;
     }
 
-    .qodef-switcher .qodef-switch {
+    .essential-switcher .essential-switch {
         position: relative;
         width: 71px;
         margin: 0;
@@ -1026,11 +1030,11 @@
         user-select: none;
     }
 
-    .qodef-switcher .qodef-switch .qodef-switch-input {
+    .essential-switcher .essential-switch .essential-switch-input {
         display: none;
     }
 
-    .qodef-switcher .qodef-switch .qodef-switch-label {
+    .essential-switcher .essential-switch .essential-switch-label {
         display: block;
         overflow: hidden;
         cursor: pointer;
@@ -1042,12 +1046,12 @@
         transition: border-color 0.3s ease, background-color 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-inner {
+    .essential-switcher .essential-switch .essential-on-off-switch-inner {
         display: block;
         transition: margin 0.3s ease-in 0s;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -1055,116 +1059,116 @@
         padding: 0 10px;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         transition: color 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 0.5;
         transition: color 0.3s ease, opacity 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch svg {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch svg {
         display: block;
     }
 
     /* Estilos base - ocultar outline por defecto */
-    .qodef-path-outline {
+    .essential-path-outline {
         display: none;
     }
 
-    .qodef-path-fill {
+    .essential-path-fill {
         fill: currentColor;
         stroke: none;
     }
 
     /* Cuando está checked (dark mode activo) - sol activo (blanco en dark, negro en light), luna outline */
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         opacity: 1;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-fill {
         display: block;
         fill: currentColor;
         stroke: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline {
         display: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 0.5;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-fill {
         display: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-svg--moon {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-svg--moon {
         transform: scale(0.95);
         transform-origin: center;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline {
         display: block;
         stroke: currentColor;
         stroke-width: 1.2;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline circle,
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline line,
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline path {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline circle,
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline line,
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline path {
         stroke: currentColor;
         stroke-width: 1.2;
         fill: none;
     }
 
     /* Cuando está unchecked (light mode activo) - luna activo (blanco en dark, negro en light), sol outline */
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         opacity: 0.5;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-fill {
         display: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline {
         display: block;
         stroke: currentColor;
         stroke-width: 1.2;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline circle,
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline line {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline circle,
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline line {
         stroke: currentColor;
         stroke-width: 1.2;
         fill: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 1;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-fill {
         display: block;
         fill: currentColor;
         stroke: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline {
         display: none;
     }
 
 
     /* Header Sticky */
-    .qodef-header-sticky {
+    .essential-header-sticky {
         position: fixed;
         top: 0;
         left: 0;
@@ -1182,49 +1186,49 @@
         max-width: 100vw;
     }
 
-    body.dark-mode .qodef-header-sticky {
+    body.dark-mode .essential-header-sticky {
         background-color: #171717;
         border-bottom: 1px solid #ffffff;
     }
 
     /* Sticky header siempre mantiene estilos normales independientemente del header transparente */
-    .qodef-header-sticky--normal {
+    .essential-header-sticky--normal {
         background-color: #ffffff;
         border-bottom: 1px solid #000000;
     }
 
-    body.dark-mode .qodef-header-sticky--normal {
+    body.dark-mode .essential-header-sticky--normal {
         background-color: #171717;
         border-bottom: 1px solid #ffffff;
     }
 
-    .qodef-header-sticky--normal.qodef-appearance--down {
+    .essential-header-sticky--normal.essential-appearance--down {
         background-color: #ffffff;
         border-bottom: 1px solid #000000;
     }
 
-    body.dark-mode .qodef-header-sticky--normal.qodef-appearance--down {
+    body.dark-mode .essential-header-sticky--normal.essential-appearance--down {
         background-color: #171717;
         border-bottom: 1px solid #ffffff;
     }
 
-    .qodef-header-sticky.qodef-appearance--down {
+    .essential-header-sticky.essential-appearance--down {
         background-color: #ffffff;
         border-bottom: 1px solid #000000;
     }
 
-    body.dark-mode .qodef-header-sticky.qodef-appearance--down {
+    body.dark-mode .essential-header-sticky.essential-appearance--down {
         background-color: #171717;
         border-bottom: 1px solid #ffffff;
     }
 
-    .qodef-header-sticky.qodef-appearance--down.qodef--sticky {
+    .essential-header-sticky.essential-appearance--down.essential--sticky {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
     }
 
-    .qodef-header-sticky-inner {
+    .essential-header-sticky-inner {
         position: relative;
         display: flex;
         align-items: center;
@@ -1234,7 +1238,7 @@
         box-sizing: border-box;
     }
 
-    .qodef-header-sticky .qodef-header-wrapper {
+    .essential-header-sticky .essential-header-wrapper {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -1243,82 +1247,82 @@
     }
 
     /* Sticky header mantiene estilos normales usando clase específica */
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a>.qodef-menu-item-text,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a>.essential-menu-item-text,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text) {
         color: var(--qode-text-color);
     }
 
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a:hover>.essential-menu-item-text,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a:hover>.essential-menu-item-text) {
         color: var(--qode-background-color);
     }
 
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a:hover>.qodef-menu-item-text:before) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a:hover>.essential-menu-item-text:before) {
         transform: scaleX(1);
     }
 
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a>.qodef-menu-item-text:before) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a>.essential-menu-item-text:before,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a>.essential-menu-item-text:before) {
         background-color: var(--qode-heading-color);
     }
 
     /* Estado activo - fondo negro, letra blanca (similar al hover pero permanente) */
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text) {
         color: var(--qode-background-color);
     }
 
-    .qodef-header-sticky--normal .qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before,
-    .qodef-header-sticky--normal :deep(.qodef-header-navigation>ul>li>a.router-link-active>.qodef-menu-item-text:before) {
+    .essential-header-sticky--normal .essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before,
+    .essential-header-sticky--normal :deep(.essential-header-navigation>ul>li>a.router-link-active>.essential-menu-item-text:before) {
         transform: scaleX(1);
     }
 
-    .qodef-header-sticky--normal .auth-nav-button {
+    .essential-header-sticky--normal .auth-nav-button {
         border-color: var(--qode-border-color);
         color: var(--qode-text-color);
     }
 
-    body.dark-mode .qodef-header-sticky--normal .auth-nav-button {
+    body.dark-mode .essential-header-sticky--normal .auth-nav-button {
         border-color: var(--qode-border-color);
         color: var(--qode-text-color);
     }
 
-    .qodef-header-sticky--normal .auth-nav-button--ghost:hover {
+    .essential-header-sticky--normal .auth-nav-button--ghost:hover {
         background-color: var(--qode-heading-color);
         color: var(--qode-background-color);
     }
 
-    body.dark-mode .qodef-header-sticky--normal .auth-nav-button--ghost:hover {
+    body.dark-mode .essential-header-sticky--normal .auth-nav-button--ghost:hover {
         background-color: #ffffff;
         color: #171717;
     }
 
-    .qodef-header-sticky--normal .auth-nav-button--primary {
+    .essential-header-sticky--normal .auth-nav-button--primary {
         background-color: #DD3333;
         border-color: #DD3333;
         color: #ffffff;
     }
 
-    .qodef-header-sticky--normal .auth-nav-button--primary:hover {
+    .essential-header-sticky--normal .auth-nav-button--primary:hover {
         background-color: #c42b2b;
         border-color: #c42b2b;
     }
 
-    body.dark-mode .qodef-header-sticky--normal .auth-nav-button--primary {
+    body.dark-mode .essential-header-sticky--normal .auth-nav-button--primary {
         border-color: #ffffff;
     }
 
-    .qodef-header-sticky--normal .qodef-mobile-menu-opener {
+    .essential-header-sticky--normal .essential-mobile-menu-opener {
         color: var(--qode-text-color);
     }
 
-    .qodef-header-sticky--normal .qodef-mobile-menu-opener svg {
+    .essential-header-sticky--normal .essential-mobile-menu-opener svg {
         color: var(--qode-text-color);
     }
 
     /* Mobile Menu Opener */
-    .qodef-mobile-menu-opener {
+    .essential-mobile-menu-opener {
         display: none;
         background: none;
         border: none;
@@ -1328,11 +1332,11 @@
         transition: transform 0.3s ease;
     }
 
-    .qodef-mobile-menu-opener:hover {
+    .essential-mobile-menu-opener:hover {
         transform: rotate(90deg);
     }
 
-    .qodef-mobile-menu-opener .qodef-m-icon {
+    .essential-mobile-menu-opener .essential-m-icon {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1340,7 +1344,7 @@
         height: 41.477px;
     }
 
-    .qodef-mobile-menu-opener svg {
+    .essential-mobile-menu-opener svg {
         display: block;
         width: 41.477px;
         height: 41.477px;
@@ -1349,25 +1353,25 @@
         transition: transform 0.3s ease;
     }
 
-    .qodef-mobile-menu-opener svg ellipse {
+    .essential-mobile-menu-opener svg ellipse {
         fill: none;
         stroke: currentColor;
         stroke-width: 1.5;
     }
 
-    .qodef-mobile-menu-opener svg path {
+    .essential-mobile-menu-opener svg path {
         stroke: currentColor;
         stroke-width: 2;
         fill: none;
         stroke-linecap: round;
     }
 
-    .qodef-desktop-only {
+    .essential-desktop-only {
         display: flex;
     }
 
     /* Mobile Menu */
-    .qodef-mobile-menu {
+    .essential-mobile-menu {
         position: fixed;
         top: 0;
         left: 0;
@@ -1381,12 +1385,12 @@
         padding: 80px 20px 40px;
     }
 
-    .qodef-mobile-menu.qodef--opened {
+    .essential-mobile-menu.essential--opened {
         transform: translateX(0);
     }
 
     /* Close Button inside mobile menu */
-    .qodef-mobile-menu-close {
+    .essential-mobile-menu-close {
         position: fixed;
         top: 20px;
         right: 20px;
@@ -1404,11 +1408,11 @@
         transition: transform 0.3s ease;
     }
 
-    .qodef-mobile-menu-close:hover {
+    .essential-mobile-menu-close:hover {
         transform: rotate(90deg);
     }
 
-    .qodef-mobile-menu-close svg {
+    .essential-mobile-menu-close svg {
         display: block;
         width: 100%;
         height: 100%;
@@ -1416,25 +1420,25 @@
         stroke: currentColor;
     }
 
-    .qodef-mobile-menu-navigation {
+    .essential-mobile-menu-navigation {
         margin-bottom: 40px;
     }
 
-    .qodef-mobile-menu-list {
+    .essential-mobile-menu-list {
         list-style: none;
         margin: 0;
         padding: 0;
     }
 
-    .qodef-mobile-menu-list>li {
+    .essential-mobile-menu-list>li {
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .qodef-mobile-menu-list>li:last-child {
+    .essential-mobile-menu-list>li:last-child {
         border-bottom: none;
     }
 
-    .qodef-mobile-menu-list>li>a {
+    .essential-mobile-menu-list>li>a {
         display: block;
         padding: 20px 0;
         font-family: "IBM Plex Mono", sans-serif;
@@ -1445,14 +1449,14 @@
         text-decoration: none;
     }
 
-    .qodef-mobile-submenu-header {
+    .essential-mobile-submenu-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
     }
 
-    .qodef-mobile-submenu-header>a {
+    .essential-mobile-submenu-header>a {
         flex: 1;
         display: block;
         padding: 20px 0;
@@ -1464,7 +1468,7 @@
         text-decoration: none;
     }
 
-    .qodef-submenu-toggle {
+    .essential-submenu-toggle {
         display: inline-flex;
         flex-shrink: 0;
         align-items: center;
@@ -1479,7 +1483,7 @@
         transition: border-color 0.3s ease, background-color 0.3s ease;
     }
 
-    .qodef-submenu-toggle span {
+    .essential-submenu-toggle span {
         display: block;
         width: 16px;
         height: 1.5px;
@@ -1487,20 +1491,20 @@
         transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
-    .qodef-submenu-toggle span:last-child {
+    .essential-submenu-toggle span:last-child {
         margin-top: 6px;
     }
 
-    .qodef-submenu-toggle:hover {
+    .essential-submenu-toggle:hover {
         border-color: #ffffff;
         background-color: rgba(255, 255, 255, 0.12);
     }
 
-    .qodef-mobile-menu-list>li.qodef-has-submenu>a {
+    .essential-mobile-menu-list>li.essential-has-submenu>a {
         position: relative;
     }
 
-    .qodef-mobile-menu-list>li.qodef-has-submenu>a:after {
+    .essential-mobile-menu-list>li.essential-has-submenu>a:after {
         content: '+';
         position: absolute;
         right: 0;
@@ -1508,23 +1512,23 @@
         transition: transform 0.3s ease;
     }
 
-    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle span:first-child {
+    .essential-has-submenu.essential--opened .essential-submenu-toggle span:first-child {
         transform: translateY(3px) rotate(45deg);
     }
 
-    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle span:last-child {
+    .essential-has-submenu.essential--opened .essential-submenu-toggle span:last-child {
         transform: translateY(-3px) rotate(-45deg);
     }
 
-    .qodef-has-submenu.qodef--opened .qodef-submenu-toggle:hover {
+    .essential-has-submenu.essential--opened .essential-submenu-toggle:hover {
         background-color: rgba(255, 255, 255, 0.25);
     }
 
-    .qodef-mobile-menu-list>li.qodef-has-submenu.qodef--opened>a:after {
+    .essential-mobile-menu-list>li.essential-has-submenu.essential--opened>a:after {
         transform: rotate(45deg);
     }
 
-    .qodef-submenu {
+    .essential-submenu {
         list-style: none;
         margin: 0;
         padding: 0;
@@ -1533,11 +1537,11 @@
         transition: max-height 0.3s ease-out;
     }
 
-    .qodef-has-submenu.qodef--opened .qodef-submenu {
+    .essential-has-submenu.essential--opened .essential-submenu {
         max-height: 300px;
     }
 
-    .qodef-submenu li a {
+    .essential-submenu li a {
         display: block;
         padding: 12px 0 12px 20px;
         font-family: "Inter", sans-serif;
@@ -1548,22 +1552,22 @@
     }
 
     /* Mobile Side Area Content */
-    .qodef-mobile-side-area {
+    .essential-mobile-side-area {
         border-top: 1px solid rgba(255, 255, 255, 0.2);
         padding-top: 40px;
         text-align: center;
     }
 
-    .qodef-mobile-logo {
+    .essential-mobile-logo {
         margin-bottom: 30px;
     }
 
-    .qodef-mobile-logo img {
+    .essential-mobile-logo img {
         max-width: 250px;
         height: auto;
     }
 
-    .qodef-mobile-separator {
+    .essential-mobile-separator {
         width: 100%;
         height: 1px;
         background-color: #3b44cd;
@@ -1572,7 +1576,7 @@
         border: none;
     }
 
-    .qodef-mobile-title {
+    .essential-mobile-title {
         font-family: 'Lexend', sans-serif;
         font-size: 32px;
         font-weight: 700;
@@ -1581,7 +1585,7 @@
         margin: 0 0 20px 0;
     }
 
-    .qodef-mobile-company {
+    .essential-mobile-company {
         font-family: 'Inter', sans-serif;
         font-size: 16px;
         font-weight: 400;
@@ -1591,7 +1595,7 @@
         line-height: 1.6;
     }
 
-    .qodef-mobile-email a {
+    .essential-mobile-email a {
         font-family: 'Inter', sans-serif;
         font-size: 16px;
         font-weight: 400;
@@ -1702,33 +1706,33 @@
     @media (max-width: 1024px) {
 
         /* Ocultar navegación desktop */
-        .qodef-header-navigation {
+        .essential-header-navigation {
             display: none;
         }
 
         /* Mostrar burger menu */
-        .qodef-mobile-menu-opener {
+        .essential-mobile-menu-opener {
             display: block;
         }
 
         /* Ocultar side area opener en móvil */
-        .qodef-desktop-only {
+        .essential-desktop-only {
             display: none;
         }
     }
 
     @media (max-width: 1024px) {
 
-        #qodef-page-header-inner,
-        .qodef-header-sticky-inner {
+        #essential-page-header-inner,
+        .essential-header-sticky-inner {
             padding: 0 30px;
         }
     }
 
     @media (max-width: 680px) {
 
-        #qodef-page-header-inner,
-        .qodef-header-sticky-inner {
+        #essential-page-header-inner,
+        .essential-header-sticky-inner {
             padding: 0 20px;
         }
     }

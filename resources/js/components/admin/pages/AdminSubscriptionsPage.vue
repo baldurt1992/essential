@@ -89,15 +89,14 @@
                                     </div>
                                 </td>
                                 <td class="admin-table__actions">
-                                    <button v-if="!subscription.cancel_at_period_end" type="button" 
+                                    <button v-if="!subscription.cancel_at_period_end" type="button"
                                         class="admin-icon-button admin-icon-button--danger"
                                         v-tooltip.bottom="cancelTooltip(subscription)"
                                         :disabled="!canCancel(subscription)"
                                         @click="confirmCancel($event, subscription)">
                                         <i class="pi pi-times"></i>
                                     </button>
-                                    <button v-else type="button" 
-                                        class="admin-icon-button admin-icon-button--success"
+                                    <button v-else type="button" class="admin-icon-button admin-icon-button--success"
                                         v-tooltip.bottom="reactivateTooltip(subscription)"
                                         :disabled="!canReactivate(subscription)"
                                         @click="confirmReactivate($event, subscription)">
@@ -162,8 +161,8 @@
             target: event.currentTarget,
             message: `¿Cancelar la renovación del plan "${subscription.plan?.name}"?`,
             icon: 'pi pi-times-circle',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--danger',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--danger',
             acceptLabel: 'Cancelar renovación',
             rejectLabel: 'Volver',
             accept: async () => {
@@ -193,8 +192,8 @@
             target: event.currentTarget,
             message: `¿Reactivar la renovación del plan "${subscription.plan?.name}"?`,
             icon: 'pi pi-refresh',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--primary',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--primary',
             acceptLabel: 'Reactivar renovación',
             rejectLabel: 'Volver',
             accept: async () => {

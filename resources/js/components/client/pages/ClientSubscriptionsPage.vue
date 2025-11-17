@@ -13,14 +13,14 @@
 
         <div v-else-if="subscriptionsStore.hasError.value" class="client-subscriptions__error">
             <p>{{ subscriptionsStore.state.error }}</p>
-            <button @click="subscriptionsStore.fetchSubscriptions()" class="qodef-button qodef-button--primary">
+            <button @click="subscriptionsStore.fetchSubscriptions()" class="essential-button essential-button--primary">
                 Reintentar
             </button>
         </div>
 
         <div v-else-if="subscriptionsStore.subscriptions.value.length === 0" class="client-subscriptions__empty">
             <p>No tienes suscripciones</p>
-            <RouterLink :to="{ name: 'plans' }" class="qodef-button qodef-button--primary">
+            <RouterLink :to="{ name: 'plans' }" class="essential-button essential-button--primary">
                 Ver planes disponibles
             </RouterLink>
         </div>
@@ -67,7 +67,7 @@
                             <i class="pi pi-info-circle"></i>
                             <span v-if="subscription.will_cancel && subscription.current_period_end">
                                 Tu suscripción finalizará el <strong>{{ formatDate(subscription.current_period_end)
-                                }}</strong> y perderás el acceso a los beneficios del plan.
+                                    }}</strong> y perderás el acceso a los beneficios del plan.
                             </span>
                             <span v-else-if="subscription.current_period_end">
                                 Tu suscripción se renueva automáticamente el <strong>{{
@@ -80,15 +80,15 @@
                     </div>
                     <div v-if="subscription.is_active && !subscription.will_cancel"
                         class="client-subscription-card__actions">
-                        <button @click="confirmCancel($event, subscription)" class="qodef-button qodef-button--ghost"
-                            :disabled="isCanceling">
+                        <button @click="confirmCancel($event, subscription)"
+                            class="essential-button essential-button--ghost" :disabled="isCanceling">
                             Cancelar suscripción
                         </button>
                     </div>
                     <div v-if="subscription.is_active && subscription.will_cancel"
                         class="client-subscription-card__actions">
                         <button type="button" @click="confirmReactivate($event, subscription)"
-                            class="qodef-button qodef-button--primary" :disabled="isCanceling">
+                            class="essential-button essential-button--primary" :disabled="isCanceling">
                             Reactivar suscripción
                         </button>
                     </div>
@@ -144,8 +144,8 @@
             target: event.currentTarget,
             message: `¿Cancelar la renovación del plan "${subscription.plan?.name}"?`,
             icon: 'pi pi-times-circle',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--danger',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--danger',
             acceptLabel: 'Cancelar renovación',
             rejectLabel: 'Volver',
             accept: async () => {
@@ -191,8 +191,8 @@
             target: event.currentTarget,
             message: `¿Reactivar la facturación automática del plan "${subscription.plan?.name}"?`,
             icon: 'pi pi-check-circle',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--primary',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--primary',
             acceptLabel: 'Reactivar',
             rejectLabel: 'Cancelar',
             accept: async () => {
@@ -377,13 +377,13 @@
         justify-content: flex-end;
     }
 
-    .client-subscription-card__actions .qodef-button--primary {
+    .client-subscription-card__actions .essential-button--primary {
         background: #dd3333 !important;
         color: #ffffff !important;
         border-color: #dd3333 !important;
     }
 
-    .client-subscription-card__actions .qodef-button--primary:hover:not(:disabled) {
+    .client-subscription-card__actions .essential-button--primary:hover:not(:disabled) {
         background: #c42b2b !important;
         border-color: #c42b2b !important;
     }

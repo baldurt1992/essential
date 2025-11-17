@@ -1,10 +1,12 @@
 <template>
-    <div id="qodef-side-area" ref="sideAreaRef" class="qodef-side-area" :class="{ 'qodef--opened': isOpen }">
+    <div id="essential-side-area" ref="sideAreaRef" class="essential-side-area"
+        :class="{ 'essential--opened': isOpen }">
         <!-- Close Button -->
-        <a href="javascript:void(0)" id="qodef-side-area-close"
-            class="qodef-opener-icon qodef-m qodef-source--predefined qodef--opened" @click="closeSideArea">
-            <span class="qodef-m-icon">
-                <svg class="qodef-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477" height="41.477"
+        <a href="javascript:void(0)" id="essential-side-area-close"
+            class="essential-opener-icon essential-m essential-source--predefined essential--opened"
+            @click="closeSideArea">
+            <span class="essential-m-icon">
+                <svg class="essential-svg--menu" xmlns="http://www.w3.org/2000/svg" width="41.477" height="41.477"
                     viewBox="0 0 41.477 41.477">
                     <g>
                         <g transform="translate(8.257 8.257)">
@@ -25,11 +27,12 @@
         </a>
 
         <!-- Side Area Inner Content -->
-        <div id="qodef-side-area-inner" class="qodef-side-area-inner">
+        <div id="essential-side-area-inner" class="essential-side-area-inner">
             <!-- Logo -->
             <div class="widget widget_moreau_core_single_image">
-                <div class="qodef-shortcode qodef-m qodef-single-image qodef-layout--default qodef--retina">
-                    <div class="qodef-m-image">
+                <div
+                    class="essential-shortcode essential-m essential-single-image essential-layout--default essential--retina">
+                    <div class="essential-m-image">
                         <img loading="lazy" itemprop="image" src="/images/logo-web-negro.png" width="1000" height="150"
                             alt="Essential Innovation">
                     </div>
@@ -38,14 +41,14 @@
 
             <!-- Separator Line -->
             <div class="widget widget_moreau_core_separator">
-                <div class="qodef-shortcode qodef-m qodef-separator clear qodef-show--yes">
-                    <div class="qodef-m-line"></div>
+                <div class="essential-shortcode essential-m essential-separator clear essential-show--yes">
+                    <div class="essential-m-line"></div>
                 </div>
             </div>
 
             <!-- Title -->
             <div class="widget widget_moreau_core_title_widget">
-                <h2 class="qodef-widget-title">
+                <h2 class="essential-widget-title">
                     Ponte en Contacto
                 </h2>
             </div>
@@ -133,7 +136,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500&display=swap');
 
     /* Side Area Base */
-    #qodef-side-area {
+    #essential-side-area {
         position: fixed;
         top: 0;
         right: 0;
@@ -148,12 +151,12 @@
         overflow-x: hidden;
     }
 
-    #qodef-side-area.qodef--opened {
+    #essential-side-area.essential--opened {
         transform: translateX(0);
     }
 
     /* Close Button */
-    #qodef-side-area-close {
+    #essential-side-area-close {
         position: absolute;
         top: 40px;
         right: 40px;
@@ -168,18 +171,18 @@
         transition: transform 0.3s ease;
     }
 
-    #qodef-side-area-close:hover {
+    #essential-side-area-close:hover {
         transform: rotate(90deg);
     }
 
-    #qodef-side-area-close svg {
+    #essential-side-area-close svg {
         display: block;
         width: 100%;
         height: 100%;
     }
 
     /* Side Area Inner Content */
-    .qodef-side-area-inner {
+    .essential-side-area-inner {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -197,18 +200,18 @@
     }
 
     /* Logo */
-    .qodef-single-image {
+    .essential-single-image {
         margin-bottom: 55px;
         width: 100%;
     }
 
-    .qodef-m-image {
+    .essential-m-image {
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
-    .qodef-m-image img {
+    .essential-m-image img {
         max-width: 400px;
         width: 100%;
         height: auto;
@@ -216,12 +219,12 @@
     }
 
     /* Separator Line */
-    .qodef-separator {
+    .essential-separator {
         margin-bottom: 55px;
         width: 100%;
     }
 
-    .qodef-m-line {
+    .essential-m-line {
         width: 100%;
         height: 1px;
         background-color: #3b44cd;
@@ -233,7 +236,7 @@
     }
 
     /* Title */
-    .qodef-widget-title {
+    .essential-widget-title {
         font-family: 'Lexend', sans-serif;
         font-size: clamp(32px, 5vw, 48px);
         font-weight: 700;
@@ -282,16 +285,16 @@
 
     /* Responsive */
     @media (max-width: 680px) {
-        #qodef-side-area-close {
+        #essential-side-area-close {
             top: 20px;
             right: 20px;
         }
 
-        .qodef-side-area-inner {
+        .essential-side-area-inner {
             padding: 80px 20px 20px;
         }
 
-        .qodef-widget-title {
+        .essential-widget-title {
             font-size: 32px;
         }
 

@@ -10,7 +10,7 @@
                             placeholder="Ej. Flyer Summer Party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('title')" class="template-form__error">{{ fieldError('title')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             placeholder="flyer-summer-party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('slug')" class="template-form__error">{{ fieldError('slug')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -50,7 +50,7 @@
                             @input="clearFieldError('price')" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('price')" class="template-form__error">{{ fieldError('price')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('sort_order')" class="template-form__error">{{
                                 fieldError('sort_order')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -124,7 +124,8 @@
                     <input ref="previewInputRef" type="file" accept="image/png,image/jpeg,image/webp"
                         class="template-form__file-input" @change="onPreviewChange" />
                     <div class="template-form__upload-actions">
-                        <button type="button" class="qodef-button qodef-button--ghost" @click="triggerPreviewPick">
+                        <button type="button" class="essential-button essential-button--ghost"
+                            @click="triggerPreviewPick">
                             Seleccionar imagen
                         </button>
                         <button v-if="previewFile || previewUrl" type="button" class="template-form__link"
@@ -151,7 +152,8 @@
                     <input ref="packageInputRef" type="file" accept=".zip,.rar" class="template-form__file-input"
                         @change="onPackageChange" />
                     <div class="template-form__upload-actions">
-                        <button type="button" class="qodef-button qodef-button--ghost" @click="triggerPackagePick">
+                        <button type="button" class="essential-button essential-button--ghost"
+                            @click="triggerPackagePick">
                             Seleccionar archivo
                         </button>
                         <button v-if="packageFile" type="button" class="template-form__link" @click="clearPackage">
@@ -161,7 +163,7 @@
                     <div class="template-form__error-slot">
                         <small v-if="fieldError('package_file')" class="template-form__error">{{
                             fieldError('package_file')
-                            }}</small>
+                        }}</small>
                     </div>
                 </div>
             </aside>
@@ -172,10 +174,11 @@
         </div>
 
         <footer class="template-form__actions">
-            <button type="button" class="qodef-button qodef-button--ghost" @click="emit('cancel')" :disabled="saving">
+            <button type="button" class="essential-button essential-button--ghost" @click="emit('cancel')"
+                :disabled="saving">
                 Cancelar
             </button>
-            <button type="submit" class="qodef-button qodef-button--primary" :disabled="saving">
+            <button type="submit" class="essential-button essential-button--primary" :disabled="saving">
                 <span v-if="saving" class="template-form__spinner"></span>
                 <span>{{ submitLabel }}</span>
             </button>

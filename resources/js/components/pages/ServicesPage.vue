@@ -1,5 +1,5 @@
 <template>
-    <div class="services-page qodef-content-behind-header">
+    <div class="services-page essential-content-behind-header">
         <!-- Video de fondo -->
         <section class="services-hero-video">
             <div class="services-hero-video-container">
@@ -35,8 +35,7 @@
                 <div class="services-image-gallery__grid">
                     <div v-for="(service, index) in services" :key="service.id || index"
                         class="services-image-gallery__item">
-                        <Image v-if="service.imageUrl" :src="service.imageUrl" 
-                            :alt="service.title || 'Service image'"
+                        <Image v-if="service.imageUrl" :src="service.imageUrl" :alt="service.title || 'Service image'"
                             class="services-image-gallery__image" preview />
                     </div>
                 </div>

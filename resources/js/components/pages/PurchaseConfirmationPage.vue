@@ -14,7 +14,7 @@
                 {{ displayErrorMessage }}
             </p>
             <div class="purchase-confirmation__actions">
-                <RouterLink :to="{ name: 'templates' }" class="qodef-button qodef-button--ghost">
+                <RouterLink :to="{ name: 'templates' }" class="essential-button essential-button--ghost">
                     Volver a plantillas
                 </RouterLink>
             </div>
@@ -31,7 +31,7 @@
                 <p class="purchase-confirmation__resend-message">
                     ¿No recibiste el correo? Espera un minuto y luego puedes reenviarlo.
                 </p>
-                <Button @click="handleResendLink" class="qodef-button qodef-button--primary"
+                <Button @click="handleResendLink" class="essential-button essential-button--primary"
                     :disabled="isResending || !canResend">
                     <i class="pi pi-envelope"></i>
                     <span v-if="!isResending">Reenviar enlace de descarga</span>
@@ -43,7 +43,7 @@
             </div>
 
             <div class="purchase-confirmation__actions">
-                <RouterLink :to="{ name: 'templates' }" class="qodef-button qodef-button--ghost">
+                <RouterLink :to="{ name: 'templates' }" class="essential-button essential-button--ghost">
                     Explorar más plantillas
                 </RouterLink>
             </div>
@@ -334,7 +334,7 @@
             width: 100%;
         }
 
-        .purchase-confirmation__actions .qodef-button {
+        .purchase-confirmation__actions .essential-button {
             width: 100%;
         }
     }

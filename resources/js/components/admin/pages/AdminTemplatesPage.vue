@@ -8,7 +8,7 @@
                     Administra tu catálogo de diseños, establece precios y controla qué se muestra como destacado.
                 </p>
             </div>
-            <button type="button" class="admin-page__action qodef-button qodef-button--primary"
+            <button type="button" class="admin-page__action essential-button essential-button--primary"
                 @click="openCreateModal">
                 <i class="pi pi-plus"></i>
                 <span>Nueva plantilla</span>
@@ -81,7 +81,7 @@
                                 </td>
                                 <td>
                                     <span class="admin-table__timestamp">{{ formatUpdatedAt(template.updated_at)
-                                        }}</span>
+                                    }}</span>
                                 </td>
                                 <td class="admin-table__actions">
                                     <button type="button" class="admin-icon-button"
@@ -194,7 +194,7 @@
                 if (import.meta.env.DEV) {
                     console.debug('[admin][templates][update][dataToSend]', {
                         isFormData: dataToSend instanceof FormData,
-                        hasPackageFile: dataToSend instanceof FormData 
+                        hasPackageFile: dataToSend instanceof FormData
                             ? dataToSend.has('package_file')
                             : 'package_file' in dataToSend,
                     });
@@ -247,8 +247,8 @@
             target: event.currentTarget,
             message: `¿Eliminar definitivamente la plantilla "${template.title}"?`,
             icon: 'pi pi-trash',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--danger',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--danger',
             acceptLabel: 'Eliminar',
             rejectLabel: 'Cancelar',
             accept: async () => {

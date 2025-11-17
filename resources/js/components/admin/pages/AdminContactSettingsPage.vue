@@ -8,7 +8,7 @@
                 </p>
             </div>
 
-            <button type="button" class="qodef-button qodef-button--ghost" @click="resetForm"
+            <button type="button" class="essential-button essential-button--ghost" @click="resetForm"
                 :disabled="isSaving || !hasChanges">
                 Restablecer
             </button>
@@ -34,7 +34,7 @@
                                 :class="{ 'p-invalid': fieldError('email') }" placeholder="hola@essentialinnovation.com"
                                 @input="clearFieldError('email')" />
                             <small v-if="fieldError('email')" class="contact-form__error">{{ fieldError('email')
-                            }}</small>
+                                }}</small>
                         </div>
 
                         <div class="contact-form__field">
@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="contact-socials__actions">
-                        <button type="button" class="qodef-button qodef-button--ghost" @click="addSocialLink"
+                        <button type="button" class="essential-button essential-button--ghost" @click="addSocialLink"
                             :disabled="!availableNetworkOptions.length || isSaving">
                             <i class="pi pi-plus"></i>
                             <span>Agregar red</span>
@@ -151,7 +151,7 @@
                         {{ generalError }}
                     </Message>
 
-                    <button type="submit" class="qodef-button qodef-button--primary" :disabled="isSaving">
+                    <button type="submit" class="essential-button essential-button--primary" :disabled="isSaving">
                         <span v-if="isSaving" class="contact-form__spinner"></span>
                         <span>Guardar cambios</span>
                     </button>

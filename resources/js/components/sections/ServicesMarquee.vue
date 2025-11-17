@@ -1,15 +1,15 @@
 <template>
     <div class="services-marquee-container">
         <div
-            class="qodef-shortcode qodef-m qodef-text-marquee qodef-text-marquee-services qodef-layout--default qodef-direction--left qodef-separator--icon qodef--init">
-            <div class="qodef-m-content">
+            class="essential-shortcode essential-m essential-text-marquee essential-text-marquee-services essential-layout--default essential-direction--left essential-separator--icon essential--init">
+            <div class="essential-m-content">
                 <!-- Primera copia -->
-                <div class="qodef-m-content-inner">
+                <div class="essential-m-content-inner">
                     <template v-for="(service, index) in services" :key="`service-${index}`">
-                        <span class="qodef-m-text" :class="`qodef--${(index % 5) + 1}`">
+                        <span class="essential-m-text" :class="`essential--${(index % 5) + 1}`">
                             {{ service.title.toLowerCase() }}
                         </span>
-                        <span class="qodef-m-separator">
+                        <span class="essential-m-separator">
                             <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 33 33">
                                 <g transform="translate(-8505 1420)">
                                     <g transform="translate(8506 -1419)" fill="#fff" stroke="#171717" stroke-width="1">
@@ -35,12 +35,12 @@
                     </template>
                 </div>
                 <!-- Segunda copia para el loop infinito -->
-                <div class="qodef-m-content-inner qodef--copy">
+                <div class="essential-m-content-inner essential--copy">
                     <template v-for="(service, index) in services" :key="`service-copy-${index}`">
-                        <span class="qodef-m-text" :class="`qodef--${(index % 5) + 1}`">
+                        <span class="essential-m-text" :class="`essential--${(index % 5) + 1}`">
                             {{ service.title.toLowerCase() }}
                         </span>
-                        <span class="qodef-m-separator">
+                        <span class="essential-m-separator">
                             <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 33 33">
                                 <g transform="translate(-8505 1420)">
                                     <g transform="translate(8506 -1419)" fill="#fff" stroke="#171717" stroke-width="1">
@@ -66,12 +66,12 @@
                     </template>
                 </div>
                 <!-- Tercera copia para asegurar que siempre haya contenido visible -->
-                <div class="qodef-m-content-inner qodef--copy">
+                <div class="essential-m-content-inner essential--copy">
                     <template v-for="(service, index) in services" :key="`service-copy2-${index}`">
-                        <span class="qodef-m-text" :class="`qodef--${(index % 5) + 1}`">
+                        <span class="essential-m-text" :class="`essential--${(index % 5) + 1}`">
                             {{ service.title.toLowerCase() }}
                         </span>
-                        <span class="qodef-m-separator">
+                        <span class="essential-m-separator">
                             <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 33 33">
                                 <g transform="translate(-8505 1420)">
                                     <g transform="translate(8506 -1419)" fill="#fff" stroke="#171717" stroke-width="1">
@@ -142,20 +142,20 @@
         z-index: 1;
     }
 
-    .qodef-text-marquee {
+    .essential-text-marquee {
         position: relative;
         width: 100%;
         overflow: hidden;
     }
 
-    .qodef-m-content {
+    .essential-m-content {
         display: flex;
         width: fit-content;
         animation: marquee-left 18s linear infinite;
         will-change: transform;
     }
 
-    .qodef-m-content-inner {
+    .essential-m-content-inner {
         display: flex;
         align-items: center;
         white-space: nowrap;
@@ -165,7 +165,7 @@
         padding: 0;
     }
 
-    .qodef-m-text {
+    .essential-m-text {
         font-family: 'IBM Plex Mono', monospace;
         font-size: 13px;
         font-weight: 500;
@@ -184,7 +184,7 @@
         flex-shrink: 0;
     }
 
-    .qodef-m-separator {
+    .essential-m-separator {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -192,7 +192,7 @@
         margin: 0 12px;
     }
 
-    .qodef-m-separator svg {
+    .essential-m-separator svg {
         width: 33px;
         height: 33px;
         display: block;
@@ -210,12 +210,12 @@
     }
 
     /* Dark mode */
-    body.dark-mode .qodef-m-text {
+    body.dark-mode .essential-m-text {
         color: var(--qode-text-color);
     }
 
     /* SVG del marquee siempre mantiene fondo blanco, no se afecta por dark mode */
-    .qodef-m-separator svg {
+    .essential-m-separator svg {
         background-color: #ffffff;
         border-radius: 50%;
     }

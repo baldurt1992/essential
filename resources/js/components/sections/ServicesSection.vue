@@ -26,9 +26,8 @@
                                 <span>{{ service.description }}</span>
                             </div>
                             <div class="qodef-e-image" :data-distort-id="`distort-${index}`">
-                                <Image :src="service.image" :alt="service.title"
-                                    class="attachment-full size-full" :data-filter-id="`filter-distort-${index}`" 
-                                    preview />
+                                <Image :src="service.image" :alt="service.title" class="attachment-full size-full"
+                                    :data-filter-id="`filter-distort-${index}`" preview />
                                 <svg class="qodef-svg--distort" width="100" height="100" viewBox="0 0 100 100"
                                     :data-strength="25">
                                     <defs>
@@ -229,7 +228,6 @@
 </script>
 
 <style scoped>
-    @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400&display=swap');
 
     .services-section {
         position: relative;

@@ -11,7 +11,7 @@
                             placeholder="Ej. Gestión de redes" />
                         <div class="service-form__error-slot">
                             <small v-if="fieldError('title')" class="service-form__error">{{ fieldError('title')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             placeholder="gestion-redes" />
                         <div class="service-form__error-slot">
                             <small v-if="fieldError('slug')" class="service-form__error">{{ fieldError('slug')
-                                }}</small>
+                            }}</small>
                         </div>
                     </div>
 
@@ -88,7 +88,7 @@
                     <input ref="imageRef" type="file" accept="image/png,image/jpeg,image/webp"
                         class="service-form__file-input" @change="onImageChange" />
                     <div class="service-form__upload-actions">
-                        <button type="button" class="qodef-button qodef-button--ghost" @click="pickImage">
+                        <button type="button" class="essential-button essential-button--ghost" @click="pickImage">
                             Seleccionar imagen
                         </button>
                         <button v-if="imageFile || imageUrl" type="button" class="service-form__link"
@@ -108,10 +108,11 @@
         </div>
 
         <footer class="service-form__actions">
-            <button type="button" class="qodef-button qodef-button--ghost" @click="emit('cancel')" :disabled="saving">
+            <button type="button" class="essential-button essential-button--ghost" @click="emit('cancel')"
+                :disabled="saving">
                 Cancelar
             </button>
-            <button type="submit" class="qodef-button qodef-button--primary" :disabled="saving">
+            <button type="submit" class="essential-button essential-button--primary" :disabled="saving">
                 <span v-if="saving" class="service-form__spinner"></span>
                 <span>{{ submitLabel }}</span>
             </button>

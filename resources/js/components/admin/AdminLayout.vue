@@ -16,7 +16,7 @@
 
             <div class="admin-sidebar__footer">
                 <RouterLink :to="{ name: 'home' }"
-                    class="admin-sidebar__home-button qodef-button qodef-button--primary">
+                    class="admin-sidebar__home-button essential-button essential-button--primary">
                     <i class="pi pi-home"></i>
                     <span>Home</span>
                 </RouterLink>
@@ -54,20 +54,20 @@
                     <!-- Dark Mode Toggle -->
                     <div class="admin-header__dark-mode-toggle">
                         <div class="widget widget_moreau_core_switcher" data-area="main-home-2">
-                            <div class="widget qodef-switcher">
-                                <div class="qodef-switch">
-                                    <input type="checkbox" name="switch" class="qodef-switch-input" id="admin-dark-mode-switch"
-                                        :checked="!isDarkMode" @change="toggleDarkMode">
-                                    <label class="qodef-switch-label" for="admin-dark-mode-switch">
-                                        <span class="qodef-on-off-switch-inner"></span>
-                                        <span class="qodef-on-off-switch-switch">
-                                            <span class="qodef-switch--light">
-                                                <svg class="qodef-svg--sun" xmlns="http://www.w3.org/2000/svg"
+                            <div class="widget essential-switcher">
+                                <div class="essential-switch">
+                                    <input type="checkbox" name="switch" class="essential-switch-input"
+                                        id="admin-dark-mode-switch" :checked="!isDarkMode" @change="toggleDarkMode">
+                                    <label class="essential-switch-label" for="admin-dark-mode-switch">
+                                        <span class="essential-on-off-switch-inner"></span>
+                                        <span class="essential-on-off-switch-switch">
+                                            <span class="essential-switch--light">
+                                                <svg class="essential-svg--sun" xmlns="http://www.w3.org/2000/svg"
                                                     width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                    <path class="qodef-path-fill"
+                                                    <path class="essential-path-fill"
                                                         d="M9.649 12.281a2.538 2.538 0 0 0 1.864-.768 2.538 2.538 0 0 0 .768-1.864 2.538 2.538 0 0 0-.768-1.864 2.538 2.538 0 0 0-1.864-.768 2.538 2.538 0 0 0-1.864.768 2.538 2.538 0 0 0-.768 1.864 2.538 2.538 0 0 0 .768 1.864 2.538 2.538 0 0 0 1.864.768Zm0 1.754a4.227 4.227 0 0 1-3.1-1.283 4.227 4.227 0 0 1-1.283-3.1 4.227 4.227 0 0 1 1.283-3.1 4.227 4.227 0 0 1 3.1-1.283 4.227 4.227 0 0 1 3.1 1.283 4.227 4.227 0 0 1 1.283 3.1 4.227 4.227 0 0 1-1.283 3.1 4.227 4.227 0 0 1-3.1 1.283Zm-6.14-3.509H0V8.772h3.509Zm15.79 0H15.79V8.772h3.51ZM8.773 3.508V0h1.754v3.509Zm0 15.79v-3.509h1.754v3.509ZM4.738 5.921 2.523 3.794 3.773 2.5l2.105 2.193ZM15.526 16.8 13.4 14.583l1.162-1.206 2.215 2.127ZM13.377 4.739l2.127-2.215 1.294 1.25-2.193 2.105ZM2.5 15.526l2.215-2.127 1.206 1.162-2.127 2.215Zm7.149-5.877Z">
                                                     </path>
-                                                    <g class="qodef-path-outline" fill="none">
+                                                    <g class="essential-path-outline" fill="none">
                                                         <circle cx="9.649" cy="9.649" r="4.227" />
                                                         <line x1="9.649" y1="0" x2="9.649" y2="3.509" />
                                                         <line x1="9.649" y1="15.79" x2="9.649" y2="19.298" />
@@ -80,13 +80,13 @@
                                                     </g>
                                                 </svg>
                                             </span>
-                                            <span class="qodef-switch--dark">
-                                                <svg class="qodef-svg--moon" xmlns="http://www.w3.org/2000/svg"
+                                            <span class="essential-switch--dark">
+                                                <svg class="essential-svg--moon" xmlns="http://www.w3.org/2000/svg"
                                                     width="19.298" height="19.298" viewBox="0 0 19.298 19.298">
-                                                    <path class="qodef-path-fill"
+                                                    <path class="essential-path-fill"
                                                         d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Zm0-2.144a7.261 7.261 0 0 0 4.235-1.3 7.519 7.519 0 0 0 2.734-3.391q-.536.134-1.072.214a7.22 7.22 0 0 1-1.072.08 7.648 7.648 0 0 1-5.615-2.318 7.648 7.648 0 0 1-2.318-5.615 7.218 7.218 0 0 1 .08-1.072q.08-.536.214-1.072a7.519 7.519 0 0 0-3.391 2.734 7.261 7.261 0 0 0-1.3 4.235 7.231 7.231 0 0 0 2.2 5.307 7.231 7.231 0 0 0 5.305 2.196Zm-.268-7.239Z">
                                                     </path>
-                                                    <path class="qodef-path-outline" fill="none"
+                                                    <path class="essential-path-outline" fill="none"
                                                         d="M9.649 19.3a9.305 9.305 0 0 1-6.835-2.814A9.305 9.305 0 0 1 0 9.649a9.305 9.305 0 0 1 2.814-6.835A9.305 9.305 0 0 1 9.649 0q.375 0 .737.027t.71.08A5.674 5.674 0 0 0 9.34 2.131a5.692 5.692 0 0 0-.657 2.694 5.583 5.583 0 0 0 1.689 4.1 5.583 5.583 0 0 0 4.1 1.689 5.668 5.668 0 0 0 2.707-.657 5.707 5.707 0 0 0 2.01-1.756q.054.348.08.71t.027.737a9.305 9.305 0 0 1-2.814 6.835A9.305 9.305 0 0 1 9.649 19.3Z">
                                                     </path>
                                                 </svg>
@@ -101,7 +101,7 @@
                         <span class="admin-header__user-name">{{ auth.user.value?.name }}</span>
                         <span class="admin-header__user-email">{{ auth.user.value?.email }}</span>
                     </div>
-                    <button type="button" class="admin-header__logout-button qodef-button qodef-button--ghost"
+                    <button type="button" class="admin-header__logout-button essential-button essential-button--ghost"
                         @click="handleLogout" v-tooltip.bottom="'Cerrar sesión'" aria-label="Cerrar sesión">
                         <i class="pi pi-sign-out"></i>
                     </button>
@@ -523,12 +523,12 @@
     }
 
     /* Dark Mode Toggle Styles */
-    .qodef-switcher {
+    .essential-switcher {
         display: flex;
         align-items: center;
     }
 
-    .qodef-switcher .qodef-switch {
+    .essential-switcher .essential-switch {
         position: relative;
         width: 71px;
         margin: 0;
@@ -537,11 +537,11 @@
         user-select: none;
     }
 
-    .qodef-switcher .qodef-switch .qodef-switch-input {
+    .essential-switcher .essential-switch .essential-switch-input {
         display: none;
     }
 
-    .qodef-switcher .qodef-switch .qodef-switch-label {
+    .essential-switcher .essential-switch .essential-switch-label {
         display: block;
         overflow: hidden;
         cursor: pointer;
@@ -553,12 +553,12 @@
         transition: border-color 0.3s ease, background-color 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-inner {
+    .essential-switcher .essential-switch .essential-on-off-switch-inner {
         display: block;
         transition: margin 0.3s ease-in 0s;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -566,107 +566,107 @@
         padding: 0 10px;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         transition: color 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 0.5;
         transition: color 0.3s ease, opacity 0.3s ease;
     }
 
-    .qodef-switcher .qodef-switch .qodef-on-off-switch-switch svg {
+    .essential-switcher .essential-switch .essential-on-off-switch-switch svg {
         display: block;
     }
 
-    .qodef-path-outline {
+    .essential-path-outline {
         display: none;
     }
 
-    .qodef-path-fill {
+    .essential-path-fill {
         fill: currentColor;
         stroke: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         opacity: 1;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-fill {
         display: block;
         fill: currentColor;
         stroke: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline {
         display: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 0.5;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-fill {
         display: none;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-svg--moon {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-svg--moon {
         transform: scale(0.95);
         transform-origin: center;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline {
         display: block;
         stroke: currentColor;
         stroke-width: 1.2;
     }
 
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline circle,
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline line,
-    .qodef-switch-input:checked+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline path {
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline circle,
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline line,
+    .essential-switch-input:checked+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline path {
         stroke: currentColor;
         stroke-width: 1.2;
         fill: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light {
         color: var(--qode-text-color);
         opacity: 0.5;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-fill {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-fill {
         display: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline {
         display: block;
         stroke: currentColor;
         stroke-width: 1.2;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline circle,
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--light .qodef-path-outline line {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline circle,
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--light .essential-path-outline line {
         stroke: currentColor;
         stroke-width: 1.2;
         fill: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark {
         color: var(--qode-text-color);
         opacity: 1;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-fill {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-fill {
         display: block;
         fill: currentColor;
         stroke: none;
     }
 
-    .qodef-switch-input:not(:checked)+.qodef-switch-label .qodef-on-off-switch-switch .qodef-switch--dark .qodef-path-outline {
+    .essential-switch-input:not(:checked)+.essential-switch-label .essential-on-off-switch-switch .essential-switch--dark .essential-path-outline {
         display: none;
     }
 </style>

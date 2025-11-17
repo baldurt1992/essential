@@ -12,14 +12,14 @@
 
         <div v-else-if="purchasesStore.hasError.value" class="client-purchases__error">
             <p>{{ purchasesStore.state.error }}</p>
-            <button @click="purchasesStore.fetchPurchases()" class="qodef-button qodef-button--primary">
+            <button @click="purchasesStore.fetchPurchases()" class="essential-button essential-button--primary">
                 Reintentar
             </button>
         </div>
 
         <div v-else-if="purchasesStore.purchases.value.length === 0" class="client-purchases__empty">
             <p>No has realizado compras aún</p>
-            <RouterLink :to="{ name: 'templates' }" class="qodef-button qodef-button--primary">
+            <RouterLink :to="{ name: 'templates' }" class="essential-button essential-button--primary">
                 Explorar plantillas
             </RouterLink>
         </div>
@@ -64,13 +64,14 @@
                                 class="client-purchase-card__code-error">
                                 {{ getPurchaseState(purchase.uuid).code_error }}
                             </p>
-                            <button @click="handleValidateCode(purchase)" class="qodef-button qodef-button--primary"
+                            <button @click="handleValidateCode(purchase)"
+                                class="essential-button essential-button--primary"
                                 :disabled="!getPurchaseState(purchase.uuid).code_input || getPurchaseState(purchase.uuid).code_input.length !== 14 || isValidating">
                                 <span v-if="!isValidating">Validar código</span>
                                 <span v-else>Validando...</span>
                             </button>
                         </div>
-                        <button @click="handleResendCode(purchase)" class="qodef-button qodef-button--ghost"
+                        <button @click="handleResendCode(purchase)" class="essential-button essential-button--ghost"
                             :disabled="isResending">
                             <i class="pi pi-envelope"></i>
                             Reenviar código por email
@@ -78,7 +79,7 @@
                     </div>
                     <div v-if="getPurchaseState(purchase.uuid).code_validated && getPurchaseState(purchase.uuid).download_url"
                         class="client-purchase-card__actions">
-                        <button @click="handleDownload(purchase)" class="qodef-button qodef-button--primary"
+                        <button @click="handleDownload(purchase)" class="essential-button essential-button--primary"
                             :disabled="isDownloading">
                             <i class="pi pi-download"></i>
                             <span v-if="!isDownloading">Descargar plantilla</span>
@@ -102,7 +103,7 @@
         </div>
 
         <template #footer>
-            <Button @click="showDownloadErrorDialog = false" class="qodef-button qodef-button--primary">
+            <Button @click="showDownloadErrorDialog = false" class="essential-button essential-button--primary">
                 Entendido
             </Button>
         </template>

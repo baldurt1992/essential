@@ -35,88 +35,12 @@
 </template>
 
 <script setup>
-    import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
+    import { useParallax } from '@/composables/home/useParallax';
 
-    const heroContainer = ref(null);
-    const maxOffset = 40;
-    const offsetX = ref(0);
-    const offsetY = ref(0);
-    const targetOffsetX = ref(0);
-    const targetOffsetY = ref(0);
-    const easing = 0.12;
-    const isMobile = ref(false);
-    let animationFrameId = null;
-
-    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
-    const checkMobile = () => {
-        isMobile.value = window.innerWidth <= 1024;
-    };
-
-    onMounted(() => {
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-    });
-
-    const heroImageStyle = computed(() => {
-        // No aplicar parallax en responsive
-        if (isMobile.value) {
-            return {};
-        }
-        return {
-            transform: `translate(-50%, 0) translate(${offsetX.value}px, ${offsetY.value}px)`
-        };
-    });
-
-    const animate = () => {
-        const deltaX = targetOffsetX.value - offsetX.value;
-        const deltaY = targetOffsetY.value - offsetY.value;
-
-        offsetX.value += deltaX * easing;
-        offsetY.value += deltaY * easing;
-
-        if (Math.abs(deltaX) < 0.1 && Math.abs(deltaY) < 0.1) {
-            offsetX.value = targetOffsetX.value;
-            offsetY.value = targetOffsetY.value;
-            animationFrameId = null;
-            return;
-        }
-
-        animationFrameId = requestAnimationFrame(animate);
-    };
-
-    const ensureAnimation = () => {
-        if (animationFrameId === null) {
-            animationFrameId = requestAnimationFrame(animate);
-        }
-    };
-
-    const handleMouseMove = (event) => {
-        // No aplicar parallax en responsive
-        if (isMobile.value || !heroContainer.value) {
-            return;
-        }
-
-        const rect = heroContainer.value.getBoundingClientRect();
-        const relativeX = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-        const relativeY = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-
-        targetOffsetX.value = clamp(-relativeX * maxOffset, -maxOffset, maxOffset);
-        targetOffsetY.value = clamp(-relativeY * maxOffset, -maxOffset, maxOffset);
-        ensureAnimation();
-    };
-
-    const resetOffsets = () => {
-        targetOffsetX.value = 0;
-        targetOffsetY.value = 0;
-        ensureAnimation();
-    };
-
-    onBeforeUnmount(() => {
-        if (animationFrameId !== null) {
-            cancelAnimationFrame(animationFrameId);
-        }
-        window.removeEventListener('resize', checkMobile);
+    const { containerRef: heroContainer, imageStyle: heroImageStyle, handleMouseMove, resetOffsets } = useParallax({
+        maxOffset: 40,
+        easing: 0.12,
+        breakpoint: 1024,
     });
 </script>
 
@@ -145,7 +69,7 @@
         font-family: 'Space Mono', monospace;
         font-size: clamp(220px, 18vw, 260px);
         font-weight: 700;
-        color: var(--qode-text-color);
+        color: var(--essential-text-color);
         text-transform: uppercase;
         letter-spacing: -10px;
         line-height: 25px;
@@ -187,7 +111,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 17px;
         font-weight: 400;
-        color: var(--qode-text-color);
+        color: var(--essential-text-color);
         line-height: 26px;
         margin: 0;
     }
@@ -204,7 +128,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 17px;
         font-weight: 400;
-        color: var(--qode-text-color);
+        color: var(--essential-text-color);
         line-height: 26px;
     }
 
@@ -212,7 +136,7 @@
         font-family: 'IBM Plex Mono', monospace;
         font-size: 14px;
         font-weight: 500;
-        color: var(--qode-text-color);
+        color: var(--essential-text-color);
         text-transform: uppercase;
         text-decoration: none;
         line-height: 25px;
@@ -229,7 +153,7 @@
         font-family: 'IBM Plex Mono', monospace;
         font-size: 14px;
         font-weight: 500;
-        color: var(--qode-text-color);
+        color: var(--essential-text-color);
         text-transform: uppercase;
         text-decoration: none;
         line-height: 25px;

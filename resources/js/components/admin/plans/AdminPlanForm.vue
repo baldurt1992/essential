@@ -31,9 +31,11 @@
                     <div class="plan-form__field" :class="{ 'plan-form__field--error': fieldError('description') }">
                         <label for="plan-description">Descripción</label>
                         <Textarea id="plan-description" v-model.trim="form.description" rows="4"
-                            placeholder="Describe el alcance del plan, beneficios y límites." @input="clearFieldError('description')" />
+                            placeholder="Describe el alcance del plan, beneficios y límites."
+                            @input="clearFieldError('description')" />
                         <div class="plan-form__error-slot">
-                            <small v-if="fieldError('description')" class="plan-form__error">{{ fieldError('description') }}</small>
+                            <small v-if="fieldError('description')" class="plan-form__error">{{
+                                fieldError('description') }}</small>
                         </div>
                     </div>
                 </div>
@@ -49,15 +51,18 @@
                         </div>
                     </div>
 
-                    <div class="plan-form__field" :class="{ 'plan-form__field--error': fieldError('billing_interval') }">
+                    <div class="plan-form__field"
+                        :class="{ 'plan-form__field--error': fieldError('billing_interval') }">
                         <label for="plan-interval">Frecuencia de cobro *</label>
                         <Dropdown id="plan-interval" v-model="selectedBillingInterval" :options="billingIntervalOptions"
                             optionLabel="label" optionValue="value" placeholder="Selecciona frecuencia"
                             @change="handleBillingIntervalChange" />
                         <small class="plan-form__help-text">{{ getIntervalDescription() }}</small>
                         <div class="plan-form__error-slot">
-                            <small v-if="fieldError('billing_interval')" class="plan-form__error">{{ fieldError('billing_interval') }}</small>
-                            <small v-if="fieldError('billing_interval_count')" class="plan-form__error">{{ fieldError('billing_interval_count') }}</small>
+                            <small v-if="fieldError('billing_interval')" class="plan-form__error">{{
+                                fieldError('billing_interval') }}</small>
+                            <small v-if="fieldError('billing_interval_count')" class="plan-form__error">{{
+                                fieldError('billing_interval_count') }}</small>
                         </div>
                     </div>
 
@@ -85,9 +90,11 @@
                         <label for="plan-download-limit">Límite de descargas mensual *</label>
                         <InputNumber input-id="plan-download-limit" v-model="form.download_limit" :min="1" :step="1"
                             placeholder="Ej. 10, 30, 100" @input="clearFieldError('download_limit')" />
-                        <small class="plan-form__help-text">Número de plantillas que el usuario puede descargar por mes. El contador se resetea automáticamente cada mes.</small>
+                        <small class="plan-form__help-text">Número de plantillas que el usuario puede descargar por mes.
+                            El contador se resetea automáticamente cada mes.</small>
                         <div class="plan-form__error-slot">
-                            <small v-if="fieldError('download_limit')" class="plan-form__error">{{ fieldError('download_limit') }}</small>
+                            <small v-if="fieldError('download_limit')" class="plan-form__error">{{
+                                fieldError('download_limit') }}</small>
                         </div>
                     </div>
                 </div>
@@ -103,7 +110,8 @@
                             @remove="removeTag(feature)" />
                     </div>
                     <div class="plan-form__error-slot">
-                        <small v-if="fieldError('features')" class="plan-form__error">{{ fieldError('features') }}</small>
+                        <small v-if="fieldError('features')" class="plan-form__error">{{ fieldError('features')
+                            }}</small>
                     </div>
                 </div>
 
@@ -113,7 +121,8 @@
                         <InputNumber input-id="plan-sort" v-model="form.sort_order" :min="0" :step="1"
                             @input="clearFieldError('sort_order')" />
                         <div class="plan-form__error-slot">
-                            <small v-if="fieldError('sort_order')" class="plan-form__error">{{ fieldError('sort_order') }}</small>
+                            <small v-if="fieldError('sort_order')" class="plan-form__error">{{ fieldError('sort_order')
+                                }}</small>
                         </div>
                     </div>
                 </div>
@@ -125,10 +134,11 @@
         </div>
 
         <footer class="plan-form__actions">
-            <button type="button" class="qodef-button qodef-button--ghost" @click="emit('cancel')" :disabled="saving">
+            <button type="button" class="essential-button essential-button--ghost" @click="emit('cancel')"
+                :disabled="saving">
                 Cancelar
             </button>
-            <button type="submit" class="qodef-button qodef-button--primary" :disabled="saving">
+            <button type="submit" class="essential-button essential-button--primary" :disabled="saving">
                 <span v-if="saving" class="plan-form__spinner"></span>
                 <span>{{ submitLabel }}</span>
             </button>
@@ -305,10 +315,10 @@
         if (!selectedBillingInterval.value) {
             return 'Selecciona la frecuencia de cobro del plan';
         }
-        
+
         const selected = billingIntervalOptions.find(opt => opt.value === selectedBillingInterval.value);
         if (!selected) return '';
-        
+
         const labels = {
             'Diario': 'El usuario será cobrado cada día',
             'Semanal': 'El usuario será cobrado cada semana',
@@ -319,7 +329,7 @@
             'Anual': 'El usuario será cobrado cada año',
             'Bienal': 'El usuario será cobrado cada 2 años',
         };
-        
+
         return labels[selected.label] || '';
     };
 
@@ -341,13 +351,13 @@
         form.sort_order = props.plan?.sort_order ?? 0;
         form.download_limit = props.plan?.download_limit ?? null;
         form.unlimited_downloads = props.plan?.unlimited_downloads ?? false;
-        
+
         // Mapear billing_interval y billing_interval_count a la opción seleccionada
-        const matchingOption = billingIntervalOptions.find(opt => 
+        const matchingOption = billingIntervalOptions.find(opt =>
             opt.interval === form.billing_interval && opt.count === form.billing_interval_count
         );
         selectedBillingInterval.value = matchingOption ? matchingOption.value : null;
-        
+
         tagInput.value = '';
         slugTouched.value = Boolean(form.slug);
         clearErrors();

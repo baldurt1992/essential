@@ -185,7 +185,7 @@
                         <InputText v-model="guestEmail" type="email" name="email" placeholder="tu@email.com" required
                             :disabled="isCreatingCheckout" class="w-full" />
                     </div>
-                    <Button type="submit" class="qodef-button qodef-button--primary"
+                    <Button type="submit" class="essential-button essential-button--primary"
                         :disabled="isCreatingCheckout || !guestEmail">
                         <span v-if="!isCreatingCheckout">Continuar al pago</span>
                         <span v-else>Procesando...</span>
@@ -205,7 +205,7 @@
                 <p class="download-error-dialog__message">{{ downloadErrorMessage }}</p>
             </div>
             <template #footer>
-                <Button @click="showDownloadErrorDialog = false" class="qodef-button qodef-button--primary">
+                <Button @click="showDownloadErrorDialog = false" class="essential-button essential-button--primary">
                     Entendido
                 </Button>
             </template>
@@ -1398,7 +1398,7 @@
         padding-bottom: 0;
     }
 
-    .download-error-dialog :deep(.p-dialog-footer .qodef-button) {
+    .download-error-dialog :deep(.p-dialog-footer .essential-button) {
         margin: 0;
     }
 

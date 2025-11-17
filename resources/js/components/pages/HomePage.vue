@@ -1,5 +1,5 @@
 <template>
-    <div class="home-page qodef-content-behind-header">
+    <div class="home-page essential-content-behind-header">
         <!-- Hero Section -->
         <HeroSection />
 

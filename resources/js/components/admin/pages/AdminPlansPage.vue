@@ -9,7 +9,7 @@
                     clientes.
                 </p>
             </div>
-            <button type="button" class="admin-page__action qodef-button qodef-button--primary"
+            <button type="button" class="admin-page__action essential-button essential-button--primary"
                 @click="openCreateModal">
                 <i class="pi pi-plus"></i>
                 <span>Nuevo plan</span>
@@ -208,8 +208,8 @@
             target: event.currentTarget,
             message: `¿Eliminar definitivamente el plan "${plan.name}"?`,
             icon: 'pi pi-trash',
-            rejectClass: 'qodef-button qodef-button--ghost',
-            acceptClass: 'qodef-button qodef-button--danger',
+            rejectClass: 'essential-button essential-button--ghost',
+            acceptClass: 'essential-button essential-button--danger',
             acceptLabel: 'Eliminar',
             rejectLabel: 'Cancelar',
             accept: async () => {

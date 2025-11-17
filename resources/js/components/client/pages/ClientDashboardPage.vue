@@ -5,7 +5,8 @@
             <p class="client-dashboard__subtitle">Aquí puedes ver un resumen de tus suscripciones y compras</p>
         </div>
 
-        <div v-if="subscriptionsStore.isLoading.value || purchasesStore.isLoading.value" class="client-dashboard__loading">
+        <div v-if="subscriptionsStore.isLoading.value || purchasesStore.isLoading.value"
+            class="client-dashboard__loading">
             <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
             <p>Cargando información...</p>
         </div>
@@ -20,15 +21,16 @@
                     </h3>
                 </div>
                 <div class="client-dashboard__card-content">
-                    <div v-if="subscriptionsStore.activeSubscriptions.value.length === 0" class="client-dashboard__empty">
+                    <div v-if="subscriptionsStore.activeSubscriptions.value.length === 0"
+                        class="client-dashboard__empty">
                         <p>No tienes suscripciones activas</p>
-                        <RouterLink :to="{ name: 'plans' }" class="qodef-button qodef-button--primary">
+                        <RouterLink :to="{ name: 'plans' }" class="essential-button essential-button--primary">
                             Ver planes disponibles
                         </RouterLink>
                     </div>
                     <div v-else class="client-dashboard__subscriptions">
-                        <div v-for="subscription in subscriptionsStore.activeSubscriptions.value" :key="subscription.uuid"
-                            class="client-dashboard__subscription-item">
+                        <div v-for="subscription in subscriptionsStore.activeSubscriptions.value"
+                            :key="subscription.uuid" class="client-dashboard__subscription-item">
                             <div class="client-dashboard__subscription-info">
                                 <h4>{{ subscription.plan?.name }}</h4>
                                 <p v-if="subscription.current_period_end">
@@ -37,7 +39,7 @@
                                 <p v-else>Sin fecha de renovación</p>
                             </div>
                             <RouterLink :to="{ name: 'client.subscriptions' }"
-                                class="qodef-button qodef-button--ghost">
+                                class="essential-button essential-button--ghost">
                                 Gestionar
                             </RouterLink>
                         </div>
@@ -56,7 +58,7 @@
                 <div class="client-dashboard__card-content">
                     <div v-if="purchasesStore.purchases.value.length === 0" class="client-dashboard__empty">
                         <p>No has realizado compras aún</p>
-                        <RouterLink :to="{ name: 'templates' }" class="qodef-button qodef-button--primary">
+                        <RouterLink :to="{ name: 'templates' }" class="essential-button essential-button--primary">
                             Explorar plantillas
                         </RouterLink>
                     </div>
@@ -68,7 +70,7 @@
                                 <p>{{ formatDate(purchase.purchased_at) }}</p>
                             </div>
                             <RouterLink :to="{ name: 'client.purchases' }"
-                                class="qodef-button qodef-button--ghost">
+                                class="essential-button essential-button--ghost">
                                 Ver detalles
                             </RouterLink>
                         </div>
@@ -249,4 +251,3 @@
         opacity: 0.7;
     }
 </style>
-

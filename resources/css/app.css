@@ -1,5 +1,5 @@
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=Inter:wght@400&family=IBM+Plex+Mono:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=Inter:wght@400&family=IBM+Plex+Mono:wght@500&family=Lexend:wght@400&display=swap');
 
 /* PrimeFlex */
 @import 'primeflex/primeflex.css';
@@ -7,34 +7,55 @@
 /* PrimeIcons */
 @import 'primeicons/primeicons.css';
 
-/* CSS Variables - Tema Moreau */
+/* CSS Variables - Essential */
 :root {
     /* Colores */
-    --qode-text-color: #171717;
-    --qode-heading-color: #171717;
-    --qode-background-color: #ffffff;
-    --qode-main-color: #3b44cd;
-    --qode-border-color: #e2e2e2;
-    --qode-white: #ffffff;
-    --qode-black: #000000;
+    --essential-text-color: #171717;
+    --essential-heading-color: #171717;
+    --essential-background-color: #ffffff;
+    --essential-main-color: #3b44cd;
+    --essential-border-color: #e2e2e2;
+    --essential-white: #ffffff;
+    --essential-black: #000000;
 
     /* Tipografías */
-    --qode-font-primary: 'Space Mono', monospace;
-    --qode-font-body: 'Inter', sans-serif;
-    --qode-font-menu: 'IBM Plex Mono', monospace;
+    --essential-font-primary: 'Space Mono', monospace;
+    --essential-font-body: 'Inter', sans-serif;
+    --essential-font-menu: 'IBM Plex Mono', monospace;
 
     /* Espaciado */
-    --qode-header-height: 96px;
-    --qode-mobile-header-height: 70px;
-    --qode-content-max-width: 1400px;
+    --essential-header-height: 96px;
+    --essential-mobile-header-height: 70px;
+    --essential-content-max-width: 1400px;
 
     /* Breakpoints */
-    --qode-breakpoint-680: 680px;
-    --qode-breakpoint-880: 880px;
-    --qode-breakpoint-1024: 1024px;
-    --qode-breakpoint-1200: 1200px;
-    --qode-breakpoint-1368: 1368px;
-    --qode-breakpoint-1512: 1512px;
+    --essential-breakpoint-680: 680px;
+    --essential-breakpoint-880: 880px;
+    --essential-breakpoint-1024: 1024px;
+    --essential-breakpoint-1200: 1200px;
+    --essential-breakpoint-1368: 1368px;
+    --essential-breakpoint-1512: 1512px;
+
+    /* Legacy support - will be removed after full migration */
+    --qode-text-color: var(--essential-text-color);
+    --qode-heading-color: var(--essential-heading-color);
+    --qode-background-color: var(--essential-background-color);
+    --qode-main-color: var(--essential-main-color);
+    --qode-border-color: var(--essential-border-color);
+    --qode-white: var(--essential-white);
+    --qode-black: var(--essential-black);
+    --qode-font-primary: var(--essential-font-primary);
+    --qode-font-body: var(--essential-font-body);
+    --qode-font-menu: var(--essential-font-menu);
+    --qode-header-height: var(--essential-header-height);
+    --qode-mobile-header-height: var(--essential-mobile-header-height);
+    --qode-content-max-width: var(--essential-content-max-width);
+    --qode-breakpoint-680: var(--essential-breakpoint-680);
+    --qode-breakpoint-880: var(--essential-breakpoint-880);
+    --qode-breakpoint-1024: var(--essential-breakpoint-1024);
+    --qode-breakpoint-1200: var(--essential-breakpoint-1200);
+    --qode-breakpoint-1368: var(--essential-breakpoint-1368);
+    --qode-breakpoint-1512: var(--essential-breakpoint-1512);
 }
 
 /* Reset y Base */
@@ -45,11 +66,11 @@
 }
 
 body {
-    font-family: var(--qode-font-body);
+    font-family: var(--essential-font-body);
     font-size: 17px;
     line-height: 26px;
-    color: var(--qode-text-color);
-    background-color: var(--qode-background-color);
+    color: var(--essential-text-color);
+    background-color: var(--essential-background-color);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -59,10 +80,15 @@ body {
 body.dark-mode {
     background-color: #171717 !important;
     color: #ffffff !important;
-    --qode-text-color: #ffffff;
-    --qode-heading-color: #ffffff;
-    --qode-background-color: #171717;
-    --qode-border-color: rgba(255, 255, 255, 0.2);
+    --essential-text-color: #ffffff;
+    --essential-heading-color: #ffffff;
+    --essential-background-color: #171717;
+    --essential-border-color: rgba(255, 255, 255, 0.2);
+    /* Legacy support */
+    --qode-text-color: var(--essential-text-color);
+    --qode-heading-color: var(--essential-heading-color);
+    --qode-background-color: var(--essential-background-color);
+    --qode-border-color: var(--essential-border-color);
 }
 
 #app {
@@ -75,19 +101,31 @@ body.dark-mode {
 }
 
 /* Utilidades */
-.qodef-content-grid {
-    max-width: var(--qode-content-max-width);
+.essential-content-grid {
+    max-width: var(--essential-content-max-width);
     margin: 0 auto;
     padding: 0 40px;
 }
 
-.qodef-content-full-width {
+.essential-content-full-width {
+    width: 100%;
+    padding: 0 40px;
+}
+
+/* Legacy support - will be removed after full migration */
+.essential-content-grid {
+    max-width: var(--essential-content-max-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.essential-content-full-width {
     width: 100%;
     padding: 0 40px;
 }
 
 /* Botones globales */
-.qodef-button {
+.essential-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -103,60 +141,77 @@ body.dark-mode {
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.qodef-button--primary {
+/* Legacy support - will be removed after full migration */
+.essential-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.essential-button--primary {
     background: #dd3333 !important;
     color: #ffffff !important;
     border: 1px solid #dd3333 !important;
 }
 
-.qodef-button--primary:hover:not(:disabled) {
+.essential-button--primary:hover:not(:disabled) {
     background: #c42b2b !important;
     border-color: #c42b2b !important;
 }
 
-.qodef-button--primary:disabled {
+.essential-button--primary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.qodef-button--ghost {
+.essential-button--ghost {
     background: transparent;
     color: var(--qode-text-color);
     border: 1px solid var(--qode-text-color);
 }
 
-.qodef-button--ghost:hover {
+.essential-button--ghost:hover {
     background: var(--qode-heading-color);
     color: var(--qode-background-color);
     border-color: var(--qode-heading-color);
 }
 
-.qodef-button--light {
+.essential-button--light {
     background: #ffffff;
     color: #111111;
     border: 1px solid #111111;
 }
 
-.qodef-button--light:hover {
+.essential-button--light:hover {
     background: #f2f2f2;
 }
 
-.qodef-button--danger {
+.essential-button--danger {
     background: #dd3333;
     color: #ffffff;
     border: 1px solid #dd3333;
 }
 
-.qodef-button--danger:hover {
+.essential-button--danger:hover {
     background: #c42b2b;
     border-color: #c42b2b;
 }
 
-.qodef-button .pi {
+.essential-button .pi {
     font-size: 14px;
 }
 
-.p-confirmpopup .qodef-button {
+.p-confirmpopup .essential-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -171,49 +226,49 @@ body.dark-mode {
     border: 1px solid transparent;
 }
 
-.p-confirmpopup .qodef-button::before,
-.p-confirmpopup .qodef-button::after {
+.p-confirmpopup .essential-button::before,
+.p-confirmpopup .essential-button::after {
     display: none;
 }
 
-.p-confirmpopup .qodef-button.p-button,
-.p-confirmpopup .qodef-button.p-button:enabled,
-.p-confirmpopup .qodef-button.p-button:enabled:hover,
-.p-confirmpopup .qodef-button.p-button.p-button-text,
-.p-confirmpopup .qodef-button.p-button.p-button-text:enabled,
-.p-confirmpopup .qodef-button.p-button.p-button-text:enabled:hover,
-.p-confirmpopup .qodef-button.p-button.p-button-outlined,
-.p-confirmpopup .qodef-button.p-button.p-button-outlined:enabled,
-.p-confirmpopup .qodef-button.p-button.p-button-outlined:enabled:hover {
+.p-confirmpopup .essential-button.p-button,
+.p-confirmpopup .essential-button.p-button:enabled,
+.p-confirmpopup .essential-button.p-button:enabled:hover,
+.p-confirmpopup .essential-button.p-button.p-button-text,
+.p-confirmpopup .essential-button.p-button.p-button-text:enabled,
+.p-confirmpopup .essential-button.p-button.p-button-text:enabled:hover,
+.p-confirmpopup .essential-button.p-button.p-button-outlined,
+.p-confirmpopup .essential-button.p-button.p-button-outlined:enabled,
+.p-confirmpopup .essential-button.p-button.p-button-outlined:enabled:hover {
     background: transparent;
     border: 1px solid transparent;
     color: inherit;
     box-shadow: none;
 }
 
-.p-confirmpopup .qodef-button--ghost,
-.p-confirmpopup .qodef-button--ghost:enabled,
-.p-confirmpopup .qodef-button--ghost:enabled:hover {
+.p-confirmpopup .essential-button--ghost,
+.p-confirmpopup .essential-button--ghost:enabled,
+.p-confirmpopup .essential-button--ghost:enabled:hover {
     background: transparent !important;
     color: #171717 !important;
     border: 1px solid rgba(23, 23, 23, 0.3) !important;
 }
 
-.p-confirmpopup .qodef-button--ghost:enabled:hover {
+.p-confirmpopup .essential-button--ghost:enabled:hover {
     background: #111111 !important;
     color: #ffffff !important;
     border-color: #111111 !important;
 }
 
-.p-confirmpopup .qodef-button--danger,
-.p-confirmpopup .qodef-button--danger:enabled,
-.p-confirmpopup .qodef-button--danger:enabled:hover {
+.p-confirmpopup .essential-button--danger,
+.p-confirmpopup .essential-button--danger:enabled,
+.p-confirmpopup .essential-button--danger:enabled:hover {
     background: #dd3333 !important;
     color: #ffffff !important;
     border: 1px solid #dd3333 !important;
 }
 
-.p-confirmpopup .qodef-button--danger:enabled:hover {
+.p-confirmpopup .essential-button--danger:enabled:hover {
     background: #c42b2b !important;
     border-color: #c42b2b !important;
 }
@@ -607,7 +662,7 @@ body.dark-mode .admin-page * {
 }
 
 /* Excepciones para elementos que deben mantener su color específico */
-body.dark-mode .admin-page .qodef-button,
+body.dark-mode .admin-page .essential-button,
 body.dark-mode .admin-page .p-button,
 body.dark-mode .admin-page .p-inputtext,
 body.dark-mode .admin-page .p-select-label,
@@ -901,8 +956,8 @@ body.dark-mode .contact-socials__dropdown .p-select-option.p-select-option-selec
 /* Responsive */
 @media (max-width: 1200px) {
 
-    .qodef-content-grid,
-    .qodef-content-full-width {
+    .essential-content-grid,
+    .essential-content-full-width {
         padding: 0 30px;
     }
 
@@ -913,8 +968,332 @@ body.dark-mode .contact-socials__dropdown .p-select-option.p-select-option-selec
 
 @media (max-width: 680px) {
 
-    .qodef-content-grid,
-    .qodef-content-full-width {
+    .essential-content-grid,
+    .essential-content-full-width {
         padding: 0 20px;
+    }
+}
+
+/* ============================================
+   GRID SYSTEM - Reutilizable
+   ============================================ */
+
+.essential-grid {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 100%;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.essential-grid>.essential-grid-inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--essential-columns, 1), minmax(0, 1fr));
+    row-gap: var(--essential-columns-row-gap, 0px);
+    column-gap: var(--essential-columns-col-gap, 0px);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.essential-e {
+    position: relative;
+}
+
+.essential-grid-item {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+    min-height: 1px;
+}
+
+.essential-e-inner {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+}
+
+.essential-e-media,
+.essential-e-content {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+}
+
+.essential-e-media-image {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+.essential-e-media-image a,
+.essential-e-media-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.essential-e-media-image img {
+    transition: transform 0.5s ease;
+}
+
+.essential-e:hover .essential-e-media-image img {
+    transform: scale(1.04);
+}
+
+.essential-item-layout--info-follow.essential-hover-animation--follow .essential-e-media {
+    height: 100%;
+    width: 100%;
+}
+
+.essential-item-layout--info-follow.essential-hover-animation--follow .essential-e-content {
+    margin: 0;
+    display: none;
+}
+
+.essential-e-title {
+    margin: 0;
+    color: #fff !important;
+}
+
+.essential-e-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.essential-e-info {
+    color: #fff !important;
+}
+
+.essential-e-info>* {
+    color: #fff !important;
+}
+
+.essential-e-info a {
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.essential-e-post-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.essential-info-separator-single {
+    margin: 0 8px;
+}
+
+.essential-info-separator-end {
+    display: none;
+}
+
+/* Custom margin items */
+.essential-portfolio-list.essential-custom-margin .essential-e-inner,
+.essential-custom-margin .essential-e-inner {
+    width: auto;
+}
+
+/* ============================================
+   HOVER OVERLAY - Animaciones globales
+   ============================================ */
+
+.essential-e-inner:hover .essential-e-hover-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.masonry-item:hover .essential-e-hover-overlay,
+.masonry-image:hover .essential-e-hover-overlay,
+.masonry-item:hover .masonry-image .essential-e-hover-overlay {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.essential-e-inner:hover .essential-e-hover-info .essential-e-hover-border-line.line-top {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.essential-e-inner:hover .essential-e-hover-info .essential-e-hover-border-line.line-bottom {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+}
+
+.essential-e-inner:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-top {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+.essential-e-inner:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-bottom {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+}
+
+.masonry-item:hover .essential-e-hover-info .essential-e-hover-border-line.line-top,
+.masonry-image:hover .essential-e-hover-info .essential-e-hover-border-line.line-top,
+.masonry-item:hover .masonry-image .essential-e-hover-info .essential-e-hover-border-line.line-top {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.masonry-item:hover .essential-e-hover-info .essential-e-hover-border-line.line-bottom,
+.masonry-image:hover .essential-e-hover-info .essential-e-hover-border-line.line-bottom,
+.masonry-item:hover .masonry-image .essential-e-hover-info .essential-e-hover-border-line.line-bottom {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+}
+
+.masonry-item:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-top,
+.masonry-image:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-top,
+.masonry-item:hover .masonry-image .essential-e-hover-title-box .essential-e-hover-border-line.line-top {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+.masonry-item:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-bottom,
+.masonry-image:hover .essential-e-hover-title-box .essential-e-hover-border-line.line-bottom,
+.masonry-item:hover .masonry-image .essential-e-hover-title-box .essential-e-hover-border-line.line-bottom {
+    animation: drawLineLeftToRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+}
+
+@keyframes drawLineLeftToRight {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+.essential-e-inner:hover .essential-e-hover-separator-line,
+.masonry-item:hover .essential-e-hover-separator-line,
+.masonry-image:hover .essential-e-hover-separator-line,
+.masonry-item:hover .masonry-image .essential-e-hover-separator-line {
+    width: 100%;
+}
+
+.essential-e-inner:hover .essential-e-hover-info,
+.essential-e-inner:hover .essential-e-hover-title-box,
+.masonry-item:hover .essential-e-hover-info,
+.masonry-item:hover .essential-e-hover-title-box,
+.masonry-image:hover .essential-e-hover-info,
+.masonry-image:hover .essential-e-hover-title-box,
+.masonry-item:hover .masonry-image .essential-e-hover-info,
+.masonry-item:hover .masonry-image .essential-e-hover-title-box {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(0);
+    border-left: 1px solid #fff;
+    border-right: 1px solid #fff;
+    transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s, visibility 0.4s ease 0.2s, border-left 0s, border-right 0s;
+}
+
+.essential-e-inner:not(:hover) .essential-e-hover-border-line,
+.masonry-item:not(:hover) .essential-e-hover-border-line,
+.masonry-image:not(:hover) .essential-e-hover-border-line {
+    width: 0;
+}
+
+.essential-e-inner:not(:hover) .essential-e-hover-separator-line,
+.masonry-item:not(:hover) .essential-e-hover-separator-line,
+.masonry-image:not(:hover) .essential-e-hover-separator-line {
+    width: 0;
+}
+
+/* ============================================
+   SECTION CONTAINERS - Reutilizables
+   ============================================ */
+
+.essential-section-container {
+    width: min(1620px, 100%);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.essential-section-header {
+    position: relative;
+    margin-bottom: 85px;
+}
+
+@media (max-width: 1024px) {
+    .essential-section-header {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+}
+
+/* Responsive - Grid System */
+@media (max-width: 1024px) {
+    .essential-grid>.essential-grid-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .essential-grid>.essential-grid-inner .essential-e {
+        width: 100%;
+    }
+
+    .essential-custom-margin .essential-e-inner {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .essential-e-hover-overlay {
+        display: none !important;
+    }
+
+    .essential-item-layout--info-follow.essential-hover-animation--follow .essential-e-content {
+        display: block;
+        margin-top: 18px;
+    }
+
+    .essential-e-info {
+        display: inline-flex;
+        gap: 8px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(23, 23, 23, 0.7);
+    }
+
+    .essential-e-info a {
+        color: rgba(23, 23, 23, 0.7);
+        text-decoration: none;
+    }
+
+    .essential-e-title {
+        margin: 12px 0 0;
+        font-family: 'Space Mono', monospace;
+        font-size: 20px;
+        text-transform: uppercase;
+        color: #171717;
+    }
+
+    .essential-e-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .essential-e-post-link {
+        display: none;
+    }
+
+    body.dark-mode .essential-e-info,
+    body.dark-mode .essential-e-info a {
+        color: rgba(243, 243, 243, 0.75);
+    }
+
+    body.dark-mode .essential-e-title,
+    body.dark-mode .essential-e-title a {
+        color: #f3f3f3;
     }
 }

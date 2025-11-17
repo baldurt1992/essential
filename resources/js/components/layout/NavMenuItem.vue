@@ -1,18 +1,18 @@
 <template>
     <li
-        :class="['menu-item', 'menu-item-type-custom', 'menu-item-object-custom', { 'menu-item-has-children': hasChildren, 'qodef-menu-item--narrow': hasChildren }]">
+        :class="['menu-item', 'menu-item-type-custom', 'menu-item-object-custom', { 'menu-item-has-children': hasChildren, 'essential-menu-item--narrow': hasChildren }]">
         <RouterLink :to="link" :exact="isExact" :active-class="''" :exact-active-class="''"
-            :class="['qodef-menu-item-link', { 'router-link-active': isActive }]">
-            <span class="qodef-menu-item-text">{{ text }}</span>
+            :class="['essential-menu-item-link', { 'router-link-active': isActive }]">
+            <span class="essential-menu-item-text">{{ text }}</span>
         </RouterLink>
 
-        <div v-if="hasChildren" class="qodef-drop-down-second">
-            <div class="qodef-drop-down-second-inner">
+        <div v-if="hasChildren" class="essential-drop-down-second">
+            <div class="essential-drop-down-second-inner">
                 <ul class="sub-menu">
                     <li v-for="subItem in subItems" :key="subItem.id"
                         class="menu-item menu-item-type-custom menu-item-object-custom">
-                        <RouterLink :to="subItem.link" class="qodef-menu-item-link">
-                            <span class="qodef-menu-item-text">{{ subItem.text }}</span>
+                        <RouterLink :to="subItem.link" class="essential-menu-item-link">
+                            <span class="essential-menu-item-text">{{ subItem.text }}</span>
                         </RouterLink>
                     </li>
                 </ul>
@@ -81,7 +81,7 @@
 </script>
 
 <style scoped>
-    .qodef-menu-item-link {
+    .essential-menu-item-link {
         display: flex;
         align-items: center;
         padding: 0;
@@ -89,7 +89,7 @@
         text-decoration: none;
     }
 
-    .qodef-menu-item-link .qodef-menu-item-text {
+    .essential-menu-item-link .essential-menu-item-text {
         font-family: "IBM Plex Mono", sans-serif;
         font-size: 16px;
         font-weight: 500;
@@ -101,7 +101,7 @@
         transition: color 0.15s ease-out;
     }
 
-    .qodef-menu-item-link .qodef-menu-item-text::before {
+    .essential-menu-item-link .essential-menu-item-text::before {
         content: '';
         position: absolute;
         top: 0;
@@ -115,11 +115,11 @@
         z-index: -1;
     }
 
-    .qodef-menu-item-link:hover .qodef-menu-item-text {
+    .essential-menu-item-link:hover .essential-menu-item-text {
         color: var(--qode-background-color);
     }
 
-    .qodef-menu-item-link:hover .qodef-menu-item-text::before {
+    .essential-menu-item-link:hover .essential-menu-item-text::before {
         transform: scaleX(1);
     }
 </style>
