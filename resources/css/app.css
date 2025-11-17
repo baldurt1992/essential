@@ -1833,3 +1833,159 @@ body.dark-mode .essential-contact-social-item:hover {
     border-color: rgba(255, 102, 102, 0.36);
     background: rgba(255, 102, 102, 0.12);
 }
+
+/* ============================================
+   PLANS PAGE - Global Patterns
+   ============================================ */
+
+/* Plan Card (reusable) */
+.essential-plan-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(22px, 5vw, 28px);
+    border: 1px solid rgba(23, 23, 23, 0.08);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.06);
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+body.dark-mode .essential-plan-card {
+    background: rgba(17, 17, 17, 0.9);
+    border-color: rgba(243, 243, 243, 0.06);
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.45);
+}
+
+.essential-plan-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(221, 51, 51, 0.22);
+    box-shadow: 0 28px 48px rgba(0, 0, 0, 0.12);
+}
+
+.essential-plan-card--recommended {
+    border-color: rgba(221, 51, 51, 0.4);
+    box-shadow: 0 34px 52px rgba(221, 51, 51, 0.18);
+}
+
+.essential-plan-card--current {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+body.dark-mode .essential-plan-card--current {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+/* Plan Badge (reusable) */
+.essential-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--essential-font-menu);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(221, 51, 51, 0.1);
+    color: #dd3333;
+}
+
+body.dark-mode .essential-plan-badge {
+    background: rgba(255, 102, 102, 0.14);
+    color: #ff6666;
+}
+
+.essential-plan-badge--current {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+body.dark-mode .essential-plan-badge--current {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+/* Plan Feature Icon (reusable) */
+.essential-plan-feature-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(23, 23, 23, 0.08);
+    color: #171717;
+    flex-shrink: 0;
+}
+
+body.dark-mode .essential-plan-feature-icon {
+    background: rgba(243, 243, 243, 0.08);
+    color: #ffffff;
+}
+
+.essential-plan-feature-icon svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+}
+
+.essential-plan-feature-icon svg path {
+    fill: currentColor;
+}
+
+/* Plan Cancel Notice (reusable) */
+.essential-plan-cancel-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #22c55e;
+}
+
+body.dark-mode .essential-plan-cancel-notice {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.essential-plan-cancel-notice--warning {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+body.dark-mode .essential-plan-cancel-notice--warning {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ff6b6b;
+}
+
+.essential-plan-cancel-notice i {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.essential-plan-cancel-notice strong {
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.essential-plan-cancel-notice--warning strong {
+    color: #dc2626;
+}
+
+body.dark-mode .essential-plan-cancel-notice strong {
+    color: #4ade80;
+}
+
+body.dark-mode .essential-plan-cancel-notice--warning strong {
+    color: #ff6b6b;
+}
