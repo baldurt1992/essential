@@ -1631,3 +1631,205 @@ body.dark-mode .essential-template-badge--fresh {
 .essential-template-link:hover::after {
     transform: scaleX(1);
 }
+
+/* ============================================
+   CONTACT PAGE - Global Patterns
+   ============================================ */
+
+/* Contact CTA Button (reusable) */
+.essential-contact-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--essential-font-menu);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 24px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.essential-contact-cta--primary {
+    background: #dd3333;
+    border-color: #dd3333;
+    color: #fff;
+}
+
+.essential-contact-cta--ghost {
+    background: transparent;
+    color: inherit;
+}
+
+.essential-contact-cta:not(:disabled):hover {
+    transform: translateY(-2px);
+}
+
+.essential-contact-cta:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+/* Contact Card (reusable) */
+.essential-contact-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: clamp(20px, 5vw, 28px);
+    border: 1px solid rgba(23, 23, 23, 0.1);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+body.dark-mode .essential-contact-card {
+    background: rgba(20, 20, 20, 0.92);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.essential-contact-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(221, 51, 51, 0.25);
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.08);
+}
+
+.essential-contact-card__icon {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: rgba(221, 51, 51, 0.12);
+    color: #dd3333;
+}
+
+body.dark-mode .essential-contact-card__icon {
+    background: rgba(255, 102, 102, 0.12);
+    color: #ff6666;
+}
+
+.essential-contact-card__action {
+    align-self: flex-start;
+    margin-top: auto;
+    font-family: var(--essential-font-menu);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--essential-text-color);
+    background: transparent;
+    color: var(--essential-text-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.essential-contact-card__action:hover {
+    background: var(--essential-heading-color);
+    color: var(--essential-background-color);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .essential-contact-card__action {
+    border-color: var(--essential-border-color);
+    color: var(--essential-text-color);
+}
+
+body.dark-mode .essential-contact-card__action:hover {
+    background: #ffffff;
+    color: #171717;
+}
+
+/* Contact Form Field (reusable) */
+.essential-contact-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+}
+
+.essential-contact-field__label {
+    font-family: var(--essential-font-menu);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.essential-contact-field__input,
+.essential-contact-field__textarea,
+.essential-contact-field__select {
+    border-radius: 14px;
+    border: 1px solid rgba(23, 23, 23, 0.18);
+    padding: 12px 16px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.92);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    color: var(--essential-text-color);
+}
+
+body.dark-mode .essential-contact-field__input,
+body.dark-mode .essential-contact-field__textarea,
+body.dark-mode .essential-contact-field__select {
+    background: rgba(16, 16, 16, 0.92);
+    border-color: rgba(243, 243, 243, 0.12);
+    color: rgba(243, 243, 243, 0.92);
+}
+
+.essential-contact-field__input:focus,
+.essential-contact-field__textarea:focus,
+.essential-contact-field__select:focus {
+    outline: none;
+    border-color: #dd3333;
+    box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.1);
+}
+
+.essential-contact-field__input.has-error,
+.essential-contact-field__textarea.has-error,
+.essential-contact-field__select.has-error {
+    border-color: rgba(221, 51, 51, 0.6) !important;
+}
+
+.essential-contact-field__error {
+    font-size: 12px;
+    color: #dd3333;
+}
+
+/* Contact Social Item (reusable) */
+.essential-contact-social-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(16px, 4vw, 22px);
+    border: 1px solid rgba(23, 23, 23, 0.1);
+    border-radius: 18px;
+    text-decoration: none;
+    color: inherit;
+    font-family: var(--essential-font-menu);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+body.dark-mode .essential-contact-social-item {
+    border-color: rgba(243, 243, 243, 0.16);
+    background: rgba(20, 20, 20, 0.6);
+}
+
+.essential-contact-social-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(221, 51, 51, 0.28);
+    background: rgba(221, 51, 51, 0.06);
+}
+
+body.dark-mode .essential-contact-social-item:hover {
+    border-color: rgba(255, 102, 102, 0.36);
+    background: rgba(255, 102, 102, 0.12);
+}

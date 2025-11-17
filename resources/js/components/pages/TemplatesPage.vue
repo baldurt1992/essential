@@ -9,16 +9,16 @@
             @primary-action="handlePrimaryAction" @preview="handlePreview" @open-auth="handleOpenAuth"
             @page-change="handlePageChange" />
 
-        <TemplatePreviewDialog :visible="previewVisible" @update:visible="(val) => previewVisible.value = val"
+        <TemplatePreviewDialog v-model:visible="previewVisible"
             :template="selectedTemplate" :dialog-width="previewDialogWidth" :breakpoints="previewBreakpoints"
             :is-downloading="isDownloading" :downloading-template-id="downloadingTemplateId"
             @primary-action="handlePrimaryAction" />
 
-        <TemplateEmailModal :visible="showEmailModal" @update:visible="(val) => showEmailModal.value = val"
+        <TemplateEmailModal v-model:visible="showEmailModal"
             :is-submitting="isCreatingCheckout" @submit="handleGuestCheckout" />
 
-        <TemplateDownloadErrorDialog :visible="showDownloadErrorDialog"
-            @update:visible="(val) => showDownloadErrorDialog.value = val" :message="downloadErrorMessage" />
+        <TemplateDownloadErrorDialog v-model:visible="showDownloadErrorDialog"
+            :message="downloadErrorMessage" />
     </div>
 </template>
 
