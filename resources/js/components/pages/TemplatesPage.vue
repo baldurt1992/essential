@@ -76,40 +76,42 @@
                             </span>
                         </div>
 
-                        <button type="button" class="template-card__preview" @click="openPreview(template)">
-                            <i class="pi pi-eye"></i>
-                            <span>Ver detalle</span>
-                        </button>
-                    </div>
+                        <div class="template-card__overlay">
+                            <div class="template-card__body">
+                                <div class="template-card__header">
+                                    <h2 class="template-card__title" :title="template.title">
+                                        {{ template.title }}
+                                    </h2>
+                                    <p class="template-card__price">
+                                        <span>{{ formatPrice(template.price, template.currency) }}</span>
+                                    </p>
+                                </div>
 
-                    <div class="template-card__body">
-                        <div class="template-card__header">
-                            <h2 class="template-card__title" :title="template.title">
-                                {{ template.title }}
-                            </h2>
-                            <p class="template-card__price">
-                                <span>{{ formatPrice(template.price, template.currency) }}</span>
-                            </p>
-                        </div>
+                                <div class="template-card__tags" v-if="template.tags.length">
+                                    <span v-for="tag in template.tags" :key="tag" class="template-tag">
+                                        {{ tag }}
+                                    </span>
+                                </div>
 
-                        <div class="template-card__tags" v-if="template.tags.length">
-                            <span v-for="tag in template.tags" :key="tag" class="template-tag">
-                                {{ tag }}
-                            </span>
-                        </div>
+                                <div class="template-card__actions">
+                                    <button type="button" class="template-card__cta"
+                                        :disabled="isDownloading && downloadingTemplateId === template.id"
+                                        @click="handlePrimaryAction(template)">
+                                        <i v-if="isDownloading && downloadingTemplateId === template.id"
+                                            class="pi pi-spin pi-spinner template-card__cta-spinner"></i>
+                                        <span v-else>{{ template.isAccessible ? 'Descargar' : 'Comprar' }}</span>
+                                    </button>
+                                    <button v-if="!auth.isAuthenticated.value" type="button" class="template-card__link"
+                                        @click="openAuthModal('login')">
+                                        Iniciar sesión
+                                        <i class="pi pi-arrow-right template-card__link-icon"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <div class="template-card__actions">
-                            <button type="button" class="template-card__cta"
-                                :disabled="isDownloading && downloadingTemplateId === template.id"
-                                @click="handlePrimaryAction(template)">
-                                <i v-if="isDownloading && downloadingTemplateId === template.id"
-                                    class="pi pi-spin pi-spinner template-card__cta-spinner"></i>
-                                <span v-else>{{ template.isAccessible ? 'Descargar' : 'Comprar' }}</span>
-                            </button>
-                            <button v-if="!auth.isAuthenticated.value" type="button" class="template-card__link"
-                                @click="openAuthModal('login')">
-                                Iniciar sesión
-                                <i class="pi pi-arrow-right template-card__link-icon"></i>
+                            <button type="button" class="template-card__preview" @click="openPreview(template)">
+                                <i class="pi pi-eye"></i>
+                                <span>Ver detalle</span>
                             </button>
                         </div>
                     </div>
@@ -862,7 +864,7 @@
         position: relative;
         overflow: hidden;
         width: 100%;
-        height: 248px;
+        height: 100%;
         flex-shrink: 0;
     }
 
@@ -913,10 +915,49 @@
         background: rgba(0, 0, 0, 0.75);
     }
 
-    .template-card__preview {
+    .template-card__overlay {
         position: absolute;
-        right: 12px;
-        bottom: 12px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.95) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 16px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        pointer-events: none;
+    }
+
+    .template-card:hover .template-card__overlay {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* En móvil, mostrar el overlay siempre para que sea accesible */
+    @media (max-width: 767px) {
+        .template-card__overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+    }
+
+    .template-card__body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow: hidden;
+        min-height: 0;
+    }
+
+    .template-card__preview {
+        align-self: flex-end;
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -931,20 +972,11 @@
         border-radius: 999px;
         cursor: pointer;
         transition: background 0.2s ease;
+        flex-shrink: 0;
     }
 
     .template-card__preview:hover {
         background: #dd3333;
-    }
-
-    .template-card__body {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 14px 16px 16px;
-        overflow: hidden;
-        min-height: 0;
     }
 
     .template-card__header {
@@ -966,6 +998,8 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         word-break: break-word;
+        color: #ffffff;
+        transition: color 0.3s ease;
     }
 
     .template-card__price {
@@ -974,8 +1008,9 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         margin: 0;
-        color: rgba(221, 51, 51, 0.95);
+        color: #ff6b6b;
         white-space: nowrap;
+        transition: color 0.3s ease;
     }
 
     .template-card__tags {
@@ -992,14 +1027,16 @@
         text-transform: uppercase;
         padding: 4px 8px;
         border-radius: 999px;
-        background: rgba(23, 23, 23, 0.08);
-        color: rgba(23, 23, 23, 0.7);
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.9);
         line-height: 1.2;
+        backdrop-filter: blur(4px);
     }
 
-    body.dark-mode .template-tag {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.7);
+    /* Asegurar que los tags dentro del overlay siempre tengan el mismo color */
+    .template-card__overlay .template-tag {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
     }
 
     .template-card__actions {
@@ -1054,7 +1091,7 @@
         font-size: 9px;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: inherit;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
         background: transparent;
         border: none;
@@ -1062,6 +1099,7 @@
         padding: 0;
         position: relative;
         white-space: nowrap;
+        transition: color 0.3s ease;
     }
 
     .template-card__link-icon {
@@ -1311,7 +1349,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 16px;
         color: var(--qode-text-color);
-        padding: 12px 0;
+        padding: 12px 16px;
         border-radius: 0;
         box-shadow: none;
     }
