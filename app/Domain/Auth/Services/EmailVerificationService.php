@@ -39,6 +39,10 @@ class EmailVerificationService
         $otp = $this->generateOtp($user);
 
         try {
+            // Refrescar el usuario sin relaciones para evitar problemas de serialización en la cola
+            $user->refresh();
+            $user->unsetRelation('roles');
+
             Mail::to($user->email)->send(new EmailVerificationMail($user, $otp));
 
             Log::info('OTP email sent', [

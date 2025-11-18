@@ -40,6 +40,10 @@ class PasswordRecoveryService
         $otp = $this->generateRecoveryOtp($user);
 
         try {
+            // Refrescar el usuario sin relaciones para evitar problemas de serialización en la cola
+            $user->refresh();
+            $user->unsetRelation('roles');
+
             Mail::to($user->email)->send(new PasswordRecoveryMail($user, $otp));
 
             Log::info('Password recovery OTP email sent', [
@@ -119,4 +123,3 @@ class PasswordRecoveryService
         return now()->isBefore($user->password_recovery_otp_expires_at);
     }
 }
-
