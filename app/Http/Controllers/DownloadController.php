@@ -47,7 +47,9 @@ class DownloadController extends BaseController
             ], 403);
         }
 
-        // Verificar límite de descargas mensual por suscripción si la licencia viene de una suscripción
+        // Verificar si ya descargó esta plantilla en el mes actual (ANTES de verificar el límite)
+        // Si ya la descargó, permitir la re-descarga aunque haya alcanzado el límite
+        $alreadyDownloadedThisMonth = false;
         if ($license->source_type === \App\Domain\Billing\Models\Subscription::class) {
             $subscription = $license->source;
             if ($subscription) {
@@ -62,6 +64,35 @@ class DownloadController extends BaseController
                     $subscription->load('plan');
                 }
 
+                // Verificar si la licencia actual ya tenía una descarga este mes
+                $currentLicenseDownloadedThisMonth = $license->last_downloaded_at
+                    && $license->last_downloaded_at->year === now()->year
+                    && $license->last_downloaded_at->month === now()->month;
+
+                // Verificar si hay otra licencia para esta plantilla que ya fue descargada este mes
+                $otherLicenseDownloadedThisMonth = \App\Domain\Billing\Models\DownloadLicense::query()
+                    ->where('source_type', \App\Domain\Billing\Models\Subscription::class)
+                    ->where('source_id', $subscription->getKey())
+                    ->where('template_id', $template->getKey())
+                    ->whereNotNull('last_downloaded_at')
+                    ->whereYear('last_downloaded_at', now()->year)
+                    ->whereMonth('last_downloaded_at', now()->month)
+                    ->where('id', '!=', $license->getKey())
+                    ->exists();
+
+                $alreadyDownloadedThisMonth = $currentLicenseDownloadedThisMonth || $otherLicenseDownloadedThisMonth;
+            }
+        }
+
+        // Verificar límite de descargas mensual por suscripción SOLO si NO ha descargado esta plantilla este mes
+        if ($license->source_type === \App\Domain\Billing\Models\Subscription::class && ! $alreadyDownloadedThisMonth) {
+            $subscription = $license->source;
+            if ($subscription) {
+                // Asegurar que el plan esté cargado
+                if (! $subscription->relationLoaded('plan')) {
+                    $subscription->load('plan');
+                }
+
                 if ($subscription->plan) {
                     $plan = $subscription->plan;
 
@@ -70,6 +101,8 @@ class DownloadController extends BaseController
                         Log::info('Checking download limit in __invoke', [
                             'user_id' => $subscription->user_id,
                             'subscription_id' => $subscription->getKey(),
+                            'template_id' => $template->getKey(),
+                            'template_slug' => $template->slug,
                             'downloads_used' => $subscription->downloads_used,
                             'download_limit' => $plan->download_limit,
                             'plan_name' => $plan->name,
@@ -81,6 +114,8 @@ class DownloadController extends BaseController
                             Log::warning('Download limit reached in __invoke', [
                                 'user_id' => $subscription->user_id,
                                 'subscription_id' => $subscription->getKey(),
+                                'template_id' => $template->getKey(),
+                                'template_slug' => $template->slug,
                                 'downloads_used' => $subscription->downloads_used,
                                 'download_limit' => $plan->download_limit,
                                 'plan_name' => $plan->name,
@@ -127,6 +162,8 @@ class DownloadController extends BaseController
 
                     // Solo incrementar si el plan tiene límite (no es ilimitado)
                     if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
+                        // Solo incrementar si NO ha descargado esta plantilla en el mes actual
+                        if (! $alreadyDownloadedThisMonth) {
                         // Usar increment para actualizar directamente en la BD
                         $subscription->increment('downloads_used');
 
@@ -136,10 +173,23 @@ class DownloadController extends BaseController
                         Log::info('Download counter incremented', [
                             'user_id' => $subscription->user_id,
                             'subscription_id' => $subscription->getKey(),
+                                'template_id' => $template->getKey(),
+                                'template_slug' => $template->slug,
                             'downloads_used' => $subscription->downloads_used,
                             'download_limit' => $plan->download_limit,
                             'plan_name' => $plan->name,
                         ]);
+                        } else {
+                            Log::info('Download counter NOT incremented - template already downloaded this month', [
+                                'user_id' => $subscription->user_id,
+                                'subscription_id' => $subscription->getKey(),
+                                'template_id' => $template->getKey(),
+                                'template_slug' => $template->slug,
+                                'license_id' => $license->getKey(),
+                                'previous_last_downloaded_at' => $license->last_downloaded_at?->toDateString(),
+                                'previous_download_count' => $license->download_count - 1,
+                            ]);
+                        }
                     }
                 }
             }

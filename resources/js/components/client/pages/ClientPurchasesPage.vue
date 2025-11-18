@@ -117,6 +117,7 @@
     import Dialog from 'primevue/dialog';
     import Button from 'primevue/button';
     import { useClientPurchases } from '../../../composables/useClientPurchases.js';
+    import { useClientFormatting } from '../../../composables/useClientFormatting.js';
     import axios from 'axios';
 
     const toast = useToast();
@@ -130,23 +131,7 @@
     // Estado local reactivo para cada compra (para evitar modificar objetos readonly del store)
     const purchaseStates = reactive({});
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
-
-    const formatPrice = (price, currency = 'USD') => {
-        if (!price) return 'N/A';
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: currency,
-        }).format(price);
-    };
+    const { formatDate, formatPrice } = useClientFormatting();
 
     const copyCode = async (code) => {
         try {
@@ -336,87 +321,12 @@
 </script>
 
 <style scoped>
-    .client-purchases {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-    }
-
-    .client-purchases__header {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .client-purchases__title {
-        margin: 0;
-        font-family: 'Lexend', sans-serif;
-        font-size: 32px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .client-purchases__subtitle {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        opacity: 0.7;
-    }
-
-    .client-purchases__loading,
-    .client-purchases__error,
-    .client-purchases__empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        padding: 60px 20px;
-        text-align: center;
-    }
-
-    .client-purchases__error p,
-    .client-purchases__empty p {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        opacity: 0.7;
-    }
-
-    .client-purchases__list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-        gap: 24px;
-    }
-
-    @media (max-width: 880px) {
-        .client-purchases__list {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .client-purchase-card {
-        background: var(--qode-background-color);
-        border: 1px solid rgba(23, 23, 23, 0.1);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    body.dark-mode .client-purchase-card {
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-
+    /* Client Purchases Specific Styles */
     .client-purchase-card__header {
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(23, 23, 23, 0.1);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-    }
-
-    body.dark-mode .client-purchase-card__header {
-        border-bottom-color: rgba(255, 255, 255, 0.08);
     }
 
     .client-purchase-card__template {
@@ -457,7 +367,6 @@
     }
 
     .client-purchase-card__content {
-        padding: 24px;
         display: flex;
         flex-direction: column;
         gap: 20px;

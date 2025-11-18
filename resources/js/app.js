@@ -6,6 +6,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
+import InputOtp from 'primevue/inputotp';
 import Textarea from 'primevue/textarea';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
@@ -37,6 +38,7 @@ app.use(ConfirmationService);
 
 app.component('Dialog', Dialog);
 app.component('InputText', InputText);
+app.component('InputOtp', InputOtp);
 app.component('Textarea', Textarea);
 app.component('Password', Password);
 app.component('Button', Button);

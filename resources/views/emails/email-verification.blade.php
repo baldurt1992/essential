@@ -13,6 +13,12 @@ Gracias por registrarte en {{ config('app.name') }}. Para completar tu registro,
 
 Este código es válido por **10 minutos** y solo puede usarse una vez.
 
+@component('mail::button', ['url' => config('app.url') . '/?verify_email=' . urlencode($user->email)])
+Verificar mi correo ahora
+@endcomponent
+
+**¿No puedes ver la página de verificación?** Si recargaste o cerraste la página por error, haz clic en el botón de arriba para abrir el modal de verificación y completar tu registro.
+
 Si no solicitaste este código, puedes ignorar este correo.
 
 Saludos,

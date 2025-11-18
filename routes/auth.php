@@ -42,6 +42,19 @@ Route::middleware('web')->group(function () {
         ->middleware('guest')
         ->name('otp.resend');
 
+    // Password Recovery
+    Route::post('/password/recovery', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'sendRecoveryCode'])
+        ->middleware('guest')
+        ->name('password.recovery');
+
+    Route::post('/password/verify-otp', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'verifyOtp'])
+        ->middleware('guest')
+        ->name('password.verify-otp');
+
+    Route::post('/password/reset', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'resetPassword'])
+        ->middleware('guest')
+        ->name('password.reset');
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->middleware('auth')
         ->name('logout');

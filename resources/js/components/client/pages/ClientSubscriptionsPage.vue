@@ -67,7 +67,7 @@
                             <i class="pi pi-info-circle"></i>
                             <span v-if="subscription.will_cancel && subscription.current_period_end">
                                 Tu suscripción finalizará el <strong>{{ formatDate(subscription.current_period_end)
-                                    }}</strong> y perderás el acceso a los beneficios del plan.
+                                }}</strong> y perderás el acceso a los beneficios del plan.
                             </span>
                             <span v-else-if="subscription.current_period_end">
                                 Tu suscripción se renueva automáticamente el <strong>{{
@@ -105,29 +105,14 @@
     import { useConfirm } from 'primevue/useconfirm';
     import ConfirmPopup from 'primevue/confirmpopup';
     import { useClientSubscriptions } from '../../../composables/useClientSubscriptions.js';
+    import { useClientFormatting } from '../../../composables/useClientFormatting.js';
 
     const toast = useToast();
     const confirm = useConfirm();
     const subscriptionsStore = useClientSubscriptions();
     const isCanceling = ref(false);
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
-
-    const formatPrice = (price, currency = 'USD') => {
-        if (!price) return 'N/A';
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: currency,
-        }).format(price);
-    };
+    const { formatDate, formatPrice } = useClientFormatting();
 
     const getStatusLabel = (subscription) => {
         if (subscription.will_cancel) return 'Se cancelará al final del período';
@@ -235,78 +220,7 @@
 </script>
 
 <style scoped>
-    .client-subscriptions {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-    }
-
-    .client-subscriptions__header {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .client-subscriptions__title {
-        margin: 0;
-        font-family: 'Lexend', sans-serif;
-        font-size: 32px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .client-subscriptions__subtitle {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        opacity: 0.7;
-    }
-
-    .client-subscriptions__loading,
-    .client-subscriptions__error,
-    .client-subscriptions__empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        padding: 60px 20px;
-        text-align: center;
-    }
-
-    .client-subscriptions__error p,
-    .client-subscriptions__empty p {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        opacity: 0.7;
-    }
-
-    .client-subscriptions__list {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .client-subscription-card {
-        background: var(--qode-background-color);
-        border: 1px solid rgba(23, 23, 23, 0.1);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    body.dark-mode .client-subscription-card {
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .client-subscription-card__header {
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(23, 23, 23, 0.1);
-    }
-
-    body.dark-mode .client-subscription-card__header {
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-    }
+    /* Client Subscriptions Specific Styles */
 
     .client-subscription-card__info {
         display: flex;
@@ -341,9 +255,6 @@
         color: #ef4444;
     }
 
-    .client-subscription-card__content {
-        padding: 24px;
-    }
 
     .client-subscription-card__details {
         display: grid;

@@ -1,24 +1,17 @@
 <template>
     <section class="admin-page">
-        <header class="admin-page__header">
-            <div>
-                <h2 class="admin-page__title">Información de contacto</h2>
-                <p class="admin-page__subtitle">
-                    Mantén actualizados los datos que mostramos en la landing y en los correos automáticos.
-                </p>
-            </div>
-
-            <button type="button" class="essential-button essential-button--ghost" @click="resetForm"
-                :disabled="isSaving || !hasChanges">
-                Restablecer
-            </button>
-        </header>
+        <AdminPageHeader title="Información de contacto"
+            subtitle="Mantén actualizados los datos que mostramos en la landing y en los correos automáticos.">
+            <template #action>
+                <button type="button" class="essential-button essential-button--ghost" @click="resetForm"
+                    :disabled="isSaving || !hasChanges">
+                    Restablecer
+                </button>
+            </template>
+        </AdminPageHeader>
 
         <div class="admin-page__content">
-            <div v-if="isLoading" class="admin-loader">
-                <span class="admin-loader__spinner"></span>
-                <p class="admin-loader__text">Cargando datos de contacto…</p>
-            </div>
+            <AdminLoader v-if="isLoading" message="Cargando datos de contacto…" />
 
             <form v-else class="contact-form" @submit.prevent="handleSubmit">
                 <section class="contact-form__section">
@@ -168,7 +161,9 @@
     import Dropdown from 'primevue/dropdown';
     import Message from 'primevue/message';
     import { useToast } from 'primevue/usetoast';
-    import { useAdminContactInformation } from '../../../composables/admin/useContactInformation';
+    import AdminPageHeader from '../ui/AdminPageHeader.vue';
+    import AdminLoader from '../ui/AdminLoader.vue';
+    import { useAdminContactInformation } from '@/composables/admin/useContactInformation';
 
     const SOCIAL_NETWORK_OPTIONS = [
         { value: 'website', label: 'Sitio web / Portafolio', icon: 'pi-globe', placeholder: 'https://essentialinnovation.com' },
@@ -388,35 +383,6 @@
 </script>
 
 <style scoped>
-    .admin-page {
-        display: flex;
-        flex-direction: column;
-        gap: 26px;
-    }
-
-    .admin-page__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .admin-page__title {
-        font-family: 'Space Mono', monospace;
-        font-size: 22px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin: 0 0 6px;
-    }
-
-    .admin-page__subtitle {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        opacity: 0.8;
-        margin: 0;
-        max-width: 520px;
-    }
-
     .admin-page__content {
         background: rgba(255, 255, 255, 0.82);
         border-radius: 20px;
@@ -427,33 +393,9 @@
         gap: 32px;
     }
 
-    .admin-loader {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        margin: 60px 0;
-    }
-
-    .admin-loader__spinner {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        border: 3px solid rgba(221, 51, 51, 0.2);
-        border-top-color: #dd3333;
-        animation: contact-spin 1s linear infinite;
-    }
-
-    .admin-loader__text {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: rgba(23, 23, 23, 0.7);
-    }
-
-    @keyframes contact-spin {
-        to {
-            transform: rotate(360deg);
-        }
+    body.dark-mode .admin-page__content {
+        background: rgba(17, 17, 17, 0.9) !important;
+        border-color: rgba(243, 243, 243, 0.06) !important;
     }
 
     .contact-form {
@@ -632,12 +574,6 @@
     }
 
     @media (max-width: 640px) {
-        .admin-page__header {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 16px;
-        }
-
         .contact-form__actions {
             align-items: stretch;
         }

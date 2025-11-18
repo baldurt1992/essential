@@ -86,19 +86,11 @@
     import { RouterLink } from 'vue-router';
     import { useClientSubscriptions } from '../../../composables/useClientSubscriptions.js';
     import { useClientPurchases } from '../../../composables/useClientPurchases.js';
+    import { useClientFormatting } from '../../../composables/useClientFormatting.js';
 
     const subscriptionsStore = useClientSubscriptions();
     const purchasesStore = useClientPurchases();
-
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
+    const { formatDate } = useClientFormatting();
 
     onMounted(async () => {
         await Promise.all([
@@ -109,110 +101,8 @@
 </script>
 
 <style scoped>
-    .client-dashboard {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-    }
 
-    .client-dashboard__header {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .client-dashboard__title {
-        margin: 0;
-        font-family: 'Lexend', sans-serif;
-        font-size: 32px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .client-dashboard__subtitle {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        opacity: 0.7;
-    }
-
-    .client-dashboard__loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        padding: 60px 20px;
-        color: rgba(23, 23, 23, 0.6);
-    }
-
-    body.dark-mode .client-dashboard__loading {
-        color: rgba(243, 243, 243, 0.6);
-    }
-
-    .client-dashboard__grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 24px;
-    }
-
-    @media (max-width: 880px) {
-        .client-dashboard__grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .client-dashboard__card {
-        background: var(--qode-background-color);
-        border: 1px solid rgba(23, 23, 23, 0.1);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    body.dark-mode .client-dashboard__card {
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .client-dashboard__card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(23, 23, 23, 0.1);
-    }
-
-    body.dark-mode .client-dashboard__card-header {
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .client-dashboard__card-title {
-        margin: 0;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .client-dashboard__card-content {
-        padding: 24px;
-    }
-
-    .client-dashboard__empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        padding: 40px 20px;
-        text-align: center;
-    }
-
-    .client-dashboard__empty p {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        opacity: 0.7;
-    }
-
+    /* Client Dashboard Specific Styles */
     .client-dashboard__subscriptions,
     .client-dashboard__purchases {
         display: flex;
@@ -241,6 +131,7 @@
         margin: 0 0 4px;
         font-family: 'Space Mono', monospace;
         font-size: 16px;
+        color: var(--essential-heading-color);
     }
 
     .client-dashboard__subscription-info p,
@@ -249,5 +140,6 @@
         font-family: 'Inter', sans-serif;
         font-size: 13px;
         opacity: 0.7;
+        color: var(--essential-text-color);
     }
 </style>

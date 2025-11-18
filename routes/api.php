@@ -39,6 +39,27 @@ Route::get('/plans', [SitePlanController::class, 'index'])->name('plans.index');
 Route::post('/contact-messages', [ContactMessageController::class, 'store'])->name('contact-messages.store');
 Route::get('/services', [SiteServiceController::class, 'index'])->name('services.index');
 
+// Verificar estado de verificación de email (público)
+Route::post('/check-email-verification', function (Request $request) {
+    $request->validate([
+        'email' => ['required', 'email'],
+    ]);
+
+    $user = \App\Models\User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'verified' => false,
+            'message' => 'No encontramos una cuenta con este correo electrónico.',
+        ], 404);
+    }
+
+    return response()->json([
+        'verified' => !!$user->email_verified_at,
+        'email_verified_at' => $user->email_verified_at,
+    ]);
+})->name('check-email-verification');
+
 // Checkout de compras (público, permite invitados)
 Route::post('/checkout/purchase', PurchaseCheckoutController::class)->name('checkout.purchase');
 
@@ -70,4 +91,5 @@ Route::middleware(['auth:sanctum', 'role:client'])->prefix('client')->name('clie
     Route::post('/purchases/{purchase}/validate-code', [ClientPurchaseController::class, 'validateCode'])->name('purchases.validate-code');
 
     Route::get('/licenses', [ClientController::class, 'licenses'])->name('licenses.index');
+    Route::get('/downloads', [ClientController::class, 'downloads'])->name('downloads.index');
 });

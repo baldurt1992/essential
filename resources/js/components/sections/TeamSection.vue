@@ -163,6 +163,8 @@
         .masonry-item {
             min-height: 0;
             overflow: visible;
+            display: flex;
+            flex-direction: column;
         }
 
         .masonry-image {
@@ -224,7 +226,11 @@
             flex-direction: column;
             gap: 6px;
             margin-top: 14px;
-            padding: 0 4px 14px;
+            padding: 0 16px 20px;
+            position: relative;
+            z-index: 1;
+            visibility: visible;
+            opacity: 1;
         }
 
         .team-card-info__category {
@@ -232,7 +238,7 @@
             font-size: 12px;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(23, 23, 23, 0.76);
         }
 
         .team-card-info__title {
@@ -240,7 +246,7 @@
             font-family: 'Space Mono', monospace;
             font-size: 20px;
             text-transform: uppercase;
-            color: #ffffff;
+            color: #171717;
         }
 
         .team-card-info__title a {

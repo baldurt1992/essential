@@ -220,7 +220,7 @@
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <RouterLink :to="accountLink" class="mobile-auth-link" @click="closeMobileMenu">{{
                             mobileAccountLabel
-                        }}</RouterLink>
+                            }}</RouterLink>
                     </li>
                     <li v-if="isLoggedIn" class="mobile-auth-item">
                         <button type="button" class="mobile-auth-button mobile-auth-button--primary"
@@ -398,6 +398,7 @@
 <script setup>
     import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
     import { RouterLink, useRoute } from 'vue-router';
+    import axios from 'axios';
     import SideArea from './SideArea.vue';
     import NavMenuItem from './NavMenuItem.vue';
     import AuthModal from '../auth/AuthModal.vue';
@@ -411,7 +412,7 @@
     const isMobileMenuOpen = ref(false);
 
     // Usar el composable global para el modal de autenticación
-    const { authModalVisible, authModalForm, openAuthModal: openAuthModalGlobal, closeAuthModal } = useAuthModal();
+    const { authModalVisible, authModalForm, openAuthModal: openAuthModalGlobal, closeAuthModal, openEmailVerificationModal } = useAuthModal();
 
     const isLoggedIn = computed(() => auth.isAuthenticated.value);
     const isAdmin = computed(() => auth.isAdmin.value);
@@ -459,6 +460,49 @@
                 url.searchParams.delete('auth');
                 window.history.replaceState({}, '', url);
             }
+        }
+    }, { immediate: true });
+
+    // Detectar query params para abrir el modal de verificación de email
+    watch(() => route.query.verify_email, async (email) => {
+        if (!email) return;
+
+        // Limpiar el query param inmediatamente para evitar que se vea en la URL
+        if (window.history.replaceState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('verify_email');
+            window.history.replaceState({}, '', url);
+        }
+
+        // Verificar si el usuario ya está verificado antes de abrir el modal
+        try {
+            // Primero verificar si el usuario está autenticado y verificado
+            const userResponse = await axios.get('/api/user', {
+                validateStatus: (status) => status >= 200 && status < 500,
+            });
+
+            if (userResponse.status === 200 && userResponse.data?.email_verified_at) {
+                // Usuario autenticado y ya verificado, no abrir el modal
+                return;
+            }
+
+            // Verificar si el email ya está verificado (sin autenticación)
+            const checkResponse = await axios.post('/api/check-email-verification', { email });
+            if (checkResponse.data?.verified === true) {
+                // El email ya está verificado, no abrir el modal
+                return;
+            }
+
+            // El email no está verificado, abrir el modal con la flag fromEmail
+            openEmailVerificationModal(email, true);
+        } catch (error) {
+            // Si hay error 404 (usuario no existe), no hacer nada
+            if (error.response?.status === 404) {
+                return;
+            }
+            // Si hay otro error, intentar abrir el modal de todas formas
+            // (puede ser un problema temporal de red)
+            openEmailVerificationModal(email, true);
         }
     }, { immediate: true });
 

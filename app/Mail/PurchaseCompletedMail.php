@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\URL;
 
-class PurchaseCompletedMail extends Mailable // implements ShouldQueue // Desactivado: requiere worker de colas en producción
+class PurchaseCompletedMail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
@@ -18,8 +18,7 @@ class PurchaseCompletedMail extends Mailable // implements ShouldQueue // Desact
     public function __construct(
         public DownloadLicense $license,
         public Purchase $purchase
-    ) {
-    }
+    ) {}
 
     public function build(): self
     {
@@ -27,7 +26,7 @@ class PurchaseCompletedMail extends Mailable // implements ShouldQueue // Desact
         $downloadUrl = $isGuest ? $this->guestDownloadUrl() : $this->authenticatedDownloadUrl();
 
         return $this
-            ->subject('Tu compra está lista: '.$this->license->template->title)
+            ->subject('Tu compra está lista: ' . $this->license->template->title)
             ->markdown('emails.purchase-completed', [
                 'license' => $this->license,
                 'template' => $this->license->template,

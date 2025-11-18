@@ -626,144 +626,10 @@
 </script>
 
 <style scoped>
-    .template-form {
-        display: flex;
-        flex-direction: column;
-        gap: 28px;
-    }
-
+    /* Template Form Specific Styles */
     .template-form__grid {
-        display: grid;
         grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
         gap: 36px;
-    }
-
-    .template-form__main {
-        display: flex;
-        flex-direction: column;
-        gap: 28px;
-    }
-
-    .template-form__section {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .template-form__section--inline {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 18px;
-        align-items: flex-start;
-    }
-
-    .template-form__section-title {
-        font-family: 'Space Mono', monospace;
-        font-size: 16px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin: 0 0 6px;
-    }
-
-    .template-form__field {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .template-form__switch {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .template-form__switch-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: 'IBM Plex Mono', monospace;
-        letter-spacing: 0.08em;
-        font-size: 12px;
-        text-transform: uppercase;
-    }
-
-    .template-form__tags-label {
-        font-family: 'Space Mono', monospace;
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .template-form__tags-input {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .template-form__tags-input :deep(.p-inputtext) {
-        width: 100%;
-    }
-
-    .template-form__tags-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 12px;
-    }
-
-    .template-form__tags-list :deep(.p-chip) {
-        background: rgba(23, 23, 23, 0.08);
-        color: #171717;
-        border-radius: 999px;
-        font-family: 'IBM Plex Mono', monospace;
-        letter-spacing: 0.06em;
-        padding: 6px 12px;
-    }
-
-    .template-form__tags-list :deep(.p-chip .p-chip-remove-icon) {
-        color: inherit;
-    }
-
-    .template-form__aside {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        background: rgba(23, 23, 23, 0.02);
-        border-radius: 18px;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        padding: 22px 24px;
-    }
-
-    .template-form__upload {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .template-form__preview {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 220px;
-        border-radius: 16px;
-        border: 1px dashed rgba(23, 23, 23, 0.2);
-        background: rgba(255, 255, 255, 0.8);
-        overflow: hidden;
-    }
-
-    .template-form__preview-placeholder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        color: rgba(23, 23, 23, 0.5);
-        font-family: 'Inter', sans-serif;
-        text-align: center;
-        padding: 30px 20px;
-    }
-
-    .template-form__preview-placeholder .pi {
-        font-size: 32px;
     }
 
     .template-form__package-info {
@@ -775,9 +641,17 @@
         background: rgba(23, 23, 23, 0.04);
     }
 
+    body.dark-mode .template-form__package-info {
+        background: rgba(243, 243, 243, 0.04);
+    }
+
     .template-form__package-info .pi {
         font-size: 24px;
         color: #171717;
+    }
+
+    body.dark-mode .template-form__package-info .pi {
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .template-form__package-name {
@@ -787,87 +661,11 @@
         margin: 0 0 6px;
         word-break: break-word;
         overflow-wrap: anywhere;
-    }
-
-    .template-form__upload-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .template-form__file-input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-        width: 0;
-        height: 0;
-    }
-
-    .template-form__link {
-        background: none;
-        border: none;
-        padding: 0;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #dd3333;
-        cursor: pointer;
-    }
-
-    .template-form__link:hover {
-        text-decoration: underline;
-    }
-
-    .template-form__label-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .template-form__error {
-        font-family: 'Inter', sans-serif;
-        font-size: 12px;
-        color: #dd3333;
-    }
-
-    .template-form__error-slot {
-        min-height: 18px;
-    }
-
-    .template-form__field--error :deep(.p-inputtext),
-    .template-form__field--error :deep(.p-inputnumber-input),
-    .template-form__field--error :deep(.p-chips-input-token input) {
-        border-color: #dd3333;
+        color: var(--essential-text-color);
     }
 
     .template-form__alert {
         margin-top: 4px;
-    }
-
-    .template-form__actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-
-    .template-form__spinner {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        border-top-color: #ffffff;
-        margin-right: 8px;
-        animation: template-spin 1s linear infinite;
-    }
-
-    @keyframes template-spin {
-        to {
-            transform: rotate(360deg);
-        }
     }
 
     @media (max-width: 980px) {

@@ -17,6 +17,7 @@ import ClientLayout from '../components/client/ClientLayout.vue';
 import ClientDashboardPage from '../components/client/pages/ClientDashboardPage.vue';
 import ClientSubscriptionsPage from '../components/client/pages/ClientSubscriptionsPage.vue';
 import ClientPurchasesPage from '../components/client/pages/ClientPurchasesPage.vue';
+import ClientDownloadsPage from '../components/client/pages/ClientDownloadsPage.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -122,6 +123,11 @@ const router = createRouter({
                     path: 'compras',
                     name: 'client.purchases',
                     component: ClientPurchasesPage,
+                },
+                {
+                    path: 'descargas',
+                    name: 'client.downloads',
+                    component: ClientDownloadsPage,
                 },
             ],
         },

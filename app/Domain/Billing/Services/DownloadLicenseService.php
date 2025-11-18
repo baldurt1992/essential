@@ -86,7 +86,7 @@ class DownloadLicenseService
             }])
             ->get();
 
-        return $licenses->first(function (DownloadLicense $license) {
+        return $licenses->first(function (DownloadLicense $license) use ($template) {
             if (! $license->canDownload()) {
                 return false;
             }
@@ -111,16 +111,49 @@ class DownloadLicenseService
 
                         // Si el plan tiene límite y no es ilimitado, verificar contador mensual
                         if (! $plan->unlimited_downloads && $plan->download_limit !== null) {
-                            if ($subscription->downloads_used >= $plan->download_limit) {
+                            // Verificar si ya descargó esta plantilla este mes
+                            $alreadyDownloadedThisMonth = $license->last_downloaded_at
+                                && $license->last_downloaded_at->year === now()->year
+                                && $license->last_downloaded_at->month === now()->month;
+
+                            // Verificar si hay otra licencia para esta plantilla que ya fue descargada este mes
+                            $otherLicenseDownloadedThisMonth = DownloadLicense::query()
+                                ->where('source_type', Subscription::class)
+                                ->where('source_id', $subscription->getKey())
+                                ->where('template_id', $template->getKey())
+                                ->whereNotNull('last_downloaded_at')
+                                ->whereYear('last_downloaded_at', now()->year)
+                                ->whereMonth('last_downloaded_at', now()->month)
+                                ->where('id', '!=', $license->getKey())
+                                ->exists();
+
+                            $isRedownload = $alreadyDownloadedThisMonth || $otherLicenseDownloadedThisMonth;
+
+                            // Solo verificar el límite si NO es una re-descarga
+                            if (! $isRedownload && $subscription->downloads_used >= $plan->download_limit) {
                                 \Illuminate\Support\Facades\Log::info('Download limit reached in findValidLicense', [
                                     'user_id' => $subscription->user_id,
                                     'subscription_id' => $subscription->getKey(),
+                                    'template_id' => $template->getKey(),
                                     'downloads_used' => $subscription->downloads_used,
                                     'download_limit' => $plan->download_limit,
                                     'plan_name' => $plan->name,
                                     'plan_id' => $plan->getKey(),
                                 ]);
-                                return false; // Ya alcanzó el límite mensual
+                                return false; // Ya alcanzó el límite mensual y no es re-descarga
+                            }
+
+                            // Si es re-descarga, permitir aunque haya alcanzado el límite
+                            if ($isRedownload) {
+                                \Illuminate\Support\Facades\Log::info('License found for re-download (limit reached but allowed)', [
+                                    'user_id' => $subscription->user_id,
+                                    'subscription_id' => $subscription->getKey(),
+                                    'template_id' => $template->getKey(),
+                                    'license_id' => $license->getKey(),
+                                    'downloads_used' => $subscription->downloads_used,
+                                    'download_limit' => $plan->download_limit,
+                                    'plan_name' => $plan->name,
+                                ]);
                             }
                         }
                     }

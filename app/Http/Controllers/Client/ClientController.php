@@ -106,5 +106,17 @@ class ClientController extends Controller
 
         return ClientLicenseResource::collection($licenses)->response();
     }
+
+    public function downloads(Request $request): JsonResponse
+    {
+        $downloads = DownloadLicense::query()
+            ->where('user_id', $request->user()->id)
+            ->whereNotNull('last_downloaded_at')
+            ->with(['template', 'source'])
+            ->orderBy('last_downloaded_at', 'desc')
+            ->get();
+
+        return ClientLicenseResource::collection($downloads)->response();
+    }
 }
 

@@ -30,6 +30,9 @@ class User extends Authenticatable
         'password',
         'otp',
         'otp_expires_at',
+        'password_recovery_otp',
+        'password_recovery_otp_expires_at',
+        'email_verified_at',
     ];
 
     protected $with = ['roles'];
@@ -54,6 +57,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'otp_expires_at' => 'datetime',
+            'password_recovery_otp_expires_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
