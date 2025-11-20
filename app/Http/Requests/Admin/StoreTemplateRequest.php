@@ -25,8 +25,18 @@ class StoreTemplateRequest extends FormRequest
             'is_popular' => ['boolean'],
             'is_new' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
-            'preview_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'package_file' => ['required', 'file', 'mimes:zip,rar', 'max:51200'],
+            'preview_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:10240'], // 10MB en KB
+            'package_file' => ['required', 'file', 'mimes:zip,rar', 'max:153600'], // 150MB en KB
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'package_file.max' => 'El archivo es demasiado grande. El tamaño máximo permitido es 150MB.',
+            'package_file.mimes' => 'El archivo debe ser un archivo ZIP o RAR.',
+            'preview_image.max' => 'La imagen es demasiado grande. El tamaño máximo permitido es 10MB.',
+            'preview_image.mimes' => 'La imagen debe ser JPG, JPEG, PNG o WEBP.',
         ];
     }
 }

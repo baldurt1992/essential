@@ -83,18 +83,40 @@ export function useAdminTemplates() {
         }
     };
 
-    const createTemplate = async (payload) => {
+    const createTemplate = async (payload, onProgressCallback = null) => {
         state.saving = true;
         state.error = null;
 
         try {
             const formData = ensureFormData(payload);
 
-            // Configurar timeout largo para archivos grandes (hasta 50MB)
+            // Configurar timeout largo para archivos grandes (hasta 150MB)
             const response = await axios.post('/api/admin/templates', formData, {
-                timeout: 300000, // 5 minutos para archivos grandes
+                timeout: 600000, // 10 minutos para archivos grandes
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+
+                        if (onProgressCallback) {
+                            onProgressCallback(percentCompleted);
+                        }
+
+                        if (import.meta.env.DEV) {
+                            console.debug('[useAdminTemplates] Upload progress', {
+                                percent: percentCompleted,
+                                loaded: progressEvent.loaded,
+                                total: progressEvent.total,
+                                loadedMB: (progressEvent.loaded / (1024 * 1024)).toFixed(2),
+                                totalMB: (progressEvent.total / (1024 * 1024)).toFixed(2),
+                            });
+                        }
+                    }
+                },
             });
 
             const template = response.data.data;
@@ -109,7 +131,7 @@ export function useAdminTemplates() {
         }
     };
 
-    const updateTemplate = async (templateId, payload) => {
+    const updateTemplate = async (templateId, payload, onProgressCallback = null) => {
         state.saving = true;
         state.error = null;
 
@@ -122,11 +144,52 @@ export function useAdminTemplates() {
                 formData.append('_method', 'PUT');
             }
 
-            // Configurar timeout largo para archivos grandes (hasta 50MB)
+            // Logs para debugging
+            if (import.meta.env.DEV) {
+                const packageFile = formData.get('package_file');
+                console.debug('[useAdminTemplates] updateTemplate', {
+                    templateId,
+                    isFormData: payload instanceof FormData,
+                    hasPackageFile: formData.has('package_file'),
+                    hasPreviewImage: formData.has('preview_image'),
+                    formDataKeys: Array.from(formData.keys()),
+                    packageFileInfo: packageFile ? {
+                        name: packageFile.name,
+                        size: packageFile.size,
+                        sizeMB: (packageFile.size / (1024 * 1024)).toFixed(2),
+                        type: packageFile.type,
+                    } : null,
+                });
+            }
+
+            // Configurar timeout largo para archivos grandes (hasta 150MB)
+            // Para archivos de 121MB, necesitamos más tiempo (aprox 10 minutos)
             const response = await axios.post(`/api/admin/templates/${templateId}`, formData, {
-                timeout: 300000, // 5 minutos para archivos grandes
+                timeout: 600000, // 10 minutos para archivos grandes
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+
+                        if (onProgressCallback) {
+                            onProgressCallback(percentCompleted);
+                        }
+
+                        if (import.meta.env.DEV) {
+                            console.debug('[useAdminTemplates] Upload progress', {
+                                percent: percentCompleted,
+                                loaded: progressEvent.loaded,
+                                total: progressEvent.total,
+                                loadedMB: (progressEvent.loaded / (1024 * 1024)).toFixed(2),
+                                totalMB: (progressEvent.total / (1024 * 1024)).toFixed(2),
+                            });
+                        }
+                    }
+                },
             });
 
             const template = response.data.data;
@@ -156,6 +219,23 @@ export function useAdminTemplates() {
         }
     };
 
+    const deleteTemplatePackageFile = async (templateId) => {
+        state.saving = true;
+        state.error = null;
+
+        try {
+            const response = await axios.delete(`/api/admin/templates/${templateId}/package-file`);
+            const template = response.data.data;
+            state.templates = state.templates.map((item) => (item.id === template.id ? template : item));
+            return template;
+        } catch (error) {
+            state.error = handleError(error);
+            throw error;
+        } finally {
+            state.saving = false;
+        }
+    };
+
     const pagination = computed(() => state.meta);
     const templates = computed(() => state.templates);
     const isLoading = computed(() => state.loading && !state.initialized);
@@ -173,5 +253,6 @@ export function useAdminTemplates() {
         createTemplate,
         updateTemplate,
         deleteTemplate,
+        deleteTemplatePackageFile,
     };
 }

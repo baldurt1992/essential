@@ -10,7 +10,7 @@
                             placeholder="Ej. Flyer Summer Party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('title')" class="template-form__error">{{ fieldError('title')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             placeholder="flyer-summer-party" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('slug')" class="template-form__error">{{ fieldError('slug')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -50,7 +50,7 @@
                             @input="clearFieldError('price')" />
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('price')" class="template-form__error">{{ fieldError('price')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@
                         <div class="template-form__error-slot">
                             <small v-if="fieldError('sort_order')" class="template-form__error">{{
                                 fieldError('sort_order')
-                            }}</small>
+                                }}</small>
                         </div>
                     </div>
 
@@ -121,6 +121,8 @@
                             <p>Selecciona una imagen (JPG, PNG, WEBP)</p>
                         </div>
                     </div>
+                    <small style="display: block; margin-top: 8px; color: var(--text-color-secondary);">Máx. 10
+                        MB</small>
                     <input ref="previewInputRef" type="file" accept="image/png,image/jpeg,image/webp"
                         class="template-form__file-input" @change="onPreviewChange" />
                     <div class="template-form__upload-actions">
@@ -146,24 +148,35 @@
                             <p class="template-form__package-name">
                                 {{ packageFileName }}
                             </p>
-                            <small>Máx. 50 MB</small>
+                            <small>Máx. 150 MB</small>
                         </div>
                     </div>
                     <input ref="packageInputRef" type="file" accept=".zip,.rar" class="template-form__file-input"
                         @change="onPackageChange" />
                     <div class="template-form__upload-actions">
-                        <button type="button" class="essential-button essential-button--ghost"
-                            @click="triggerPackagePick">
+                        <button v-if="!packageFile && !(mode === 'edit' && template?.download_path)" type="button"
+                            class="essential-button essential-button--ghost" @click="triggerPackagePick">
                             Seleccionar archivo
                         </button>
                         <button v-if="packageFile" type="button" class="template-form__link" @click="clearPackage">
                             Quitar archivo
                         </button>
+                        <button v-if="mode === 'edit' && template?.download_path && !packageFile" type="button"
+                            class="template-form__link template-form__link--danger" @click="handleDeletePackageFile">
+                            Quitar archivo
+                        </button>
+                    </div>
+                    <div v-if="uploadProgress > 0 && uploadProgress < 100" class="template-form__upload-progress">
+                        <div class="template-form__upload-progress-header">
+                            <span>Subiendo archivo...</span>
+                            <span>{{ uploadProgress }}%</span>
+                        </div>
+                        <ProgressBar :value="uploadProgress" />
                     </div>
                     <div class="template-form__error-slot">
                         <small v-if="fieldError('package_file')" class="template-form__error">{{
                             fieldError('package_file')
-                        }}</small>
+                            }}</small>
                     </div>
                 </div>
             </aside>
@@ -196,6 +209,7 @@
     import Chip from 'primevue/chip';
     import Message from 'primevue/message';
     import Button from 'primevue/button';
+    import ProgressBar from 'primevue/progressbar';
 
     const props = defineProps({
         mode: {
@@ -222,6 +236,10 @@
             type: String,
             default: 'EUR',
         },
+        onDeletePackageFile: {
+            type: Function,
+            default: null,
+        },
     });
 
     const emit = defineEmits(['submit', 'cancel']);
@@ -246,6 +264,7 @@
     const previewFile = ref(null);
     const previewUrl = ref(null);
     const packageFile = ref(null);
+    const uploadProgress = ref(0);
 
     const previewInputRef = ref(null);
     const packageInputRef = ref(null);
@@ -315,6 +334,7 @@
         previewFile.value = null;
         previewUrl.value = null;
         packageFile.value = null;
+        uploadProgress.value = 0;
         slugTouched.value = Boolean(form.slug);
         clearErrors();
         backendFieldErrors.value = {};
@@ -381,6 +401,13 @@
             return;
         }
 
+        // Validar tamaño máximo: 10MB (10 * 1024 * 1024 bytes)
+        const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+        if (file.size > maxSize) {
+            errors.preview_image = `La imagen es demasiado grande. El tamaño máximo permitido es 10MB. Tu archivo tiene ${(file.size / (1024 * 1024)).toFixed(2)}MB.`;
+            return;
+        }
+
         if (previewUrl.value) {
             URL.revokeObjectURL(previewUrl.value);
         }
@@ -392,6 +419,16 @@
 
     const onPackageChange = (event) => {
         const file = event.target.files?.[0];
+
+        if (import.meta.env.DEV) {
+            console.debug('[AdminTemplateForm] onPackageChange', {
+                hasFile: !!file,
+                fileName: file?.name,
+                fileSize: file?.size,
+                inputFiles: event.target.files,
+            });
+        }
+
         if (!file) {
             return;
         }
@@ -403,15 +440,27 @@
             return;
         }
 
-        // Validar tamaño máximo: 50MB (50 * 1024 * 1024 bytes)
-        const maxSize = 50 * 1024 * 1024; // 50MB en bytes
+        // Validar tamaño máximo: 150MB (150 * 1024 * 1024 bytes)
+        const maxSize = 150 * 1024 * 1024; // 150MB en bytes
         if (file.size > maxSize) {
-            errors.package_file = `El archivo es demasiado grande. El tamaño máximo permitido es 50MB. Tu archivo tiene ${(file.size / (1024 * 1024)).toFixed(2)}MB.`;
+            errors.package_file = `El archivo es demasiado grande. El tamaño máximo permitido es 150MB. Tu archivo tiene ${(file.size / (1024 * 1024)).toFixed(2)}MB.`;
             return;
         }
 
         packageFile.value = file;
         delete errors.package_file;
+
+        // Resetear el input para permitir seleccionar el mismo archivo de nuevo
+        // Esto asegura que el evento change se dispare siempre
+        if (packageInputRef.value) {
+            packageInputRef.value.value = '';
+        }
+
+        if (import.meta.env.DEV) {
+            console.debug('[AdminTemplateForm] Package file set', {
+                packageFileValue: packageFile.value?.name,
+            });
+        }
     };
 
     const clearPreview = () => {
@@ -429,6 +478,19 @@
         packageFile.value = null;
         packageInputRef.value && (packageInputRef.value.value = '');
         clearFieldError('package_file');
+    };
+
+    const handleDeletePackageFile = async () => {
+        if (!props.onDeletePackageFile) {
+            return;
+        }
+
+        await props.onDeletePackageFile();
+        // Limpiar el estado local después de eliminar
+        packageFile.value = null;
+        if (packageInputRef.value) {
+            packageInputRef.value.value = '';
+        }
     };
 
     const resolvePreviewUrl = (path) => {
@@ -512,6 +574,33 @@
     const buildFormData = (payload) => {
         const formData = new FormData();
 
+        // IMPORTANTE: Agregar archivos PRIMERO antes de otros campos
+        // Esto ayuda a que el servidor los procese correctamente
+        if (previewFile.value) {
+            formData.append('preview_image', previewFile.value, previewFile.value.name);
+        }
+
+        if (packageFile.value) {
+            formData.append('package_file', packageFile.value, packageFile.value.name);
+
+            if (import.meta.env.DEV) {
+                console.debug('[AdminTemplateForm] buildFormData - Package file added', {
+                    fileName: packageFile.value.name,
+                    fileSize: packageFile.value.size,
+                    fileSizeMB: (packageFile.value.size / (1024 * 1024)).toFixed(2),
+                    hasInFormData: formData.has('package_file'),
+                });
+            }
+        } else {
+            if (import.meta.env.DEV) {
+                console.warn('[AdminTemplateForm] buildFormData - No package file to add', {
+                    packageFileValue: packageFile.value,
+                    mode: props.mode,
+                });
+            }
+        }
+
+        // Luego agregar los demás campos
         formData.append('title', payload.title ?? '');
         if (payload.slug) {
             formData.append('slug', payload.slug);
@@ -530,14 +619,6 @@
             payload.tags.forEach((tag) => formData.append('tags[]', tag));
         }
 
-        if (previewFile.value) {
-            formData.append('preview_image', previewFile.value, previewFile.value.name);
-        }
-
-        if (packageFile.value) {
-            formData.append('package_file', packageFile.value, packageFile.value.name);
-        }
-
         return formData;
     };
 
@@ -550,12 +631,18 @@
         const payload = buildPayload();
         const formData = buildFormData(payload);
 
+        // Resetear progreso antes de enviar
+        uploadProgress.value = 0;
+
         emit('submit', {
             payload,
             formData,
             setPreviewFile,
             setPackageFile,
             updateBackendErrors,
+            onUploadProgress: (progress) => {
+                uploadProgress.value = progress;
+            },
         });
     };
 
@@ -626,6 +713,7 @@
 </script>
 
 <style scoped>
+
     /* Template Form Specific Styles */
     .template-form__grid {
         grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
@@ -666,6 +754,71 @@
 
     .template-form__alert {
         margin-top: 4px;
+    }
+
+    .template-form__link--danger {
+        color: var(--red-500);
+    }
+
+    .template-form__link--danger:hover {
+        color: var(--red-600);
+    }
+
+    body.dark-mode .template-form__link--danger {
+        color: var(--red-400);
+    }
+
+    body.dark-mode .template-form__link--danger:hover {
+        color: var(--red-300);
+    }
+
+    .template-form__upload-progress {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #dd3333 !important;
+    }
+
+    body.dark-mode .template-form__upload-progress {
+        background: #dd3333 !important;
+    }
+
+    .template-form__upload-progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #ffffff;
+    }
+
+    .template-form__upload-progress-header span:last-child {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        color: #ffffff;
+    }
+
+    /* ProgressBar primary styling */
+    .template-form__upload-progress :deep(.p-progressbar) {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        height: 8px;
+    }
+
+    .template-form__upload-progress :deep(.p-progressbar-value) {
+        background: #ffffff;
+        border-radius: 999px;
+    }
+
+    /* Tags in dark mode - dark text */
+    body.dark-mode .template-form__tags-list :deep(.p-chip) {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: #171717 !important;
+    }
+
+    body.dark-mode .template-form__tags-list :deep(.p-chip .p-chip-remove-icon) {
+        color: #171717 !important;
     }
 
     @media (max-width: 980px) {

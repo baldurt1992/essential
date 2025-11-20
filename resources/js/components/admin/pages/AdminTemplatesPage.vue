@@ -88,8 +88,8 @@
             @hide="handleModalHide">
             <AdminTemplateForm v-if="isModalOpen" ref="formRef" :key="modalKey" :mode="modalMode"
                 :template="selectedTemplate" :saving="isSaving" :backend-errors="formFieldErrors"
-                :general-error="formGeneralError" :currency="defaultCurrency" @submit="handleFormSubmit"
-                @cancel="closeModal" />
+                :general-error="formGeneralError" :currency="defaultCurrency"
+                :on-delete-package-file="handleDeletePackageFile" @submit="handleFormSubmit" @cancel="closeModal" />
         </Dialog>
     </section>
 </template>
@@ -120,6 +120,7 @@
         createTemplate,
         updateTemplate,
         deleteTemplate,
+        deleteTemplatePackageFile,
     } = useAdminTemplates();
 
     const { formatPrice, formatUpdatedAt } = useAdminFormatting();
@@ -166,7 +167,7 @@
         isModalOpen.value = true;
     };
 
-    const handleFormSubmit = async ({ payload, formData, setPreviewFile, setPackageFile, updateBackendErrors }) => {
+    const handleFormSubmit = async ({ payload, formData, setPreviewFile, setPackageFile, updateBackendErrors, onUploadProgress }) => {
         formFieldErrors.value = {};
         formGeneralError.value = '';
 
@@ -181,9 +182,16 @@
                             : 'package_file' in dataToSend,
                     });
                 }
-                const response = await updateTemplate(selectedTemplate.value.id, dataToSend);
+                const response = await updateTemplate(selectedTemplate.value.id, dataToSend, onUploadProgress);
                 const currentPage = pagination.value?.current_page ?? 1;
                 await fetchTemplates({ page: currentPage });
+
+                // Resetear progreso al completar
+                if (onUploadProgress) {
+                    onUploadProgress(100);
+                    setTimeout(() => onUploadProgress(0), 500);
+                }
+
                 toast.add({
                     severity: 'success',
                     summary: 'Plantilla actualizada',
@@ -194,9 +202,16 @@
                 return response;
             }
 
-            await createTemplate(formData ?? payload);
+            await createTemplate(formData ?? payload, onUploadProgress);
             await fetchTemplates({ page: 1 });
             resetPagination();
+
+            // Resetear progreso al completar
+            if (onUploadProgress) {
+                onUploadProgress(100);
+                setTimeout(() => onUploadProgress(0), 500);
+            }
+
             toast.add({
                 severity: 'success',
                 summary: 'Plantilla creada',
@@ -205,9 +220,26 @@
             });
             isModalOpen.value = false;
         } catch (error) {
+            // Resetear progreso en caso de error
+            if (onUploadProgress) {
+                onUploadProgress(0);
+            }
+
+            // Verificar si el error es por límites de PHP
+            const errorMessage = error.response?.data?.message ?? error.message ?? 'Ocurrió un error inesperado.';
+            const isPhpLimitError = errorMessage.includes('post_max_size') ||
+                errorMessage.includes('upload_max_filesize') ||
+                error.response?.status === 413 ||
+                (!error.response && errorMessage.includes('Network'));
+
+            if (isPhpLimitError) {
+                formGeneralError.value = 'El archivo es demasiado grande para el servidor. Los límites actuales son: upload_max_filesize=2M, post_max_size=8M. Contacta al administrador para aumentar estos límites a 150M.';
+            } else {
+                formGeneralError.value = errorMessage;
+            }
+
             const backendErrors = error.response?.data?.errors ?? {};
             formFieldErrors.value = backendErrors;
-            formGeneralError.value = error.response?.data?.message ?? 'Ocurrió un error inesperado.';
 
             toast.add({ severity: 'error', summary: 'Error', detail: formGeneralError.value, life: 5000 });
 
@@ -255,6 +287,35 @@
 
     const closeModal = () => {
         isModalOpen.value = false;
+    };
+
+    const handleDeletePackageFile = async () => {
+        if (!selectedTemplate.value?.id) {
+            return;
+        }
+
+        try {
+            await deleteTemplatePackageFile(selectedTemplate.value.id);
+            // Actualizar el template seleccionado para reflejar el cambio
+            const updated = templates.value.find((t) => t.id === selectedTemplate.value.id);
+            if (updated) {
+                selectedTemplate.value = updated;
+            }
+            toast.add({
+                severity: 'success',
+                summary: 'Archivo eliminado',
+                detail: 'El archivo se ha eliminado correctamente. Ahora puedes subir uno nuevo.',
+                life: 3000,
+            });
+        } catch (error) {
+            console.error('[admin][templates][delete-package][error]', error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.response?.data?.message ?? 'No se pudo eliminar el archivo.',
+                life: 5000,
+            });
+        }
     };
 
     const handleModalHide = () => {

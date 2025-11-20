@@ -53,6 +53,22 @@ class TemplateService
         $template->delete();
     }
 
+    public function deletePackageFile(Template $template): void
+    {
+        Log::info('[TemplateService] Deleting package file', [
+            'template_id' => $template->id,
+            'download_path' => $template->download_path,
+        ]);
+
+        $this->deleteFile($template->download_path, 'local');
+        $template->download_path = null;
+        $template->save();
+
+        Log::info('[TemplateService] Package file deleted', [
+            'template_id' => $template->id,
+        ]);
+    }
+
     private function mapStoreData(array $data): array
     {
         return [
@@ -153,29 +169,78 @@ class TemplateService
         }
 
         if ($package = Arr::get($data, 'package_file')) {
-            Log::info('Handling package file upload', [
+            Log::info('[TemplateService] Handling package file upload', [
                 'template_id' => $template->id,
                 'file_name' => $package->getClientOriginalName(),
                 'file_size' => $package->getSize(),
+                'file_size_mb' => round($package->getSize() / (1024 * 1024), 2),
+                'is_valid' => $package->isValid(),
+                'current_download_path' => $template->download_path,
             ]);
+
+            // Verificar que el archivo sea válido antes de procesarlo
+            if (!$package->isValid()) {
+                Log::error('[TemplateService] Package file is invalid', [
+                    'template_id' => $template->id,
+                    'error' => $package->getError(),
+                    'error_message' => $package->getErrorMessage(),
+                ]);
+                throw new \RuntimeException('El archivo no es válido: ' . $package->getErrorMessage());
+            }
 
             // Asegurar que el directorio existe
             $packageDir = 'templates/packages';
             $localDisk = Storage::disk('local');
             if (! $localDisk->exists($packageDir)) {
-                Log::info('Creating package directory', ['directory' => $packageDir]);
+                Log::info('[TemplateService] Creating package directory', ['directory' => $packageDir]);
                 $localDisk->makeDirectory($packageDir, 0755, true);
             }
 
-            $this->deleteFile($template->download_path, 'local');
+            // Eliminar el archivo anterior si existe
+            if ($template->download_path) {
+                Log::info('[TemplateService] Deleting old package file before upload', [
+                    'old_path' => $template->download_path,
+                ]);
+                $this->deleteFile($template->download_path, 'local');
+            }
+
+            // Guardar el nuevo archivo
             $storedPath = $this->storeFile($package, $packageDir, 'local');
 
-            Log::info('Package file stored', [
+            // Verificar que el archivo se guardó correctamente
+            if (!$localDisk->exists($storedPath)) {
+                Log::error('[TemplateService] Package file was not stored', [
+                    'template_id' => $template->id,
+                    'stored_path' => $storedPath,
+                ]);
+                throw new \RuntimeException('No se pudo guardar el archivo en el servidor.');
+            }
+
+            $storedFileSize = $localDisk->size($storedPath);
+            $originalFileSize = $package->getSize();
+
+            // Verificar que el tamaño del archivo guardado coincida con el original
+            if ($storedFileSize !== $originalFileSize) {
+                Log::error('[TemplateService] Package file size mismatch', [
+                    'template_id' => $template->id,
+                    'original_size' => $originalFileSize,
+                    'stored_size' => $storedFileSize,
+                    'stored_path' => $storedPath,
+                ]);
+                // Eliminar el archivo incompleto
+                $localDisk->delete($storedPath);
+                throw new \RuntimeException('El archivo se guardó incompleto. Tamaño original: ' . round($originalFileSize / (1024 * 1024), 2) . 'MB, guardado: ' . round($storedFileSize / (1024 * 1024), 2) . 'MB');
+            }
+
+            Log::info('[TemplateService] Package file stored successfully', [
                 'template_id' => $template->id,
                 'stored_path' => $storedPath,
                 'file_exists' => $localDisk->exists($storedPath),
+                'file_size' => $storedFileSize,
+                'file_size_mb' => round($storedFileSize / (1024 * 1024), 2),
             ]);
 
+            // Actualizar el path en el modelo
             $template->download_path = $storedPath;
         }
     }
@@ -216,10 +281,21 @@ class TemplateService
     private function storeFile(UploadedFile $file, string $directory, string $disk): string
     {
         $storage = Storage::disk($disk);
-        $path = $file->store($directory, ['disk' => $disk]);
 
-        Log::info('File stored', [
-            'original_name' => $file->getClientOriginalName(),
+        // Obtener el nombre original del archivo y sanitizarlo
+        $originalName = $file->getClientOriginalName();
+        $sanitizedName = $this->sanitizeFileName($originalName);
+
+        // Si el archivo ya existe, agregar un sufijo numérico para evitar colisiones
+        $finalName = $this->ensureUniqueFileName($storage, $directory, $sanitizedName);
+
+        // Guardar con el nombre original sanitizado
+        $path = $file->storeAs($directory, $finalName, ['disk' => $disk]);
+
+        Log::info('[TemplateService] File stored with original name', [
+            'original_name' => $originalName,
+            'sanitized_name' => $sanitizedName,
+            'final_name' => $finalName,
             'directory' => $directory,
             'disk' => $disk,
             'stored_path' => $path,
@@ -229,6 +305,68 @@ class TemplateService
         ]);
 
         return $path;
+    }
+
+    /**
+     * Sanitiza el nombre del archivo para evitar problemas de seguridad
+     * Mantiene el nombre legible pero elimina caracteres peligrosos
+     */
+    private function sanitizeFileName(string $fileName): string
+    {
+        // Obtener nombre y extensión
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
+
+        // Sanitizar el nombre: remover caracteres peligrosos, normalizar espacios
+        $sanitized = preg_replace('/[^a-zA-Z0-9._\-\s]/', '', $name);
+        $sanitized = preg_replace('/\s+/', '_', trim($sanitized));
+
+        // Si quedó vacío, usar un nombre por defecto
+        if (empty($sanitized)) {
+            $sanitized = 'file';
+        }
+
+        // Reconstruir con la extensión
+        return $extension ? "{$sanitized}.{$extension}" : $sanitized;
+    }
+
+    /**
+     * Asegura que el nombre del archivo sea único en el directorio
+     * Si existe, agrega un sufijo numérico
+     * 
+     * @param mixed $storage Instancia de Storage disk
+     * @param string $directory Directorio donde se guardará
+     * @param string $fileName Nombre del archivo a verificar
+     * @return string Nombre único del archivo
+     */
+    private function ensureUniqueFileName($storage, string $directory, string $fileName): string
+    {
+        $path = $directory . '/' . $fileName;
+
+        if (!$storage->exists($path)) {
+            return $fileName;
+        }
+
+        // Si existe, agregar sufijo numérico
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
+
+        $counter = 1;
+        do {
+            $newFileName = $extension
+                ? "{$name}_{$counter}.{$extension}"
+                : "{$name}_{$counter}";
+            $path = $directory . '/' . $newFileName;
+            $counter++;
+        } while ($storage->exists($path) && $counter < 1000);
+
+        Log::info('[TemplateService] Generated unique file name', [
+            'original' => $fileName,
+            'unique' => $newFileName,
+            'counter' => $counter - 1,
+        ]);
+
+        return $newFileName;
     }
 
     private function deleteFile(?string $path, string $disk): void

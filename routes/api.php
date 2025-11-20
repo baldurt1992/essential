@@ -66,6 +66,7 @@ Route::post('/checkout/purchase', PurchaseCheckoutController::class)->name('chec
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
     // Ruta POST adicional para actualizar templates con archivos (method spoofing)
     Route::post('templates/{template}', [TemplateController::class, 'update'])->name('templates.update-post');
+    Route::delete('templates/{template}/package-file', [TemplateController::class, 'deletePackageFile'])->name('templates.delete-package-file');
     Route::apiResource('templates', TemplateController::class);
     Route::apiResource('plans', PlanController::class);
     Route::apiResource('services', ServiceController::class);

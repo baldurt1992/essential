@@ -27,6 +27,19 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->ensureStorageSymlink();
+        $this->configurePhpLimits();
+    }
+
+    private function configurePhpLimits(): void
+    {
+        // Configurar límites de PHP para archivos grandes (solo en local)
+        // NOTA: upload_max_filesize y post_max_size son PHP_INI_SYSTEM y no se pueden cambiar en runtime
+        // Estos deben configurarse en php.ini, .htaccess o .user.ini
+        if (app()->environment('local')) {
+            @ini_set('max_execution_time', '600');
+            @ini_set('max_input_time', '600');
+            @ini_set('memory_limit', '256M');
+        }
     }
 
     private function ensureStorageSymlink(): void
