@@ -652,13 +652,27 @@ body.dark-mode .admin-table__slug {
 }
 
 body.dark-mode .p-paginator {
-    background: rgba(23, 23, 23, 0.95) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(40, 40, 40, 0.95) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-mode .p-paginator * {
+    color: #ffffff !important;
 }
 
 body.dark-mode .p-paginator button {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+body.dark-mode .p-paginator button svg,
+body.dark-mode .p-paginator button .p-icon {
+    color: #ffffff !important;
+}
+
+body.dark-mode .p-paginator button svg path {
+    fill: #ffffff !important;
 }
 
 body.dark-mode .p-paginator button:hover:not(.p-disabled) {
@@ -666,12 +680,40 @@ body.dark-mode .p-paginator button:hover:not(.p-disabled) {
     color: #ffffff !important;
 }
 
+body.dark-mode .p-paginator button:hover:not(.p-disabled) svg path {
+    fill: #ffffff !important;
+}
+
 body.dark-mode .p-paginator button.p-disabled {
     color: rgba(255, 255, 255, 0.3) !important;
+    opacity: 0.5 !important;
+}
+
+body.dark-mode .p-paginator button.p-disabled svg path {
+    fill: rgba(255, 255, 255, 0.3) !important;
 }
 
 body.dark-mode .p-paginator .p-paginator-current {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .p-paginator .p-paginator-page {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+body.dark-mode .p-paginator .p-paginator-page:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .p-paginator .p-paginator-page-selected {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .p-paginator span {
+    color: #ffffff !important;
 }
 
 /* Botones de íconos del admin en dark mode */
