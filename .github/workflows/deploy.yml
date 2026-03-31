@@ -1,7 +1,13 @@
-# Despliegue vía Plesk: el repo no tiene .git en httpdocs; Git y deploy corren en el servidor
-# (bare + deploy.sh / hook de Plesk). Aquí solo comprobamos que el front compila y disparamos el webhook.
+# 1) Build de Vite en CI (mismo commit que el push).
+# 2) Webhook Plesk: en el servidor hace pull bare → httpdocs, composer, migrate, deploy.sh (sin depender de .git en CI).
+# 3) rsync: sube public/build del runner al servidor para que coincida EXACTAMENTE con el build del SHA del workflow.
+#    Va DESPUÉS del webhook por si deploy.sh corre npm run build allí — el rsync deja los chunks de GitHub al final.
 #
-# Secreto: PLESK_WEBHOOK_URL (URL del webhook Git en Plesk para este repositorio).
+# Secretos:
+#   PLESK_WEBHOOK_URL
+#   DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH, DEPLOY_SSH_KNOWN_HOSTS
+#   DEPLOY_SSH_PRIVATE_KEY (modo clave, por defecto) O variable DEPLOY_SSH_AUTH=password + secreto DEPLOY_SSH_PASSWORD
+# Opcional: DEPLOY_PORT (default 22)
 
 name: Deploy
 
@@ -21,6 +27,9 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      DEPLOY_SSH_AUTH: ${{ vars.DEPLOY_SSH_AUTH }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,7 +40,7 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install & build frontend (verify)
+      - name: Install & build frontend
         run: |
           npm ci
           npm run build
@@ -41,7 +50,7 @@ jobs:
           WEBHOOK_URL: ${{ secrets.PLESK_WEBHOOK_URL }}
         run: |
           if [ -z "${WEBHOOK_URL:-}" ]; then
-            echo "::error::Falta el secreto PLESK_WEBHOOK_URL en Settings → Secrets and variables → Actions"
+            echo "::error::Falta el secreto PLESK_WEBHOOK_URL"
             exit 1
           fi
           echo "Disparando webhook Plesk..."
@@ -54,4 +63,52 @@ jobs:
           cat /tmp/webhook_body.txt
           if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
             exit 1
+          fi
+
+      - name: Start SSH agent (rsync — modo clave)
+        if: ${{ vars.DEPLOY_SSH_AUTH != 'password' }}
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Instalar sshpass (rsync — modo contraseña)
+        if: ${{ vars.DEPLOY_SSH_AUTH == 'password' }}
+        run: sudo apt-get update -qq && sudo apt-get install -y sshpass
+
+      - name: Configure known_hosts (rsync)
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Rsync public/build al servidor
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
+        run: |
+          for v in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH; do
+            eval "x=\$$v"
+            if [ -z "${x:-}" ]; then
+              echo "::error::Falta secreto $v para rsync"
+              exit 1
+            fi
+          done
+          PORT="${DEPLOY_PORT:-22}"
+          echo "Rsync public/build/ → ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
+            if [ -z "${SSHPASS:-}" ]; then
+              echo "::error::Modo password: falta DEPLOY_SSH_PASSWORD y variable DEPLOY_SSH_AUTH=password en Actions → Variables"
+              exit 1
+            fi
+            sshpass -e rsync -avz --delete \
+              -e "ssh -p $PORT -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no" \
+              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          else
+            rsync -avz --delete \
+              -e "ssh -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
           fi
