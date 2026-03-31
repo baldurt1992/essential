@@ -1,21 +1,18 @@
-# Despliegue: build en CI → SSH/rsync al servidor → Git + composer + artisan.
+# Despliegue — elige modo con variable de repositorio DEPLOY_USE_WEBHOOK (Actions → Variables):
 #
-# Autenticación SSH (elige una):
+# ■ WEBHOOK (recomendado si ya tienes Plesk + deploy.sh con rutas bare bien puestas)
+#   Variable: DEPLOY_USE_WEBHOOK = true
+#   Secreto: PLESK_WEBHOOK_URL (URL del webhook de Git en Plesk).
+#   El CI solo verifica `npm run build` y hace POST al webhook: en el servidor Plesk ejecuta
+#   pull/deploy (lo que configuraste allí). NO usa rsync ni DEPLOY_BARE_REPO en GitHub.
 #
-# A) CLAVE (recomendado)
-#    Variable DEPLOY_SSH_AUTH sin poner o distinta de "password".
-#    Secretos: DEPLOY_SSH_PRIVATE_KEY + DEPLOY_SSH_KNOWN_HOSTS + DEPLOY_* (ver abajo).
-#    La privada puede generarse donde quieras (PC o servidor); la pública va en authorized_keys
-#    del usuario SSH. Tu PC no es obligatoria: solo sirve para probar "ssh -i ...".
-#
-# B) CONTRASEÑA
-#    Repository variable: DEPLOY_SSH_AUTH = password
-#    Secreto: DEPLOY_SSH_PASSWORD (la del usuario SSH en el servidor).
-#    El servidor debe tener PasswordAuthentication habilitado para SSH.
-#    No hace falta DEPLOY_SSH_PRIVATE_KEY.
-#
-# Secretos obligatorios (ambos modos): DEPLOY_SSH_KNOWN_HOSTS, DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH
-# Opcionales: DEPLOY_PORT, DEPLOY_BARE_REPO
+# ■ SSH + RSYNC (assets generados en GitHub subidos al server)
+#   Variable: DEPLOY_USE_WEBHOOK distinta de true (o sin definir)
+#   Secretos: DEPLOY_SSH_KNOWN_HOSTS, DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH
+#   Modo clave: DEPLOY_SSH_PRIVATE_KEY (variable DEPLOY_SSH_AUTH ≠ password)
+#   Modo contraseña: variable DEPLOY_SSH_AUTH = password + secreto DEPLOY_SSH_PASSWORD
+#   DEPLOY_BARE_REPO: SOLO si en el server existe esa carpeta .git bare. Si httpdocs tiene .git,
+#   BORRA el secreto DEPLOY_BARE_REPO en GitHub (vacío = clone en DEPLOY_PATH).
 
 name: Deploy
 
@@ -58,17 +55,39 @@ jobs:
           npm ci
           npm run build
 
-      - name: Start SSH agent (solo modo clave)
-        if: ${{ vars.DEPLOY_SSH_AUTH != 'password' }}
+      - name: Trigger Plesk webhook
+        if: ${{ vars.DEPLOY_USE_WEBHOOK == 'true' }}
+        env:
+          WEBHOOK_URL: ${{ secrets.PLESK_WEBHOOK_URL }}
+        run: |
+          if [ -z "${WEBHOOK_URL:-}" ]; then
+            echo "Falta el secreto PLESK_WEBHOOK_URL"
+            exit 1
+          fi
+          echo "Disparando webhook Plesk..."
+          HTTP_CODE=$(curl -sS -o /tmp/webhook_body.txt -w "%{http_code}" \
+            -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: push" \
+            --max-time 120)
+          echo "HTTP $HTTP_CODE"
+          cat /tmp/webhook_body.txt
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            exit 1
+          fi
+
+      - name: Start SSH agent (solo modo clave, sin webhook)
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' && vars.DEPLOY_SSH_AUTH != 'password' }}
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
 
-      - name: Instalar sshpass (solo modo contraseña)
-        if: ${{ vars.DEPLOY_SSH_AUTH == 'password' }}
+      - name: Instalar sshpass (solo modo contraseña, sin webhook)
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' && vars.DEPLOY_SSH_AUTH == 'password' }}
         run: sudo apt-get update -qq && sudo apt-get install -y sshpass
 
       - name: Configure known_hosts
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -76,6 +95,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
       - name: PHASE 1 — Git sync on server
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -103,6 +123,7 @@ jobs:
           EOF
 
       - name: Rsync public/build to server
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -122,6 +143,7 @@ jobs:
           fi
 
       - name: PHASE 2 — Composer, migrate, cache, queue
+        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}

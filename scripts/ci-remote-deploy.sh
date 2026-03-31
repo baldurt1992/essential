@@ -8,7 +8,10 @@ log() { printf '[ci-remote] %s\n' "$*"; }
 PHASE="${PHASE:?}"
 DEPLOY_PATH="${DEPLOY_PATH:?}"
 TARGET_SHA="${TARGET_SHA:?}"
+# Vacío o solo espacios = modo clone (httpdocs con .git). No pongas DEPLOY_BARE_REPO en GitHub si no usas bare real.
 DEPLOY_BARE_REPO="${DEPLOY_BARE_REPO:-}"
+DEPLOY_BARE_REPO="${DEPLOY_BARE_REPO#"${DEPLOY_BARE_REPO%%[![:space:]]*}"}"
+DEPLOY_BARE_REPO="${DEPLOY_BARE_REPO%"${DEPLOY_BARE_REPO##*[![:space:]]}"}"
 
 cd "$DEPLOY_PATH"
 rm -f public/hot
