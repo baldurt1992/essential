@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Comprueba que el front compila. Los archivos en public/build los genera Plesk tras git pull.
+      # Comprueba que el front compila. public/build no se versiona; el servidor lo genera con npm run build.
       - name: Build assets (verify)
         run: npm run build
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Despliegue en Plesk: sincroniza Git con httpdocs y reconstruye backend + frontend.
+# public/build no debe estar en Git: un pull/checkout restauraría chunks viejos y pisaría Vite.
 # Ajusta BARE_REPO si tu ruta real del bare diffiere (Panel → Git → ruta del repositorio).
 
 set -euo pipefail
@@ -45,6 +46,13 @@ npm ci
 
 log "npm run build"
 npm run build
+
+primary_js=$(ls -1 public/build/assets/app-*.js 2>/dev/null | head -1 || true)
+if [ -n "$primary_js" ]; then
+  log "Chunk JS principal en disco: $primary_js"
+else
+  log "WARN: no hay public/build/assets/app-*.js tras el build"
+fi
 
 log "migrate + optimize:clear"
 php artisan migrate --force
