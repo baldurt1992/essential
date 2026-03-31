@@ -8,6 +8,9 @@
 #   DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH, DEPLOY_SSH_KNOWN_HOSTS
 #   DEPLOY_SSH_PRIVATE_KEY (modo clave, por defecto) O variable DEPLOY_SSH_AUTH=password + secreto DEPLOY_SSH_PASSWORD
 # Opcional: DEPLOY_PORT (default 22)
+#
+# DEPLOY_PATH debe ser la raíz del Laravel (donde están artisan y public/), la MISMA que usa el dominio en Plesk.
+# Tras rsync, view:clear evita HTML cacheado con hashes viejos de @vite.
 
 name: Deploy
 
@@ -111,4 +114,24 @@ jobs:
             rsync -avz --delete \
               -e "ssh -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
               public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          fi
+
+      - name: Laravel view:clear en servidor (relee manifest tras rsync)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          RPATH=$(printf '%q' "$DEPLOY_PATH")
+          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
+            sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              "cd $RPATH && php artisan view:clear && echo '--- public/build/assets app chunks:' && ls -1 public/build/assets/app-*.js 2>/dev/null | head -5"
+          else
+            ssh -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              "cd $RPATH && php artisan view:clear && echo '--- public/build/assets app chunks:' && ls -1 public/build/assets/app-*.js 2>/dev/null | head -5"
           fi
