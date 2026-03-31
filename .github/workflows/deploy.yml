@@ -1,17 +1,39 @@
-name: Deploy to Plesk
+# Despliegue: build de Vite en CI, rsync de public/build, Git + Composer + Artisan en el servidor.
+#
+# --- Secretos obligatorios en GitHub (Settings → Secrets and variables → Actions → New repository secret) ---
+# Nombre exacto (mayúsculas) | Qué poner
+# DEPLOY_SSH_PRIVATE_KEY      | Clave privada OpenSSH completa (PEM), la que empieza por -----BEGIN ... PRIVATE KEY-----
+# DEPLOY_SSH_KNOWN_HOSTS      | Salida de: ssh-keyscan -p PUERTO HOST  (ej. ssh-keyscan -p 22 217.154.100.40)
+# DEPLOY_HOST                 | IP o dominio del servidor (ej. 217.154.100.40)
+# DEPLOY_USER                 | Usuario SSH (ej. web.essentialinnovat_9fgtkx81hqs)
+# DEPLOY_PATH                 | Ruta absoluta del Laravel en el servidor (ej. /var/www/vhosts/web.essentialinnovation.es/httpdocs)
+#
+# --- Opcionales ---
+# DEPLOY_PORT                 | Puerto SSH; si NO creas el secreto, el workflow usa 22
+# DEPLOY_BARE_REPO            | Ruta al repo bare de Pleskgit; si NO creas el secreto o lo dejas vacío, se asume clone con .git dentro de DEPLOY_PATH
+#
+# Clave SSH: en tu PC `ssh-keygen -t ed25519 -f deploy_ci -N ""` → pega deploy_ci.pub en el servidor en ~/.ssh/authorized_keys del DEPLOY_USER; el contenido de deploy_ci va en DEPLOY_SSH_PRIVATE_KEY.
+# Nada de contraseñas en el repo: solo secretos de GitHub.
+
+name: Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      run_db_seed_class:
+        description: "Clase seeder FQN (vacío = no). Ej. Database\\Seeders\\ProductionSeeder"
+        required: false
+        default: ""
 
-# Un solo job activo a la vez sobre main.
 concurrency:
   group: deploy-main-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,29 +48,77 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
-
-      # Comprueba que el front compila. public/build no se versiona; el servidor lo genera con npm run build.
-      - name: Build assets (verify)
-        run: npm run build
-
-      - name: Trigger Plesk webhook
+      - name: Install & build frontend
         run: |
-          echo "Triggering Plesk webhook..."
-          HTTP_CODE=$(curl -s -o /tmp/webhook_response.txt -w "%{http_code}" \
-            -X POST "${{ secrets.PLESK_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -H "X-GitHub-Event: push" \
-            --max-time 30)
+          npm ci
+          npm run build
 
-          echo "Webhook response code: $HTTP_CODE"
-          echo "Webhook response body:"
-          cat /tmp/webhook_response.txt
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
 
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            echo "Webhook triggered successfully"
-          else
-            echo "Warning: Webhook returned non-2xx status code: $HTTP_CODE"
-            exit 1
-          fi
+      - name: Configure known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: PHASE 1 — Git sync on server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_BARE_REPO: ${{ secrets.DEPLOY_BARE_REPO }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
+          ssh -p "$PORT" -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
+          set -euo pipefail
+          echo '${SCRIPT_B64}' | base64 -d | env \
+            PHASE=1 \
+            DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") \
+            TARGET_SHA=$(printf '%q' "$TARGET_SHA") \
+            DEPLOY_BARE_REPO=$(printf '%q' "$DEPLOY_BARE_REPO") \
+            bash
+          EOF
+
+      - name: Rsync public/build to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          rsync -avz --delete \
+            -e "ssh -p $PORT -o IdentitiesOnly=yes" \
+            public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+
+      - name: PHASE 2 — Composer, migrate, cache, queue
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_BARE_REPO: ${{ secrets.DEPLOY_BARE_REPO }}
+          TARGET_SHA: ${{ github.sha }}
+          SKIP_NPM_BUILD: "1"
+          RUN_DB_SEED_CLASS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_db_seed_class || '' }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
+          ssh -p "$PORT" -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
+          set -euo pipefail
+          echo '${SCRIPT_B64}' | base64 -d | env \
+            PHASE=2 \
+            DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") \
+            TARGET_SHA=$(printf '%q' "$TARGET_SHA") \
+            DEPLOY_BARE_REPO=$(printf '%q' "$DEPLOY_BARE_REPO") \
+            SKIP_NPM_BUILD=$(printf '%q' "$SKIP_NPM_BUILD") \
+            RUN_DB_SEED_CLASS=$(printf '%q' "$RUN_DB_SEED_CLASS") \
+            bash
+          EOF
