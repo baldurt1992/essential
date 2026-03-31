@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# Evita dos builds en paralelo pisándose el push del commit de assets en main.
+concurrency:
+  group: deploy-main-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -50,7 +55,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f public/build
+          # --force: public/build está en .gitignore; --all: altas, bajas y cambios (hashes viejos que borra Vite).
+          git add --force --all public/build
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
