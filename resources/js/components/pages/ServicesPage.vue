@@ -34,8 +34,9 @@
     import ServicesContactForm from '../services/forms/ServicesContactForm.vue';
     import ServicesGallery from '../services/ui/ServicesGallery.vue';
     import { useServicesPage } from '@/composables/useServicesPage';
+    import { useServicesHero } from '@/composables/useServicesHero';
 
-    const videoSrc = '/videos/main-home-video-2.mp4';
+    const { videoSrc, loadHeroVideo } = useServicesHero();
 
     const {
         services,
@@ -48,7 +49,7 @@
     } = useServicesPage();
 
     onMounted(async () => {
-        await fetchServices('all');
+        await Promise.all([fetchServices('all'), loadHeroVideo()]);
     });
 </script>
 

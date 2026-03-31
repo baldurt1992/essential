@@ -172,6 +172,7 @@
         { label: 'Planes', name: 'admin.plans', icon: 'pi-briefcase' },
         { label: 'Suscripciones', name: 'admin.subscriptions', icon: 'pi-id-card' },
         { label: 'Servicios', name: 'admin.services', icon: 'pi-list' },
+        { label: 'Cabecera servicios', name: 'admin.servicesHero', icon: 'pi-video' },
         { label: 'Contacto', name: 'admin.contact', icon: 'pi-envelope' },
     ]));
 

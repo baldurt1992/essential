@@ -13,6 +13,7 @@ import AdminPlansPage from '../components/admin/pages/AdminPlansPage.vue';
 import AdminSubscriptionsPage from '../components/admin/pages/AdminSubscriptionsPage.vue';
 import AdminServicesPage from '../components/admin/pages/AdminServicesPage.vue';
 import AdminContactSettingsPage from '../components/admin/pages/AdminContactSettingsPage.vue';
+import AdminServicesHeroPage from '../components/admin/pages/AdminServicesHeroPage.vue';
 import ClientLayout from '../components/client/ClientLayout.vue';
 import ClientDashboardPage from '../components/client/pages/ClientDashboardPage.vue';
 import ClientSubscriptionsPage from '../components/client/pages/ClientSubscriptionsPage.vue';
@@ -93,6 +94,11 @@ const router = createRouter({
                     path: 'services',
                     name: 'admin.services',
                     component: AdminServicesPage,
+                },
+                {
+                    path: 'services-hero',
+                    name: 'admin.servicesHero',
+                    component: AdminServicesHeroPage,
                 },
                 {
                     path: 'contact',

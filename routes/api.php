@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\ContactInformationController;
 use App\Http\Controllers\Site\ContactInformationController as SiteContactInformationController;
+use App\Http\Controllers\Admin\ServicesHeroSettingController as AdminServicesHeroSettingController;
+use App\Http\Controllers\Site\ServicesHeroSettingController;
 use App\Http\Controllers\Site\ServiceController as SiteServiceController;
 use App\Http\Controllers\Site\ContactMessageController;
 use App\Http\Controllers\Site\PlanController as SitePlanController;
@@ -38,6 +40,7 @@ Route::get('/contact-information', [SiteContactInformationController::class, 'sh
 Route::get('/plans', [SitePlanController::class, 'index'])->name('plans.index');
 Route::post('/contact-messages', [ContactMessageController::class, 'store'])->name('contact-messages.store');
 Route::get('/services', [SiteServiceController::class, 'index'])->name('services.index');
+Route::get('/services-hero', [ServicesHeroSettingController::class, 'show'])->name('services-hero.show');
 
 // Verificar estado de verificación de email (público)
 Route::post('/check-email-verification', function (Request $request) {
@@ -75,6 +78,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->name('admin.
     Route::post('subscriptions/{subscription}/reactivate', [SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
     Route::get('contact-information', [ContactInformationController::class, 'show'])->name('contact-information.show');
     Route::put('contact-information', [ContactInformationController::class, 'update'])->name('contact-information.update');
+    Route::get('services-hero', [AdminServicesHeroSettingController::class, 'show'])->name('services-hero.show');
+    Route::post('services-hero/video', [AdminServicesHeroSettingController::class, 'updateVideo'])->name('services-hero.video');
 });
 
 Route::middleware(['auth:sanctum', 'role:client'])->group(function (): void {
