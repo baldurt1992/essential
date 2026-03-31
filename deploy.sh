@@ -38,11 +38,32 @@ cd "$WORK_TREE"
 
 rm -f public/hot
 
+# Si este sha256 no coincide con tu máquina en el mismo commit, el checkout no está escribiendo en este árbol
+# (otra ruta, permisos, caché de FS). Referencia main@8cb5a9c: ServicesPage.vue = fcbeedba57fda11d...
+SP="$WORK_TREE/resources/js/components/pages/ServicesPage.vue"
+if [ -f "$SP" ]; then
+  log "sha256 ServicesPage.vue: $(sha256sum "$SP" | awk '{print $1}')"
+fi
+
+if [ -d "${WORK_TREE}/.git" ]; then
+  if ! git -C "$WORK_TREE" diff-files --quiet -- resources/js resources/css vite.config.js 2>/dev/null; then
+    log "WARN: archivos fuente distintos al índice Git (resources/js|css o vite.config):"
+    git -C "$WORK_TREE" diff-files --stat -- resources/js resources/css vite.config.js | head -20 || true
+  fi
+else
+  if ! git --git-dir="$BARE_REPO" --work-tree="$WORK_TREE" diff-files --quiet -- resources/js resources/css vite.config.js 2>/dev/null; then
+    log "WARN: archivos fuente distintos al índice Git (resources/js|css o vite.config):"
+    git --git-dir="$BARE_REPO" --work-tree="$WORK_TREE" diff-files --stat -- resources/js resources/css vite.config.js | head -20 || true
+  fi
+fi
+
 log "composer install"
 composer install --no-dev --optimize-autoloader --no-interaction
 
 log "npm ci"
 npm ci
+
+rm -rf "$WORK_TREE/node_modules/.vite"
 
 log "npm run build"
 npm run build
