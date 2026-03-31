@@ -1,19 +1,21 @@
-# Despliegue: build de Vite en CI, rsync de public/build, Git + Composer + Artisan en el servidor.
+# Despliegue: build en CI → SSH/rsync al servidor → Git + composer + artisan.
 #
-# --- Secretos obligatorios en GitHub (Settings → Secrets and variables → Actions → New repository secret) ---
-# Nombre exacto (mayúsculas) | Qué poner
-# DEPLOY_SSH_PRIVATE_KEY      | Clave privada OpenSSH completa (PEM), la que empieza por -----BEGIN ... PRIVATE KEY-----
-# DEPLOY_SSH_KNOWN_HOSTS      | Salida de: ssh-keyscan -p PUERTO HOST  (ej. ssh-keyscan -p 22 217.154.100.40)
-# DEPLOY_HOST                 | IP o dominio del servidor (ej. 217.154.100.40)
-# DEPLOY_USER                 | Usuario SSH (ej. web.essentialinnovat_9fgtkx81hqs)
-# DEPLOY_PATH                 | Ruta absoluta del Laravel en el servidor (ej. /var/www/vhosts/web.essentialinnovation.es/httpdocs)
+# Autenticación SSH (elige una):
 #
-# --- Opcionales ---
-# DEPLOY_PORT                 | Puerto SSH; si NO creas el secreto, el workflow usa 22
-# DEPLOY_BARE_REPO            | Ruta al repo bare de Pleskgit; si NO creas el secreto o lo dejas vacío, se asume clone con .git dentro de DEPLOY_PATH
+# A) CLAVE (recomendado)
+#    Variable DEPLOY_SSH_AUTH sin poner o distinta de "password".
+#    Secretos: DEPLOY_SSH_PRIVATE_KEY + DEPLOY_SSH_KNOWN_HOSTS + DEPLOY_* (ver abajo).
+#    La privada puede generarse donde quieras (PC o servidor); la pública va en authorized_keys
+#    del usuario SSH. Tu PC no es obligatoria: solo sirve para probar "ssh -i ...".
 #
-# Clave SSH: en tu PC `ssh-keygen -t ed25519 -f deploy_ci -N ""` → pega deploy_ci.pub en el servidor en ~/.ssh/authorized_keys del DEPLOY_USER; el contenido de deploy_ci va en DEPLOY_SSH_PRIVATE_KEY.
-# Nada de contraseñas en el repo: solo secretos de GitHub.
+# B) CONTRASEÑA
+#    Repository variable: DEPLOY_SSH_AUTH = password
+#    Secreto: DEPLOY_SSH_PASSWORD (la del usuario SSH en el servidor).
+#    El servidor debe tener PasswordAuthentication habilitado para SSH.
+#    No hace falta DEPLOY_SSH_PRIVATE_KEY.
+#
+# Secretos obligatorios (ambos modos): DEPLOY_SSH_KNOWN_HOSTS, DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH
+# Opcionales: DEPLOY_PORT, DEPLOY_BARE_REPO
 
 name: Deploy
 
@@ -38,6 +40,9 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      DEPLOY_SSH_AUTH: ${{ vars.DEPLOY_SSH_AUTH }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,10 +58,15 @@ jobs:
           npm ci
           npm run build
 
-      - name: Start SSH agent
+      - name: Start SSH agent (solo modo clave)
+        if: ${{ vars.DEPLOY_SSH_AUTH != 'password' }}
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Instalar sshpass (solo modo contraseña)
+        if: ${{ vars.DEPLOY_SSH_AUTH == 'password' }}
+        run: sudo apt-get update -qq && sudo apt-get install -y sshpass
 
       - name: Configure known_hosts
         run: |
@@ -73,10 +83,16 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DEPLOY_BARE_REPO: ${{ secrets.DEPLOY_BARE_REPO }}
           TARGET_SHA: ${{ github.sha }}
+          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
         run: |
           PORT="${DEPLOY_PORT:-22}"
           SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
-          ssh -p "$PORT" -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
+          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
+            SSH_BIN=(sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no)
+          else
+            SSH_BIN=(ssh -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+          fi
+          "${SSH_BIN[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
           set -euo pipefail
           echo '${SCRIPT_B64}' | base64 -d | env \
             PHASE=1 \
@@ -92,11 +108,18 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
         run: |
           PORT="${DEPLOY_PORT:-22}"
-          rsync -avz --delete \
-            -e "ssh -p $PORT -o IdentitiesOnly=yes" \
-            public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
+            sshpass -e rsync -avz --delete \
+              -e "ssh -p $PORT -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no" \
+              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          else
+            rsync -avz --delete \
+              -e "ssh -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
+          fi
 
       - name: PHASE 2 — Composer, migrate, cache, queue
         env:
@@ -108,10 +131,16 @@ jobs:
           TARGET_SHA: ${{ github.sha }}
           SKIP_NPM_BUILD: "1"
           RUN_DB_SEED_CLASS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_db_seed_class || '' }}
+          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
         run: |
           PORT="${DEPLOY_PORT:-22}"
           SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
-          ssh -p "$PORT" -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
+          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
+            SSH_BIN=(sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no)
+          else
+            SSH_BIN=(ssh -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+          fi
+          "${SSH_BIN[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
           set -euo pipefail
           echo '${SCRIPT_B64}' | base64 -d | env \
             PHASE=2 \
