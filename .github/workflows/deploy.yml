@@ -5,7 +5,7 @@ on:
     branches:
       - main
 
-# Evita dos builds en paralelo pisándose el push del commit de assets en main.
+# Un solo job activo a la vez sobre main.
 concurrency:
   group: deploy-main-${{ github.repository }}
   cancel-in-progress: false
@@ -14,58 +14,26 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Evitar ejecución si el commit es del bot (para evitar loops infinitos)
-      - name: Check if commit is from bot
-        id: check_bot
-        run: |
-          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
-          if [[ "$COMMIT_AUTHOR" == "github-actions[bot]" ]]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "Commit is from bot, skipping workflow"
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-            echo "Commit is from user, proceeding with build"
-          fi
 
       - name: Setup Node.js
-        if: steps.check_bot.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
-        if: steps.check_bot.outputs.skip != 'true'
         run: npm ci
 
-      - name: Build assets
-        if: steps.check_bot.outputs.skip != 'true'
+      # Comprueba que el front compila. Los archivos en public/build los genera Plesk tras git pull.
+      - name: Build assets (verify)
         run: npm run build
 
-      - name: Commit built assets
-        if: steps.check_bot.outputs.skip != 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # --force: public/build está en .gitignore; --all: altas, bajas y cambios (hashes viejos que borra Vite).
-          git add --force --all public/build
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Build assets for production [skip ci]"
-            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
-          fi
-
       - name: Trigger Plesk webhook
-        if: steps.check_bot.outputs.skip != 'true'
         run: |
           echo "Triggering Plesk webhook..."
           HTTP_CODE=$(curl -s -o /tmp/webhook_response.txt -w "%{http_code}" \
