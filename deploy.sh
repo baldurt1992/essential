@@ -28,10 +28,10 @@ else
     exit 1
   fi
   log "Modo: bare repo Plesk -> httpdocs"
-  export GIT_DIR="$BARE_REPO"
-  export GIT_WORK_TREE="$WORK_TREE"
-  git pull origin "$BRANCH"
-  unset GIT_DIR GIT_WORK_TREE
+  # git pull en bare actualiza refs; NO rellena el work tree. Sin checkout, httpdocs queda stale.
+  git --git-dir="$BARE_REPO" fetch origin "refs/heads/${BRANCH}:refs/heads/${BRANCH}"
+  git --git-dir="$BARE_REPO" --work-tree="$WORK_TREE" checkout -f "$BRANCH"
+  log "httpdocs sincronizado con commit: $(git --git-dir="$BARE_REPO" --work-tree="$WORK_TREE" rev-parse HEAD)"
 fi
 
 cd "$WORK_TREE"
@@ -61,5 +61,5 @@ php artisan optimize:clear
 if [ -d "${WORK_TREE}/.git" ]; then
   log "Listo. HEAD httpdocs: $(cd "$WORK_TREE" && git rev-parse HEAD)"
 else
-  log "Listo. $BRANCH en bare: $(git --git-dir="$BARE_REPO" rev-parse "$BRANCH")"
+  log "Listo. httpdocs HEAD: $(git --git-dir="$BARE_REPO" --work-tree="$WORK_TREE" rev-parse HEAD) (bare refs/heads/$BRANCH alineado)"
 fi
