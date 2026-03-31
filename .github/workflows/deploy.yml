@@ -1,18 +1,7 @@
-# Despliegue — elige modo con variable de repositorio DEPLOY_USE_WEBHOOK (Actions → Variables):
+# Despliegue vía Plesk: el repo no tiene .git en httpdocs; Git y deploy corren en el servidor
+# (bare + deploy.sh / hook de Plesk). Aquí solo comprobamos que el front compila y disparamos el webhook.
 #
-# ■ WEBHOOK (recomendado si ya tienes Plesk + deploy.sh con rutas bare bien puestas)
-#   Variable: DEPLOY_USE_WEBHOOK = true
-#   Secreto: PLESK_WEBHOOK_URL (URL del webhook de Git en Plesk).
-#   El CI solo verifica `npm run build` y hace POST al webhook: en el servidor Plesk ejecuta
-#   pull/deploy (lo que configuraste allí). NO usa rsync ni DEPLOY_BARE_REPO en GitHub.
-#
-# ■ SSH + RSYNC (assets generados en GitHub subidos al server)
-#   Variable: DEPLOY_USE_WEBHOOK distinta de true (o sin definir)
-#   Secretos: DEPLOY_SSH_KNOWN_HOSTS, DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH
-#   Modo clave: DEPLOY_SSH_PRIVATE_KEY (variable DEPLOY_SSH_AUTH ≠ password)
-#   Modo contraseña: variable DEPLOY_SSH_AUTH = password + secreto DEPLOY_SSH_PASSWORD
-#   DEPLOY_BARE_REPO: SOLO si en el server existe esa carpeta .git bare. Si httpdocs tiene .git,
-#   BORRA el secreto DEPLOY_BARE_REPO en GitHub (vacío = clone en DEPLOY_PATH).
+# Secreto: PLESK_WEBHOOK_URL (URL del webhook Git en Plesk para este repositorio).
 
 name: Deploy
 
@@ -21,11 +10,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      run_db_seed_class:
-        description: "Clase seeder FQN (vacío = no). Ej. Database\\Seeders\\ProductionSeeder"
-        required: false
-        default: ""
 
 concurrency:
   group: deploy-main-${{ github.repository }}
@@ -37,9 +21,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      DEPLOY_SSH_AUTH: ${{ vars.DEPLOY_SSH_AUTH }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,18 +31,17 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install & build frontend
+      - name: Install & build frontend (verify)
         run: |
           npm ci
           npm run build
 
       - name: Trigger Plesk webhook
-        if: ${{ vars.DEPLOY_USE_WEBHOOK == 'true' }}
         env:
           WEBHOOK_URL: ${{ secrets.PLESK_WEBHOOK_URL }}
         run: |
           if [ -z "${WEBHOOK_URL:-}" ]; then
-            echo "Falta el secreto PLESK_WEBHOOK_URL"
+            echo "::error::Falta el secreto PLESK_WEBHOOK_URL en Settings → Secrets and variables → Actions"
             exit 1
           fi
           echo "Disparando webhook Plesk..."
@@ -69,107 +49,9 @@ jobs:
             -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -H "X-GitHub-Event: push" \
-            --max-time 120)
+            --max-time 180)
           echo "HTTP $HTTP_CODE"
           cat /tmp/webhook_body.txt
           if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
             exit 1
           fi
-
-      - name: Start SSH agent (solo modo clave, sin webhook)
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' && vars.DEPLOY_SSH_AUTH != 'password' }}
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-
-      - name: Instalar sshpass (solo modo contraseña, sin webhook)
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' && vars.DEPLOY_SSH_AUTH == 'password' }}
-        run: sudo apt-get update -qq && sudo apt-get install -y sshpass
-
-      - name: Configure known_hosts
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: PHASE 1 — Git sync on server
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DEPLOY_BARE_REPO: ${{ secrets.DEPLOY_BARE_REPO }}
-          TARGET_SHA: ${{ github.sha }}
-          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
-        run: |
-          PORT="${DEPLOY_PORT:-22}"
-          SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
-          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
-            SSH_BIN=(sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no)
-          else
-            SSH_BIN=(ssh -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
-          fi
-          "${SSH_BIN[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
-          set -euo pipefail
-          echo '${SCRIPT_B64}' | base64 -d | env \
-            PHASE=1 \
-            DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") \
-            TARGET_SHA=$(printf '%q' "$TARGET_SHA") \
-            DEPLOY_BARE_REPO=$(printf '%q' "$DEPLOY_BARE_REPO") \
-            bash
-          EOF
-
-      - name: Rsync public/build to server
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
-        run: |
-          PORT="${DEPLOY_PORT:-22}"
-          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
-            sshpass -e rsync -avz --delete \
-              -e "ssh -p $PORT -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no" \
-              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
-          else
-            rsync -avz --delete \
-              -e "ssh -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-              public/build/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/public/build/"
-          fi
-
-      - name: PHASE 2 — Composer, migrate, cache, queue
-        if: ${{ vars.DEPLOY_USE_WEBHOOK != 'true' }}
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DEPLOY_BARE_REPO: ${{ secrets.DEPLOY_BARE_REPO }}
-          TARGET_SHA: ${{ github.sha }}
-          SKIP_NPM_BUILD: "1"
-          RUN_DB_SEED_CLASS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_db_seed_class || '' }}
-          SSHPASS: ${{ secrets.DEPLOY_SSH_PASSWORD }}
-        run: |
-          PORT="${DEPLOY_PORT:-22}"
-          SCRIPT_B64=$(base64 -w0 < scripts/ci-remote-deploy.sh)
-          if [ "${DEPLOY_SSH_AUTH:-key}" = "password" ]; then
-            SSH_BIN=(sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no)
-          else
-            SSH_BIN=(ssh -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
-          fi
-          "${SSH_BIN[@]}" "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
-          set -euo pipefail
-          echo '${SCRIPT_B64}' | base64 -d | env \
-            PHASE=2 \
-            DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") \
-            TARGET_SHA=$(printf '%q' "$TARGET_SHA") \
-            DEPLOY_BARE_REPO=$(printf '%q' "$DEPLOY_BARE_REPO") \
-            SKIP_NPM_BUILD=$(printf '%q' "$SKIP_NPM_BUILD") \
-            RUN_DB_SEED_CLASS=$(printf '%q' "$RUN_DB_SEED_CLASS") \
-            bash
-          EOF
